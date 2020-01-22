@@ -57,7 +57,7 @@ zeebe:
             storageClassName: "ssd"
             resources:
                 requests:
-                storage: 300Gi
+                    storage: 300Gi
 
         esJavaOpts: "-Xmx4g -Xms4g"
 
