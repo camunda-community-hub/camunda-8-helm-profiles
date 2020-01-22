@@ -43,7 +43,7 @@ zeebe:
 
     pvcAccessMode: ["ReadWriteOnce"]
     pvcSize: 128Gi
-
+    #storageClassName: "ssd"        
 
     # ELASTIC
 
@@ -53,7 +53,7 @@ zeebe:
 
         volumeClaimTemplate:
             accessModes: [ "ReadWriteOnce" ]
-            storageClassName: "ssd"
+            #storageClassName: "ssd"
             resources:
                 requests:
                     storage: 100Gi
