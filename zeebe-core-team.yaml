@@ -43,7 +43,6 @@ zeebe:
 
     pvcAccessMode: ["ReadWriteOnce"]
     pvcSize: 128Gi
-    pvcStorageClassName: ssd
 
 
     # ELASTIC
@@ -57,7 +56,7 @@ zeebe:
             storageClassName: "ssd"
             resources:
                 requests:
-                    storage: 300Gi
+                    storage: 100Gi
 
         esJavaOpts: "-Xmx4g -Xms4g"
 
