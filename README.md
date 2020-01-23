@@ -9,3 +9,8 @@ You can install these profiles with:
 ```
 helm install <RELEASE NAME> zeebe/zeebe-full -v <PROFILE YAML FILE>
 ```
+example
+
+```
+helm install test-core zeebe/zeebe-full -v https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-core-team.yaml
+```
