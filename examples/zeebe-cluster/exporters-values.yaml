@@ -128,6 +128,7 @@ zeebeCfg: |-
   
   [[exporters]]
   id = "hazelcast"
+  jarPath = "/usr/local/zeebe/exporters/zeebe-hazelcast-exporter.jar"
   className = "io.zeebe.hazelcast.exporter.HazelcastExporter"
     [exporters.args]
     enabledValueTypes = "JOB,WORKFLOW_INSTANCE,DEPLOYMENT,INCIDENT,TIMER,VARIABLE,MESSAGE,MESSAGE_SUBSCRIPTION,MESSAGE_START_EVENT_SUBSCRIPTION"
@@ -135,6 +136,7 @@ zeebeCfg: |-
   
   [[exporters]]
   id = "kafka"
+  jarPath = "/usr/local/zeebe/exporters/zeebe-kafka-exporter.jar"
   className = "io.zeebe.exporters.kafka.KafkaExporter"
     [exporters.args]
     maxInFlightRecords = 1000
