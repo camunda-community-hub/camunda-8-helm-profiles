@@ -1,0 +1,40 @@
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  elasticsearch:
+    imageTag: 6.8.5 
+    replicas: 1
+    minimumMasterNodes: 1
+# Permit co-located instances for solitary minikube virtual machines.
+    antiAffinity: "soft"
+    labels: { "app" : "zeebe" }
+
+# Shrink default JVM heap.
+    esJavaOpts: "-Xmx128m -Xms128m"
+
+# Allocate smaller chunks of memory per pod.
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "512M"
+      limits:
+        cpu: "1000m"
+        memory: "512M"
+
+# Request smaller persistent volumes.
+    volumeClaimTemplate:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 100M
+  
+operate:
+  enabled: true
+
+tasklist:
+  enabled: true
+  
+zeeqs: 
+  enabled: true
