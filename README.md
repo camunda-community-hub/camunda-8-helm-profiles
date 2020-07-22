@@ -27,5 +27,5 @@ helm install test-core zeebe/zeebe-full -v https://raw.githubusercontent.com/zee
 You can install the Zeebe Full Helm Chart to include ZeeQS and TaskList
 
 ```
-helm install zeebe zeebe-jx/zeebe-full --set tasklist.enabled=true --set zeeqs.enabled=true
+helm install zeebe zeebe/zeebe-full --set tasklist.enabled=true --set zeeqs.enabled=true
 ```
