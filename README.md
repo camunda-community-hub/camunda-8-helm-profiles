@@ -13,13 +13,13 @@ helm install <RELEASE NAME> zeebe/zeebe-full -v <PROFILE YAML FILE>
 example
 
 ```
-helm install test-core zeebe/zeebe-full -v https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-core-team.yaml
+helm install test-core zeebe/zeebe-full --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-core-team.yaml
 ```
 
 Or the Dev Profile:
 
 ```
-helm install test-core zeebe/zeebe-full -v https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-dev-profile.yaml
+helm install test-core zeebe/zeebe-full --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-dev-profile.yaml
 ```
 
 ## Adding ZeeQS and TaskList
