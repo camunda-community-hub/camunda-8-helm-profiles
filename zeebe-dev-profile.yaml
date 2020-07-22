@@ -38,3 +38,6 @@ tasklist:
   
 zeeqs: 
   enabled: true
+  hazelcast:
+    cluster:
+      memberCount: 1
