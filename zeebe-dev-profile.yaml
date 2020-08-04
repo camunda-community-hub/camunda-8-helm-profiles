@@ -34,10 +34,10 @@ operate:
   enabled: true
 
 tasklist:
-  enabled: true
+  enabled: false
   
 zeeqs: 
-  enabled: true
+  enabled: false
   hazelcast:
     cluster:
       memberCount: 1
