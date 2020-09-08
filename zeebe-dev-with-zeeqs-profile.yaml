@@ -2,7 +2,7 @@ zeebe:
   clusterSize: 1
   partitionCount: 1
   replicationFactor: 1
-  extraInitContainers: |
+  extraInitContainers: |-
   - name: init-exporters-hazelcast
     image: busybox:1.28
     command: ['/bin/sh', '-c']
