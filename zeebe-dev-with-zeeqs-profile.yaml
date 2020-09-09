@@ -10,41 +10,11 @@ zeebe:
       volumeMounts:
       - name: exporters
         mountPath: /exporters/
-  zeebeCfg: |- 
-    [[exporters]]
-    id = "elasticsearch"
-    className = "io.zeebe.exporter.ElasticsearchExporter"
-      [exporters.args]
-      url = "http://elasticsearch-master:9200"
-      [exporters.args.bulk]
-      delay = 5
-      size = 1_000
-        #[exporters.args.authentication]
-        #username = elastic
-        #password = changeme
-      [exporters.args.index]
-      prefix = "zeebe-record"
-      createTemplate = true
-      command = false
-      event = true
-      rejection = false
-      deployment = true
-      incident = true
-      job = true
-      message = false
-      messageSubscription = false
-      raft = false
-      workflowInstance = true
-      workflowInstanceSubscription = false
-      
-    [[exporters]]
-    id = "hazelcast"
-    jarPath = "/usr/local/zeebe/exporters/zeebe-hazelcast-exporter.jar"
-    className = "io.zeebe.hazelcast.exporter.HazelcastExporter"
-      [exporters.args]
-      enabledValueTypes = "JOB,WORKFLOW_INSTANCE,DEPLOYMENT,INCIDENT,TIMER,VARIABLE,MESSAGE,MESSAGE_SUBSCRIPTION,MESSAGE_START_EVENT_SUBSCRIPTION"
-      updatePosition = false
-  
+  env:
+    ZEEBE_BROKER_EXPORTERS_HAZELCAST_JARPATH: exporters/zeebe-hazelcast-exporter.jar
+    ZEEBE_BROKER_EXPORTERS_HAZELCAST_CLASSNAME: io.zeebe.hazelcast.exporter.HazelcastExporter
+    ZEEBE_HAZELCAST_REMOTE_ADDRESS: "{{ .Release.Name }}-hazelcast"
+
   elasticsearch:
     imageTag: 6.8.5 
     replicas: 1
