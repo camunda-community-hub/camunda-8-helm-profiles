@@ -11,10 +11,13 @@ zeebe:
       - name: exporters
         mountPath: /exporters/
   env:
-    ZEEBE_BROKER_EXPORTERS_HAZELCAST_JARPATH: exporters/zeebe-hazelcast-exporter.jar
-    ZEEBE_BROKER_EXPORTERS_HAZELCAST_CLASSNAME: io.zeebe.hazelcast.exporter.HazelcastExporter
+    - name: ZEEBE_BROKER_EXPORTERS_HAZELCAST_JARPATH
+      value: exporters/zeebe-hazelcast-exporter.jar
+    - name: ZEEBE_BROKER_EXPORTERS_HAZELCAST_CLASSNAME
+      value: io.zeebe.hazelcast.exporter.HazelcastExporter
+    
+  envTemplated: 
     ZEEBE_HAZELCAST_REMOTE_ADDRESS: "{{ .Release.Name }}-hazelcast"
-
   elasticsearch:
     imageTag: 6.8.5 
     replicas: 1
