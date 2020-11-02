@@ -25,7 +25,6 @@ zeebe:
 # Request smaller persistent volumes.
     volumeClaimTemplate:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "standard"
       resources:
         requests:
           storage: 100M
