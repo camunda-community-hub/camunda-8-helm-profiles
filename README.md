@@ -13,13 +13,13 @@ helm install <RELEASE NAME> zeebe/zeebe-full -v <PROFILE YAML FILE>
 example
 
 ```
-helm install test-core zeebe/zeebe-full --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-core-team.yaml
+helm install test-core zeebe/zeebe-full-helm --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-core-team.yaml
 ```
 
 Or the Dev Profile:
 
 ```
-helm install test-core zeebe/zeebe-full --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-dev-profile.yaml
+helm install test-core zeebe/zeebe-full-helm --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-dev-profile.yaml
 ```
 
 ## Adding ZeeQS and TaskList
@@ -27,5 +27,5 @@ helm install test-core zeebe/zeebe-full --values https://raw.githubusercontent.c
 You can install the Zeebe Full Helm Chart to include ZeeQS and TaskList
 
 ```
-helm install zeebe zeebe/zeebe-full --set tasklist.enabled=true --set zeeqs.enabled=true
+helm install zeebe zeebe/zeebe-full-helm --set tasklist.enabled=true --set zeeqs.enabled=true
 ```
