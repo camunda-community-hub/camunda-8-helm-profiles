@@ -8,7 +8,7 @@ The current profiles for the Zeebe Full Helm Chart are:
 
 You can install these profiles with: 
 ```
-helm install <RELEASE NAME> zeebe/zeebe-full -v <PROFILE YAML FILE>
+helm install <RELEASE NAME> zeebe/zeebe-full-helm -v <PROFILE YAML FILE>
 ```
 example
 
