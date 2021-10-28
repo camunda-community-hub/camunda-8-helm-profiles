@@ -1,21 +1,16 @@
-zeebe-cluster-helm:
+zeebe-cluster-helm: 
   clusterSize: 1
   partitionCount: 1
   replicationFactor: 1
+
   elasticsearch:
-    imageTag: 6.8.5 
+    imageTag: 7.14.0
     replicas: 1
     minimumMasterNodes: 1
-# Permit co-located instances for solitary minikube virtual machines.
-    antiAffinity: "soft"
-    labels: { "app" : "zeebe" }
-# Allow no backup for single node setups
+    # Allow no backup for single node setups
     clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
 
-# Shrink default JVM heap.
-    esJavaOpts: "-Xmx128m -Xms128m"
-
-# Allocate smaller chunks of memory per pod.
+    # Allocate smaller chunks of memory per pod.
     resources:
       requests:
         cpu: "100m"
@@ -24,21 +19,13 @@ zeebe-cluster-helm:
         cpu: "1000m"
         memory: "512M"
 
-# Request smaller persistent volumes.
+    # Request smaller persistent volumes.
     volumeClaimTemplate:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
       resources:
         requests:
           storage: 100M
-  
-zeebe-operate-helm:
-  enabled: true
 
-zeebe-tasklist-helm:
-  enabled: false
-  
-zeebe-zeeqs-helm: 
-  enabled: false
-  hazelcast:
-    cluster:
-      memberCount: 1
+tasklist:
+  enabled: true
