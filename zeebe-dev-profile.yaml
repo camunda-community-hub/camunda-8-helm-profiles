@@ -25,7 +25,7 @@ zeebe-cluster-helm:
       storageClassName: "standard"
       resources:
         requests:
-          storage: 5Gi
+          storage: 15Gi
 
 tasklist:
   enabled: true
