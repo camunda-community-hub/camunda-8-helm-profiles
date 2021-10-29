@@ -25,7 +25,10 @@ zeebe-cluster-helm:
       storageClassName: "standard"
       resources:
         requests:
-          storage: 100M
+          storage: 5Gi
 
 tasklist:
   enabled: true
+
+zeebe-tasklist-helm:
+  springProfilesActive: "auth"
