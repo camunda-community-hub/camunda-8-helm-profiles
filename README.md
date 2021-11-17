@@ -19,7 +19,7 @@ example
 helm install test-core zeebe/zeebe-full-helm --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-core-team.yaml
 ```
 
-Or the Dev Profile:
+Or the Dev Profile (can be used with kind):
 
 ```
 helm install test-core zeebe/zeebe-full-helm --values https://raw.githubusercontent.com/zeebe-io/zeebe-helm-profiles/master/zeebe-dev-profile.yaml
