@@ -2,7 +2,7 @@ A Helm profile for mixed mode authentication as a workaround to allow API access
 i.e. Operate and Tasklist use basic auth 
 while Optimize uses Identity and Keycload because it cannot run without them.
 
-Kick off the `core`, set up ingress or port forwarding for ES, possibly updating the `optimize` yaml file ES host/port. Start `optimize`
+Kick off the `core`. You may want to wait until Elasticsearch is running before starting `optimize`
 
 You can get the cookie from Operate:
 
