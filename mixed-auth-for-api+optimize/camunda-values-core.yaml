@@ -24,11 +24,6 @@
 
 # Global configuration for variables which can be accessed by all sub charts
 global:
-  identity:
-    auth:
-      # Disable the Identity authentication for local development
-      # it will fall back to basic-auth: demo/demo as default user
-      enabled: false
 
   # Annotations can be used to define common annotations, which should be applied to all deployments
   annotations: {}
@@ -64,13 +59,17 @@ global:
   # ZeebePort defines the port which is used for the Zeebe Gateway. This port accepts the GRPC Client messages and forwards them to the Zeebe Brokers.
   zeebePort: 26500
 
-# Disable identity as part of the camunda platform core
-identity:
-  enabled: false
 
-optimize:
-  enabled: false
-  
+  # Identity configuration to configure identity specifics on global level, which can be accessed by other sub-charts
+  identity:
+    # Identity.auth configuration, to configure Identity authentication setup
+    auth:
+      # Identity.auth.enabled if true, enables the Identity authentication otherwise basic-auth will be used on all services.
+      # Disable the Identity authentication as a workaround for API access.
+      # Operate and Tasklist will fall back to basic-auth: demo/demo as default user.
+      enabled: false
+
+
 # Zeebe configuration for the Zeebe sub chart. Contains configuration for the Zeebe broker and related resources.
 zeebe:
   # Enabled if true, all zeebe related resources are deployed via the helm release
@@ -513,7 +512,21 @@ tasklist:
     # Ingress.host can be used to define the host of the ingress rule. https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
     # If not specified the rules applies to all inbound http traffic, if specified the rule applies to that host.
     host:
-    
+
+# Optimize configuration for the Optimize sub chart.
+optimize:
+  # Enabled if true, the Optimize deployment and its related resources are deployed via a helm release
+  enabled: false # disable Optimize as part of the Camunda Platform core
+
+
+# Identity configuration for the identity sub chart.
+identity:
+  # Enabled if true, the identity deployment and its related resources are deployed via a helm release
+  #
+  # Note: Identity is required by Optimize. If Identity is disabled, then Optimize will be unusable.
+  #       If you don't need Optimize, then make sure to disable both: set global.identity.auth.enabled=false AND optimize.enabled=false.
+  enabled: false # Disable Identity as part of the Camunda Platform core
+
 elasticsearch:
   enabled: true
   extraEnvs:
