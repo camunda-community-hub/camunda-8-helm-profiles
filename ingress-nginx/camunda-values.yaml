@@ -1,0 +1,47 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+global:
+  identity:
+    auth:
+      publicIssuerUrl: "http://keycloak.127.0.0.1.nip.io/auth/realms/camunda-platform"
+      operate:
+        redirectUrl: "http://operate.127.0.0.1.nip.io"
+      tasklist:
+        redirectUrl: "http://tasklist.127.0.0.1.nip.io"
+      optimize:
+        redirectUrl: "http://optimize.127.0.0.1.nip.io"
+operate:
+  ingress:
+    enabled: true
+    host: "operate.127.0.0.1.nip.io"
+tasklist:
+  ingress:
+    enabled: true
+    host: "tasklist.127.0.0.1.nip.io"
+optimize:
+  env:
+   - name: CAMUNDA_OPTIMIZE_EMAIL_ACCESS_URL
+     value: "http://optimize.127.0.0.1.nip.io"
+  ingress:
+    enabled: true
+    host: "optimize.127.0.0.1.nip.io"
+identity:
+  env:
+   - name: IDENTITY_URL
+     value: "http://identity.127.0.0.1.nip.io"
+  keycloak:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hostname: "keycloak.127.0.0.1.nip.io"
+    extraEnvVars:
+      - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+        value: "true"
+      - name: KEYCLOAK_FRONTEND_URL
+        value: "http://keycloak.127.0.0.1.nip.io"
+  ingress:
+    enabled: true
+    host: "identity.127.0.0.1.nip.io"
