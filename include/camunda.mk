@@ -45,13 +45,37 @@ watch:
 watch-zeebe:
 	kubectl get pods -w -n $(namespace) -l app.kubernetes.io/name=zeebe
 
+.PHONY: await-zeebe
+await-zeebe:
+	kubectl wait --for=condition=Ready pod -n $(namespace) -l app.kubernetes.io/name=zeebe --timeout=900s
+
 .PHONY: port-zeebe
 port-zeebe:
 	kubectl port-forward svc/$(release)-zeebe-gateway 26500:26500 -n $(namespace)
 
-.PHONY: await-zeebe
-await-zeebe:
-	kubectl wait --for=condition=Ready pod -n $(namespace) -l app.kubernetes.io/name=zeebe --timeout=900s
+.PHONY: port-identity
+port-identity:
+	kubectl port-forward svc/$(release)-identity 8080:80 -n $(namespace)
+
+.PHONY: port-keycloak
+port-keycloak:
+	kubectl port-forward svc/$(release)-keycloak 18080:80 -n $(namespace)
+
+.PHONY: port-operate
+port-operate:
+	kubectl port-forward svc/$(release)-operate 8081:80 -n $(namespace)
+
+.PHONY: port-tasklist
+port-tasklist:
+	kubectl port-forward svc/$(release)-tasklist 8082:80 -n $(namespace)
+
+.PHONY: port-optimize
+port-optimize:
+	kubectl port-forward svc/$(release)-optimize 8083:80 -n $(namespace)
+
+.PHONY: pods
+pods:
+	kubectl get pods --namespace $(namespace)
 
 .PHONY: url-grafana
 url-grafana:
