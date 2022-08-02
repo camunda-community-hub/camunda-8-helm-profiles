@@ -1,0 +1,79 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+# This is a very small cluster useful for running locally and for development
+
+global:
+  identity:
+    auth:
+      # Disable the Identity authentication
+      # it will fall back to basic-auth: demo/demo as default user
+      enabled: false
+
+identity:
+  enabled: false
+
+operate:
+  enabled: true
+
+tasklist:
+  enabled: true
+
+optimize:
+  enabled: false
+
+prometheusServiceMonitor:
+  enabled: false
+
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+
+  pvcSize: 1Gi
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+
+zeebe-gateway:
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  logLevel: ERROR
+
+elasticsearch:
+  enabled: true
+  imageTag: 7.17.3
+  replicas: 1
+  minimumMasterNodes: 1
+  # Allow no backup for single node setups
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "standard"
+    resources:
+      requests:
+        storage: 15Gi
