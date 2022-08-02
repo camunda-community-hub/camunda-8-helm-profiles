@@ -3,7 +3,7 @@ camunda: namespace
 	helm repo add camunda https://helm.camunda.io
 	helm repo update camunda
 	helm search repo $(chart)
-	helm install --namespace $(namespace) $(release) $(chart) -f camunda-values.yaml --skip-crds
+	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
 .PHONY: namespace
 namespace:
