@@ -6,6 +6,9 @@
 # This is a very small cluster useful for running locally and for development
 
 global:
+  image:
+    # allways work with the latest versions in development
+    tag: latest
   identity:
     auth:
       # Disable the Identity authentication
