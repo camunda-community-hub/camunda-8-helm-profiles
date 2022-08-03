@@ -22,6 +22,11 @@ identity:
    - name: IDENTITY_URL
      value: "http://identity.127.0.0.1.nip.io"
   keycloak:
+    auth:
+      adminUser: admin
+      adminPassword: camunda
+      managementUser: manager
+      managementPassword: camunda
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
