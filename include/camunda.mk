@@ -13,7 +13,7 @@ namespace:
 # Generates templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
 .PHONY: template
 template:
-	helm template $(release) $(chart) -f camunda-values.yaml --skip-crds --output-dir .
+	helm template $(release) $(chart) -f $(chartValues) --skip-crds --output-dir .
 	@echo "To apply the templates use: kubectl apply -f camunda-platform/templates/ -n $(namespace)"
 
 .PHONY: update
@@ -21,7 +21,7 @@ update:
 	OPERATE_SECRET=$$(kubectl get secret --namespace $(namespace) "camunda-operate-identity-secret" -o jsonpath="{.data.operate-secret}" | base64 --decode); \
 	TASKLIST_SECRET=$$(kubectl get secret --namespace $(namespace) "camunda-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode); \
 	OPTIMIZE_SECRET=$$(kubectl get secret --namespace $(namespace) "camunda-optimize-identity-secret" -o jsonpath="{.data.optimize-secret}" | base64 --decode); \
-	helm upgrade --namespace $(namespace) $(release) $(chart) -f camunda-values.yaml \
+	helm upgrade --namespace $(namespace) $(release) $(chart) -f $(chartValues).yaml \
 	  --set global.identity.auth.operate.existingSecret=$$OPERATE_SECRET \
 	  --set global.identity.auth.tasklist.existingSecret=$$TASKLIST_SECRET \
 	  --set global.identity.auth.optimize.existingSecret=$$OPTIMIZE_SECRET
