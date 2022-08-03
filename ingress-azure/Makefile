@@ -10,7 +10,7 @@ chartValues ?= "camunda-values.yaml" # TODO document composition of profiles ../
 all: ingress camunda
 
 .PHONY: clean
-clean: clean-camunda clean-ingress
+clean: clean-ingress clean-camunda
 
 include ../include/ingress-azure.mk
 include ../include/camunda.mk
