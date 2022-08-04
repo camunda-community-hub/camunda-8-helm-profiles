@@ -18,23 +18,13 @@ global:
 identity:
   enabled: false
 
-operate:
-  enabled: true
-
-tasklist:
-  enabled: true
-
 optimize:
-  enabled: false
-
-prometheusServiceMonitor:
   enabled: false
 
 zeebe:
   clusterSize: 1
   partitionCount: 1
   replicationFactor: 1
-
   pvcSize: 1Gi
 
   resources:
@@ -74,6 +64,7 @@ elasticsearch:
       cpu: "1000m"
       memory: "2Gi"
 
+  # Request smaller persistent volumes.
   volumeClaimTemplate:
     accessModes: [ "ReadWriteOnce" ]
     storageClassName: "standard"
