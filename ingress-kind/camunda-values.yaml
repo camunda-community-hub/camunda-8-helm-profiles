@@ -26,12 +26,12 @@ tasklist:
     enabled: true
     host: "tasklist.127.0.0.1.nip.io"
 optimize:
-  enabled: true
+  enabled: false
   env:
    - name: CAMUNDA_OPTIMIZE_EMAIL_ACCESS_URL
      value: "http://optimize.127.0.0.1.nip.io"
   ingress:
-    enabled: true
+    enabled: false
     host: "optimize.127.0.0.1.nip.io"
 identity:
   enabled: true
@@ -39,6 +39,11 @@ identity:
    - name: IDENTITY_URL
      value: "http://identity.127.0.0.1.nip.io"
   keycloak:
+    auth:
+      adminUser: admin
+      adminPassword: camunda
+      managementUser: manager
+      managementPassword: camunda
     ingress:
       enabled: true
       ingressClassName: nginx
