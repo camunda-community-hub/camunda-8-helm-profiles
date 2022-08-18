@@ -8,7 +8,7 @@ camunda: namespace
 .PHONY: namespace
 namespace:
 	-kubectl create namespace $(namespace)
-	-kubens $(namespace)
+	-kubectl config set-context --current --namespace=$(namespace)
 
 # Generates templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
 .PHONY: template
@@ -18,13 +18,19 @@ template:
 
 .PHONY: update
 update:
-	OPERATE_SECRET=$$(kubectl get secret --namespace $(namespace) "camunda-operate-identity-secret" -o jsonpath="{.data.operate-secret}" | base64 --decode); \
-	TASKLIST_SECRET=$$(kubectl get secret --namespace $(namespace) "camunda-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode); \
-	OPTIMIZE_SECRET=$$(kubectl get secret --namespace $(namespace) "camunda-optimize-identity-secret" -o jsonpath="{.data.optimize-secret}" | base64 --decode); \
+	OPERATE_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-operate-identity-secret" -o jsonpath="{.data.operate-secret}" | base64 --decode); \
+	TASKLIST_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode); \
+	OPTIMIZE_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-optimize-identity-secret" -o jsonpath="{.data.optimize-secret}" | base64 --decode); \
+	KEYCLOAK_ADMIN_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode) \
+	KEYCLOAK_MANAGEMENT_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.management-password}" | base64 --decode) \
+	POSTGRESQL_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode) \
 	helm upgrade --namespace $(namespace) $(release) $(chart) -f $(chartValues).yaml \
 	  --set global.identity.auth.operate.existingSecret=$$OPERATE_SECRET \
 	  --set global.identity.auth.tasklist.existingSecret=$$TASKLIST_SECRET \
-	  --set global.identity.auth.optimize.existingSecret=$$OPTIMIZE_SECRET
+	  --set global.identity.auth.optimize.existingSecret=$$OPTIMIZE_SECRET \
+	  --set identity.keycloak.auth.adminPassword=$$KEYCLOAK_ADMIN_SECRET \
+	  --set identity.keycloak.auth.managementPassword=$$KEYCLOAK_MANAGEMENT_SECRET \
+	  --set identity.keycloak.postgresql.auth.password=$$POSTGRESQL_SECRET
 
 .PHONY: clean-camunda
 clean-camunda:
