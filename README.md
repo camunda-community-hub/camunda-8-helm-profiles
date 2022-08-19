@@ -17,19 +17,11 @@ helm install <RELEASE NAME> camunda/camunda-platform -v <PROFILE YAML FILE>
 example
 
 ```
-helm install test-core camunda/camunda-platform --values https://raw.githubusercontent.com/camunda-community-hub/zeebe-helm-profiles/master/zeebe-core-team.yaml
+helm install test-core camunda/camunda-platform --values https://raw.githubusercontent.com/camunda-community-hub/camunda-8-helm-profiles/master/ingress-nginx/camunda-values.yaml
 ```
 
-Or the Dev Profile (can be used with kind):
+Or the development profile, which can be used with KIND:
 
 ```
-helm install test-core camunda/camunda-platform --values https://raw.githubusercontent.com/camunda-community-hub/zeebe-helm-profiles/master/zeebe-dev-profile.yaml
-```
-
-## Adding ZeeQS and TaskList
-
-You can install the Zeebe Full Helm Chart to include ZeeQS and TaskList
-
-```
-helm install zeebe camunda/camunda-platform --set tasklist.enabled=true --set zeeqs.enabled=true
+helm install test-core camunda/camunda-platform --values https://raw.githubusercontent.com/camunda-community-hub/camunda-8-helm-profiles/master/development/camunda-values.yaml
 ```
