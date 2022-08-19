@@ -1,0 +1,30 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+global:
+  image:
+    tag: latest
+  identity:
+    auth:
+      # Disable the Identity authentication as a workaround for API access.
+      # Operate and Tasklist will fall back to basic-auth: demo/demo as default user.
+      enabled: false
+zeebe:
+  clusterSize: "1"
+  partitionCount: "1"
+  replicationFactor: "1"
+zeebe-gateway:
+  replicas: 1
+optimize:
+  enabled: false # disable Optimize as part of the Camunda Platform core
+identity:
+  enabled: false # disable Identity as part of the Camunda Platform core
+elasticsearch:
+  extraEnvs:
+    - name: "xpack.security.enabled"
+      value: "false"
+    - name: "cluster.initial_master_nodes"
+      value: "elasticsearch-master-0"
+  replicas: 1
