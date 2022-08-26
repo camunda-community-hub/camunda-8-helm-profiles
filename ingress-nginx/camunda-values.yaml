@@ -29,6 +29,7 @@ optimize:
     enabled: true
     host: "optimize.127.0.0.1.nip.io"
 identity:
+  enabled: true
   env:
    - name: IDENTITY_URL
      value: "http://identity.127.0.0.1.nip.io"
