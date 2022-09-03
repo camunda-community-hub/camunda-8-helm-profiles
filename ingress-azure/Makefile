@@ -5,6 +5,8 @@ chart ?= camunda/camunda-platform
 # TODO: test passing in a list
 chartValues ?= "camunda-values.yaml" # TODO document composition of profiles ../debug/camunda-values.yaml"
 
+nodeResourceGroup ?= greenfield-node-group-01
+gatewayName ?= myApplicationGateway
 
 .PHONY: all
 all: ingress camunda
