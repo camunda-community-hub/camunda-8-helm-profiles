@@ -1,29 +1,38 @@
-# Camunda 8 Helm Profile: Ingress Azure
+# Azure Ingress
 
-A configuration for Camunda Platform 8
-that uses [Azure Application Gateway](https://docs.microsoft.com/azure/application-gateway/overview)
-as an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
+If you don't have an Azure Kubernetes Cluster yet, then [start here](https://github.com/camunda-community-hub/camunda8-greenfield-installation/tree/main/azure)
 
-This folder contains a [Helm](https://helm.sh/) [values file](camunda-values.yaml)
-for installing the [Camunda Platform Helm Chart](https://helm.camunda.io/)
-on an existing Kubernetes cluster (if you don't have one yet,
-see [Camunda 8 Kubernetes Installation](https://github.com/camunda-community-hub/camunda8-greenfield-installation)).
-A [Makefile](Makefile) is provided to automate the installation process.
+This folder contains a makefile with targets to help set up a Camunda 8 environment and an Ingress controller into an existing Azure Kubernetes Cluster.  
 
 ## Install
-Configure the desired Kubernetes `namespace`, Helm `release` name, and Helm `chart` in [Makefile](Makefile)
-and run:
+
+Edit the `Makefile` inside this directory and set the variables as appropriate for your Azure environment.
+
+To install a full Camunda 8 environment with ingress, simply run the following from this directory:  
 
 ```sh
 make
 ```
 
+Or, it's also possible to run make targets individually as needed. For example, to create the ingress (without installing Camunda) use:
+
+```shell
+make ingress-azure
+# and
+make clean-ingress-azure
+```
+
 If `make` is correctly configured, you should also get tab completion for all available make targets.
 
 ## Uninstall
+
+When you're ready to remove the ingress and Camunda 8 components, run:
+
 ```sh
 make clean
 ```
+
+(note that this will keep the Kubernetes Cluster intact)
 
 ## Troubleshooting
 
@@ -39,6 +48,14 @@ identity:
 
 > Users can interact with Keycloak without SSL so long as they stick to private IP addresses like localhost, 127.0.0.1, 10.x.x.x, 192.168.x.x, and 172.16.x.x. If you try to access Keycloak without SSL from a non-private IP address you will get an error.
 
-If your k8s cluster does not use "private" IP addresses for internal communication, i.e. it does not resolve the internal service names to "private" IP addresses, then you can apply the following procedure:
+If your k8s cluster does not use "private" IP addresses for internal communication, i.e. it does not resolve the internal service names to "private" IP addresses, then the first time you attempt to authenticate to keycloak, you may encounter the following error:
 
-Use the Keycloak UI to set "Require SSL" to "none" for both the Master realm (Keycloak needs a restart after that) and the then created Camunda Platform realm. We did an Identity restart afterwards, e.g. by deleting the pod, but it should also work if the crash loop does one more round.
+![Keycloak ssl required](../docs/images/keycloak_ssl_required.png?raw=true)
+
+In order to address this issue, we first need temporary access to keycloak. We can accomplish this using Kubernetes port forwarding. Run the following command to temporarily establish port forward from localhost to port 18080.
+
+     make port-keycloak
+
+Now, you should be able to browse to `http://localhost:18080`. By default, the username is `admin` and password is `camunda`.
+
+The steps to fix this are described [here](https://docs.camunda.io/docs/self-managed/identity/troubleshooting/common-problems/#solution-2-identity-making-requests-from-an-external-ip-address). Use the Keycloak UI to set "Require SSL" to "none" for both the Master realm (Keycloak needs a restart after that) and the then created Camunda Platform realm. We did an Identity restart afterwards, e.g. by deleting the pod, but it should also work if the crash loop does one more round.
