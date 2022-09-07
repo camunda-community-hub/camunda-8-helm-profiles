@@ -24,7 +24,7 @@ update:
 	KEYCLOAK_ADMIN_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode) \
 	KEYCLOAK_MANAGEMENT_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.management-password}" | base64 --decode) \
 	POSTGRESQL_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode) \
-	helm upgrade --namespace $(namespace) $(release) $(chart) -f $(chartValues).yaml \
+	helm upgrade --namespace $(namespace) $(release) $(chart) -f $(chartValues) \
 	  --set global.identity.auth.operate.existingSecret=$$OPERATE_SECRET \
 	  --set global.identity.auth.tasklist.existingSecret=$$TASKLIST_SECRET \
 	  --set global.identity.auth.optimize.existingSecret=$$OPTIMIZE_SECRET \
