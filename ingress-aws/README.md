@@ -1,16 +1,16 @@
-# Azure Ingress
+# AWS Ingress
 
-If you don't have an Azure Kubernetes Cluster yet, then [start here](https://github.com/camunda-community-hub/camunda8-greenfield-installation/tree/main/azure)
+If you don't have an AWS EKS Cluster yet, then [start here](https://github.com/camunda-community-hub/camunda8-greenfield-installation/tree/main/aws)
 
-If you already have an Azure kubernetes cluster, but have not yet installed Camunda 8 and/or an ingress, or you would like to re-install Camunda 8 and ingress, then you're in the right place. 
+If you already have an AWS EKS cluster, but have not yet installed Camunda 8 and/or an ingress, or you would like to re-install Camunda 8 and ingress, then you're in the right place. 
 
-This folder contains a makefile with targets to help set up a Camunda 8 environment and an Ingress controller into an existing Azure Kubernetes Cluster.
+This folder contains a makefile with targets to help set up a Camunda 8 environment and an Ingress controller into an existing AWS EKS Cluster.
 
-> Note that as a prerequisite to using these makefile targets, you should already have the Azure Client Tool (`az`) installed and ready to use.
+> Note that as a prerequisite to using these makefile targets, you should already have the AWS Client Tool (`aws`) installed and ready to use.
 
 ## Install
 
-Edit the `Makefile` inside this directory and set the variables as appropriate for your Azure environment.
+Edit the `Makefile` inside this directory and set the variables as appropriate for your AWS EKS environment.
 
 To install a full Camunda 8 environment with ingress, simply run the following from this directory:  
 
@@ -21,9 +21,9 @@ make
 Or, it's also possible to run make targets individually as needed. For example, to create the ingress (without installing Camunda) use:
 
 ```shell
-make ingress-azure
-# and
-make clean-ingress-azure
+make ingress-nginx
+# and to remove it ... 
+make clean-ingress
 ```
 
 If `make` is correctly configured, you should also get tab completion for all available make targets.
