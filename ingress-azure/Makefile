@@ -7,7 +7,7 @@ chart ?= camunda/camunda-platform
 nodeResourceGroup ?= greenfield-node-group-01
 gatewayName ?= myApplicationGateway
 
-chartValues ?= "camunda-values-azure.yaml"
+chartValues ?= camunda-values-azure.yaml
 
 .PHONY: all
 all: ingress-azure camunda-values-azure.yaml camunda
