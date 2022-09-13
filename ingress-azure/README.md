@@ -1,7 +1,7 @@
-# Camunda 8 Helm Profile: Ingress NGINX
+# Camunda 8 Helm Profile: Ingress Azure
 
 A configuration for Camunda Platform 8
-that uses [NGINX](https://www.nginx.com/products/nginx-ingress-controller/)
+that uses [Azure Application Gateway](https://docs.microsoft.com/azure/application-gateway/overview)
 as an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
 
 This folder contains a [Helm](https://helm.sh/) [values file](camunda-values.yaml)

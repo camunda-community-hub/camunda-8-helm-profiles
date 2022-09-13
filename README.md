@@ -3,7 +3,10 @@
 ![Compatible with: Camunda Platform 8](https://img.shields.io/badge/Compatible%20with-Camunda%20Platform%208-0072Ce)
 
 # Camunda 8 Helm Profiles
-Repository with a collection of [Helm](https://helm.sh/) values files for the [Camunda Platform Helm Chart](https://helm.camunda.io/). 
+Repository with a collection of [Helm](https://helm.sh/) values files
+for installing the [Camunda Platform Helm Chart](https://helm.camunda.io/)
+on an existing Kubernetes cluster (if you don't have one yet,
+see [Camunda 8 Kubernetes Installation](https://github.com/camunda-community-hub/camunda8-greenfield-installation)).
 
 Each subfolder of this repository (except the `include` folder)
 contains a profile for installing Camunda Platform,
