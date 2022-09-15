@@ -1,5 +1,6 @@
 .PHONY: camunda
 camunda: namespace
+	@echo "Attempting to install camunda using chartValues: $(chartValues)"
 	helm repo add camunda https://helm.camunda.io
 	helm repo update camunda
 	helm search repo $(chart)
@@ -15,6 +16,10 @@ namespace:
 template:
 	helm template $(release) $(chart) -f $(chartValues) --skip-crds --output-dir .
 	@echo "To apply the templates use: kubectl apply -f camunda-platform/templates/ -n $(namespace)"
+
+.PHONY: keycloak-password
+keycloak-password:
+	kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode
 
 .PHONY: update
 update:

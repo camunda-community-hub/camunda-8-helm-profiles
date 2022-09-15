@@ -1,30 +1,15 @@
+.PHONY: azure-gateway-ip-address
+azure-gateway-ip-address:
+	$(eval IP := $(shell az network public-ip show -g $(nodeResourceGroup) -n $(gatewayName)-appgwpip -o json --query ipAddress | xargs))
 
-.PHONY: ingress
-ingress: namespace ingress-ip-from-commandline ingress-azure
+camunda-values-azure.yaml: azure-gateway-ip-address
+	sed "s/127.0.0.1/$(IP)/g;" ../ingress-nginx/camunda-values.yaml > ./camunda-values-azure.yaml
 
 .PHONY: ingress-azure
-ingress-azure:
-	kubectl apply -f ingress-azure.yaml
+ingress-azure: namespace azure-gateway-ip-address
+	echo "Creating ingress controller at: http://$(IP).nip.io" ;
+	cat ingress-azure.yaml | sed -E "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$(IP)/g" | kubectl apply -f -
 
-.PHONY: ingress-ip-from-service
-ingress-ip-from-service:
-	IP=$$(kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1) ; \
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$$IP/g" camunda-values.yaml ; \
-	echo "Ingress controller ready at: http://$$IP.nip.io"
-
-.PHONY: ingress-ip-from-commandline
-ingress-ip-from-commandline:
-	@echo "Enter Load Balancer IP Address: " ; \
-	read IP; \
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$$IP/g" camunda-values.yaml ; \
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$$IP/g" ingress-azure.yaml ; \
-	echo "Ingress controller ready at: http://$$IP.nip.io"
-
-.PHONY: clean-ingress
-clean-ingress: clean-ingress-ip
+.PHONY: clean-ingress-azure
+clean-ingress-azure:
 	kubectl delete ingress ingress-azure -n camunda
-
-.PHONY: clean-ingress-ip
-clean-ingress-ip:
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/127.0.0.1/g" camunda-values.yaml ; \
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/127.0.0.1/g" ingress-azure.yaml ; \

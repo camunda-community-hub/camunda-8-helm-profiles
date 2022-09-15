@@ -1,5 +1,5 @@
 .PHONY: ingress
-ingress: ingress-nginx ingress-ip-from-service
+ingress: ingress-nginx camunda-values-nginx.yaml
 
 .PHONY: ingress-nginx
 ingress-nginx:
@@ -11,23 +11,15 @@ ingress-nginx:
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
-	IP=$$(kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1) ; \
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$$IP/g" camunda-values.yaml ; \
-	echo "Ingress controller ready at: http://$$IP.nip.io"
+	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
+	echo "Ingress controller will be configured to use address: http://$(IP).nip.io"
 
-.PHONY: ingress-ip-from-commandline
-ingress-ip-from-commandline:
-	@echo "Enter Load Balancer IP Address: " ; \
-	read IP; \
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$$IP/g" camunda-values.yaml ; \
-	echo "Ingress controller ready at: http://$$IP.nip.io"
+camunda-values-nginx.yaml: ingress-ip-from-service
+	sed "s/127.0.0.1/$(IP)/g;" ../ingress-nginx/camunda-values.yaml > ./camunda-values-nginx.yaml
 
 .PHONY: clean-ingress
-clean-ingress: clean-ingress-ip
+clean-ingress:
 	-helm --namespace ingress-nginx uninstall ingress-nginx
 	-kubectl delete -n ingress-nginx pvc -l app.kubernetes.io/instance=ingress-nginx
 	-kubectl delete namespace ingress-nginx
 
-.PHONY: clean-ingress-ip
-clean-ingress-ip:
-	sed -Ei '' "s/([0-9]{1,3}\.){3}[0-9]{1,3}/127.0.0.1/g" camunda-values.yaml
