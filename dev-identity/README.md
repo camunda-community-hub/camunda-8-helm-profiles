@@ -1,6 +1,6 @@
 # Camunda 8 Helm Profile: Development
 
-A development configuration for Camunda Platform 8 with enabled Indentity component. 
+A development configuration for Camunda Platform 8 with enabled Indentity component and enabled tasklist API. 
 It can be used locally on KIND, Minikube, or any other minimal Kubernetes environment, as well as on a "real" Kubernetes clusters in a public or private cloud.
 
 This folder contains a [Helm](https://helm.sh/) [values file](camunda-values.yaml)
