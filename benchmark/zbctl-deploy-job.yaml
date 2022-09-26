@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: zbctl-deploy
+spec:
+  template:
+    spec:
+      containers:
+      - name: zbctl-deploy
+        image: camunda/zeebe
+        command: ["zbctl", "--host", "camunda-zeebe-gateway", "--insecure", "deploy", "/models/BenchmarkProcess.bpmn"]
+        volumeMounts:
+        - name: models
+          mountPath: /models/BenchmarkProcess.bpmn
+          subPath: BenchmarkProcess.bpmn
+          readOnly: true
+      volumes:
+      - name: models
+        configMap:
+          name: models
+      restartPolicy: Never

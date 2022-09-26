@@ -1,0 +1,56 @@
+# config for https://github.com/camunda-community-hub/camunda-8-benchmark
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: benchmark
+  labels:
+    app: benchmark
+spec:
+  selector:
+    matchLabels:
+      app: benchmark
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: benchmark
+    spec:
+      containers:
+      - name: benchmark
+        image: berndruecker/camunda-8-benchmark:main
+        imagePullPolicy: Always
+        env:
+          - name: JAVA_OPTIONS
+            value: >-
+              -Dzeebe.client.broker.gateway-address=camunda-zeebe-gateway:26500
+              -Dzeebe.client.security.plaintext=true
+              -Dzeebe.client.request-timeout=600s
+              -Dzeebe.client.job.poll-interval=1ms
+              -Dzeebe.client.worker.max-jobs-active=2000
+              -Dbenchmark.startPiPerSecond=5
+              -Dbenchmark.maxBackpressurePercentage=1.0
+              -Dbenchmark.taskCompletionDelay=10
+              -Dbenchmark.bpmnProcessId=BenchmarkProcess
+              -Dbenchmark.jobType=benchmark-task
+              -Dbenchmark.multipleJobTypes=8
+              -Dbenchmark.payloadPath=payload.json
+              -Dbenchmark.autoDeployProcess=false
+              -Dbenchmark.warmupPhaseDurationMillis=300000
+              -Dbenchmark.startRateAdjustmentStrategy=backpressure
+              -Dbenchmark.startPiIncreaseFactor=0.4
+        resources:
+          limits:
+            cpu: 1
+            memory: 4Gi
+          requests:
+            cpu: 1
+            memory: 4Gi
+        volumeMounts:
+        - name: payload
+          mountPath: payload.json
+          subPath: payload.json
+          readOnly: true
+      volumes:
+      - name: payload
+        configMap:
+          name: payload
