@@ -1,16 +1,20 @@
+# Set these values to what you want for your specific environment
 namespace ?= camunda
 release ?= camunda
 chart ?= camunda/camunda-platform
-# Chart values files
-# TODO: test passing in a list
-chartValues ?= "camunda-values.yaml" # TODO document composition of profiles ../debug/camunda-values.yaml"
 
+# These must be set to match resources that already exist inside an existing Azure Environment
+nodeResourceGroup ?= greenfield-node-group-01
+gatewayName ?= myApplicationGateway
+
+chartValues ?= camunda-values-azure.yaml
 
 .PHONY: all
-all: ingress camunda
+all: ingress-azure camunda-values-azure.yaml camunda
 
 .PHONY: clean
-clean: clean-ingress clean-camunda
+clean: clean-ingress-azure clean-camunda
+	rm -f camunda-values-azure.yaml
 
 include ../include/ingress-azure.mk
 include ../include/camunda.mk

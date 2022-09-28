@@ -1,8 +1,8 @@
-# Camunda 8 Helm Profile: Development
+# Camunda 8 Helm Profile: Default
 
-A lightweight development configuration for Camunda Platform 8
-that can be used locally via KIND or any other minimal Kubernetes environment
-as well as on a "real" Kubernetes cluster in a public or private cloud.
+A configuration for Camunda Platform 8
+that relies only on the defaults provided by the official Helm chart
+and also serves as a template for creating new profiles.
 
 This folder contains a [Helm](https://helm.sh/) [values file](camunda-values.yaml)
 for installing the [Camunda Platform Helm Chart](https://helm.camunda.io/)
