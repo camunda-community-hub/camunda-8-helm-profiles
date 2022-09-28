@@ -1,0 +1,60 @@
+USER-SUPPLIED VALUES:
+elasticsearch:
+  clusterHealthCheckParams: wait_for_status=yellow&timeout=1s
+  enabled: true
+  imageTag: 7.17.3
+  minimumMasterNodes: 1
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 512M
+  volumeClaimTemplate:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 15Gi
+    storageClassName: standard
+global:
+  identity:
+    auth:
+      enabled: true
+  image:
+    tag: latest
+identity:
+  enabled: true
+optimize:
+  enabled: false
+tasklist:
+  enabled: true
+  env:
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI
+    value: http://camunda-keycloak:80/auth/realms/camunda-platform
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI
+    value: http://camunda-keycloak:80/auth/realms/camunda-platform/protocol/openid-connect/certs
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  pvcSize: 1Gi
+  replicationFactor: 1
+  resources:
+    limits:
+      cpu: 512m
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 512M
+zeebe-gateway:
+  logLevel: ERROR
+  replicas: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512M
