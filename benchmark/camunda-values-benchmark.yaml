@@ -1,0 +1,68 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+global:
+  image:
+    tag: latest
+  identity:
+    auth:
+      # Disable the Identity authentication
+      # it will fall back to basic-auth: demo/demo as default user
+      enabled: false
+
+identity:
+  enabled: false
+
+operate:
+  enabled: false
+
+tasklist:
+  enabled: false
+
+optimize:
+  enabled: false
+
+prometheusServiceMonitor:
+  enabled: true
+
+zeebe:
+  resources:
+    limits:
+      cpu: 1
+      memory: 4Gi
+    requests:
+      cpu: 1
+      memory: 2Gi
+  clusterSize: "3"
+  partitionCount: "3"
+  replicationFactor: "3"
+  cpuThreadCount: 3
+  ioThreadCount: 3
+  persistenceType: disk
+  pvcSize: 128Gi
+  pvcStorageClassName: ssd
+  logLevel: ERROR
+  env:
+    - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
+      value: "true"
+    - name: ZEEBE_BROKER_EXPERIMENTAL_DISABLEEXPLICITRAFTFLUSH
+      value: "true"
+  affinity: null
+zeebe-gateway:
+  replicas: 2
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 1
+      memory: 1Gi
+  logLevel: ERROR
+  env:
+    - name: ZEEBE_GATEWAY_MONITORING_ENABLED
+      value: "true"
+# ELASTIC
+elasticsearch:
+  enabled: false
