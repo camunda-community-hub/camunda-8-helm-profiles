@@ -70,5 +70,5 @@ Perform those steps for **both** the **Master** realm (Keycloak needs a restart 
 
 ### Keycloak Admin password is incorrect
 To retrieve the admon pasword from the secret adnd decode it you can run:  
- ```kubectl get secret camunda-keycloak -o yaml | grep admin | awk '{print $2}' | base64 -d```
+ ```make keycloak-password```
  
