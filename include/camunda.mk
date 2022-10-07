@@ -98,7 +98,4 @@ url-grafana:
 open-grafana:
 	xdg-open http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath={..ip})/d/I4lo7_EZk/zeebe?var-namespace=$(namespace) &
 
-.PHONY: keycloak-admin-pwd
-keycloak-admin-pwd:
-	@echo `kubectl get secret camunda-keycloak -o yaml | grep admin | awk '{print $$2}' | base64 -d`\n
 
