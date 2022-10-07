@@ -19,7 +19,7 @@ template:
 
 .PHONY: keycloak-password
 keycloak-password:
-	kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode
+	@echo `kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode`
 
 .PHONY: update
 update:
