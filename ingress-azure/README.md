@@ -69,6 +69,6 @@ The steps to fix this are described [here](https://docs.camunda.io/docs/self-man
 Perform those steps for **both** the **Master** realm (Keycloak needs a restart after that) and the then created **Camunda Platform** realm. We did an Identity restart afterwards, e.g. by deleting the pod, but it should also work if the crash loop does one more round.
 
 ### Keycloak Admin password is incorrect
-To retrieve the admon pasword from the secret adnd decode it you can run:  
+To retrieve the admin pasword from the secret adnd decode it you can run:  
  ```make keycloak-password```
  
