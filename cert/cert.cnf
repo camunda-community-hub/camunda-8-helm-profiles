@@ -1,0 +1,10 @@
+[req]
+default_bit = 4096
+distinguished_name = req_distinguished_name
+prompt = no
+
+[req_distinguished_name]
+countryName             = DE
+stateOrProvinceName     = Berlin
+localityName            = Berlin
+organizationName        = MyCamundaGmbH

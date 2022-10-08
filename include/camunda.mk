@@ -98,4 +98,6 @@ url-grafana:
 open-grafana:
 	xdg-open http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath={..ip})/d/I4lo7_EZk/zeebe?var-namespace=$(namespace) &
 
-
+.PHONY: create-cert
+create-cert:      
+	openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config ../cert/cert.cnf -keyout ../cert/private.key -out ../cert/selfsigned.crt
