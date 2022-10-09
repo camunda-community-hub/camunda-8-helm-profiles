@@ -10,7 +10,7 @@ gatewayName ?= myApplicationGateway
 chartValues ?= camunda-values-azure.yaml
 
 .PHONY: all
-all: ingress-azure camunda-values-azure.yaml camunda
+all: ingress-azure camunda-values-azure.yaml camunda config-keycloak
 
 .PHONY: clean
 clean: clean-ingress-azure clean-camunda
