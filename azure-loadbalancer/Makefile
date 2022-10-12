@@ -35,24 +35,22 @@ kube:
 
 .PHONY: ingress-nginx
 ingress-nginx: ingress-ip-from-service
-# -kubectl create namespace ingress-nginx
+# kubectl create namespace ingress-nginx
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	helm repo update ingress-nginx
 	helm search repo ingress-nginx
-	helm install ingress-nginx ingress-nginx/ingress-nginx \
-	--create-namespace \
-	--namespace $(namespace) \
-	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+	helm install ingress-nginx ingress-nginx/ingress-nginx --create-namespace --namespace ingress-nginx
+# --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
-	$(eval IP := $(shell kubectl --namespace camunda get services ingress-nginx-controller -o wide | awk 'NR!=1 {print $$4}'))
+	$(eval IP := $(shell kubectl --namespace ingress-nginx get services ingress-nginx-controller -o wide | awk 'NR!=1 {print $$4}'))
 	@echo "Ingress controller will be configured to use address: http://$(IP).nip.io"
 
 .PHONY: ingress-nginx-routes
 ingress-nginx-routes: ingress-ip-from-service
 	echo "Configuring ingress controller at: http://$(IP).nip.io" ;
-	cat ingress-nginx.yaml | sed -E "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$(IP)/g" | kubectl apply -n $(namespace) -f -
+	cat ingress-nginx.yaml | sed -E "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$(IP)/g" | kubectl apply -n ingress-nginx -f -
 
 .PHONY: camunda-values-nginx.yaml
 camunda-values-nginx.yaml: ingress-ip-from-service

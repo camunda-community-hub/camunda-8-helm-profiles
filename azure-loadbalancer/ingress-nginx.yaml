@@ -2,11 +2,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata: 
     name: ingress-nginx-controller
-    annotations:
+    # annotations:
       # nginx.ingress.kubernetes.io/ssl-redirect: "false"
       # nginx.ingress.kubernetes.io/use-regex: "true"
       # nginx.ingress.kubernetes.io/rewrite-target: /$2
-      # service.beta.kubernetes.io/azure-load-balancer-resource-group
+      # service.beta.kubernetes.io/azure-load-balancer-resource-group: "mc_greenfield-group-01_camunda-greenfield-01_eastus"
 spec:
   rules:
     - host: identity.127.0.0.1.nip.io

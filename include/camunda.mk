@@ -25,7 +25,7 @@ keycloak-password:
 
 .PHONY: config-keycloak
 config-keycloak: keycloak-password
-	@while [ $$(kubectl get pods $(release)-keycloak-0 -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]; do echo "Waiting for Keycloak pod..." && sleep 3; done
+	@while [ $$(kubectl get pods $(release)-keycloak-0 -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]; do echo "Waiting for Keycloak pod..." && sleep 10; done
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/camunda-platform -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 
