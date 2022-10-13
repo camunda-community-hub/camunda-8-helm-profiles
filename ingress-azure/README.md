@@ -56,17 +56,8 @@ If your Kubernetes cluster does not use "private" IP addresses for internal comm
 
 ![Keycloak ssl required](../docs/images/keycloak_ssl_required.png?raw=true)
 
-In order to address this issue, we first need temporary access to keycloak. We can accomplish this using Kubernetes port forwarding. Run the following command to temporarily establish port forward from localhost to port 18080.
-
-     make port-keycloak
-
-Now, you should be able to browse to `http://localhost:18080`. By default, the username is `admin` and password is `camunda`.
-
-The steps to fix this are described [here](https://docs.camunda.io/docs/self-managed/identity/troubleshooting/common-problems/#solution-2-identity-making-requests-from-an-external-ip-address). In the Keycloak UI 
-- On the top left switch to the *Master* realm if needed.
-- In the Configure ection in the menu on the left, navigate to *Realm Settings*, then choose the *Login* tab.
-- Set "Require SSL" to "none"  
-Perform those steps for **both** the **Master** realm (Keycloak needs a restart after that) and the then created **Camunda Platform** realm. We did an Identity restart afterwards, e.g. by deleting the pod, but it should also work if the crash loop does one more round.
+In order to address this issue, make sure the target *config-keycloak* completed successfully.
+You can repeatedly run ```make config-keycloak``` without having to clean the installation and start over.
 
 ### Keycloak Admin password is incorrect
 To retrieve the admin pasword from the secret adnd decode it you can run:  
