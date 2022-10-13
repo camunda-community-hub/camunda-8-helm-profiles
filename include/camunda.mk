@@ -24,7 +24,7 @@ keycloak-password:
 
 .PHONY: config-keycloak
 config-keycloak: keycloak-password
-	kubectl wait --for=condition=Running pod -l app.kubernetes.io/component=keycloak --timeout=300s
+	kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=keycloak --timeout=300s
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/camunda-platform -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 
