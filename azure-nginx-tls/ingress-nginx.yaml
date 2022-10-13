@@ -1,13 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-metadata: 
+metadata:
     name: ingress-nginx-controller
-    # annotations:
-      # nginx.ingress.kubernetes.io/ssl-redirect: "false"
-      # nginx.ingress.kubernetes.io/use-regex: "true"
-      # nginx.ingress.kubernetes.io/rewrite-target: /$2
-      # service.beta.kubernetes.io/azure-load-balancer-resource-group: "mc_greenfield-group-01_camunda-greenfield-01_eastus"
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
+  ingressClassName: nginx
   rules:
     - host: identity.127.0.0.1.nip.io
       http:
@@ -59,3 +57,7 @@ spec:
                 name: camunda-optimize
                 port:
                   number: 80
+  tls:
+    - secretName: tls-secret
+      hosts:
+        - 127.0.0.1.nip.io
