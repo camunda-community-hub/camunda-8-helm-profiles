@@ -9,7 +9,7 @@ minSize ?= 1
 maxSize ?= 6
 # These must be set to match resources that already exist inside an existing Azure Environment
 resourceGroup ?= greenfield-group-01
-chartValues ?= camunda-values-nginx.yaml
+chartValues ?= camunda-values-nginx-tls.yaml
 dnsLabel ?= camapac
 certEmail ?= robert.emsbach@camunda.com
 
@@ -17,19 +17,25 @@ certEmail ?= robert.emsbach@camunda.com
 # Include ingress-azure from greenfiled\kubernetes-azure.mk not suitable, no aplication gatewya required here.
 
 .PHONY: all
-all: cert-manager issuers ingress camunda config-keycloak ingress-nginx-update external-urls
+all: cert-manager issuers ingress-nginx camunda-values-nginx-tls.yaml camunda config-keycloak external-urls
+# ingress-nginx-update
 
 # 1 cert-manager from cert-manager.mk via include: create certificate manager for tls
 
 # 2 issuers from cert-manager.mk via include: create letsencypt cert issuers
 
-# 3 ingress from ingress-nginx.mk via include: create ingress-nginx and camunda-values-nginx.yaml
+# 3 ingress-nginx from ingress-nginx.mk via include: create ingress-nginx
 
-# 4 camunda from camunda.mk via include
+# 4 create camunda-values-nginx.yaml
+.PHONY: camunda-values-nginx-tls.yaml
+camunda-values-nginx-tls.yaml: ingress-ip-from-service
+	sed "s/127.0.0.1/$(IP)/g;" camunda-values.yaml > ./$(chartValues)
 
-# 5 config-keycloak from camunda.mk via include
+# 5 camunda from camunda.mk via include
 
-# 6 aply routes to ingress. Can't use ingress-azure via include as it expects a setup with application gateway
+# 6 config-keycloak from camunda.mk via include
+
+# 7 aply routes to ingress. Can't use ingress-azure via include as it expects a setup with application gateway
 .PHONY: ingress-nginx-update
 ingress-nginx-update: ingress-ip-from-service
 	@echo "Configuring ingress controller routes for: http://$(IP).nip.io" ;
@@ -40,13 +46,21 @@ ingress-zeebe-update: ingress-ip-from-service
 	@echo "Configuring ingress controller routes for: http://$(IP).nip.io" ;
 	cat zeebe-ingress.yaml | sed -E "s/([0-9]{1,3}\.){3}[0-9]{1,3}/$(IP)/g" | kubectl apply -n camunda -f -
 
-# 7 Show external URLs for web applications
+# 8 Show external URLs for web applications
 .PHONY: external-urls
 external-urls: ingress-ip-from-service
 	@echo https://keycloak.$(IP).nip.io
 	@echo https://identity.$(IP).nip.io
 	@echo https://operate.$(IP).nip.io
-	@echo https://optimize.$(IP).nip.io
+	@echo https://tasklist.$(IP).nip.io
+	@echo https://optimize.$(IP).nip.
+	@echo zeebe.$(IP).nip:26500
+
+
+.PHONY: zb-status
+zb-status: ingress-ip-from-service
+	set ZEEBE_ADDRESS=zeebe.$(IP).nip:26500
+	zbctl status --insecure
 
 # <--- End of setup --->
 

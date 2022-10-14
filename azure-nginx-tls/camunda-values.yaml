@@ -1,0 +1,121 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+global:
+  identity:
+    auth:
+      publicIssuerUrl: "https://keycloak.127.0.0.1.nip.io/auth/realms/camunda-platform"
+      operate:
+        redirectUrl: "https://operate.127.0.0.1.nip.io"
+      tasklist:
+        redirectUrl: "https://tasklist.127.0.0.1.nip.io"
+      optimize:
+        redirectUrl: "https://optimize.127.0.0.1.nip.io"
+operate:
+  ingress:
+    enabled: true
+    host: "operate.127.0.0.1.nip.io"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+
+tasklist:
+  ingress:
+    enabled: true
+    host: "tasklist.127.0.0.1.nip.io"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+
+optimize:
+  env:
+   - name: CAMUNDA_OPTIMIZE_EMAIL_ACCESS_URL
+     value: "https://optimize.127.0.0.1.nip.io"
+  ingress:
+    enabled: true
+    host: "optimize.127.0.0.1.nip.io"
+    tls:
+      enabled: false
+      secretName: "tls-secret"    
+
+identity:
+  env:
+   - name: IDENTITY_URL
+     value: "https://identity.127.0.0.1.nip.io"
+  ingress:
+    enabled: true
+    host: "identity.127.0.0.1.nip.io"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  keycloak:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hostname: "keycloak.127.0.0.1.nip.io"
+      tls: false
+      extraHosts: []
+      extraTls:
+      - hosts:
+        - keycloak.127.0.0.1.nip.io
+        secretName: "tls-secret"
+    extraEnvVars:
+      - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+        value: "true"
+      - name: KEYCLOAK_FRONTEND_URL
+        value: "https://keycloak.127.0.0.1.nip.io"
+
+zeebe-gateway:
+  replicas: 1
+  ingress:
+    enabled: true
+    host: zeebe.127.0.0.1.nip.io
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2048Mi"
+      cpu: "1000m"  
+
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 1Gi
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+  
+elasticsearch:
+  enabled: true
+  imageTag: 7.17.3
+  replicas: 1
+  minimumMasterNodes: 1
+  # Allow no backup for single node setups
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+  # Request smaller persistent volumes.
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "standard"
+    resources:
+      requests:
+        storage: 15Gi
+  
