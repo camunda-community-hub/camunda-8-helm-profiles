@@ -62,6 +62,9 @@ zb-status: ingress-ip-from-service
 	set ZEEBE_ADDRESS=zeebe.$(IP).nip:26500
 	zbctl status --insecure
 
+# zbctl --insecure deploy /mnt/c/Users/Rob/Downloads/onetask.bpmn
+# zbctl --insecure create instance MyProcess
+
 # <--- End of setup --->
 
 # Remove nginx ingress and Camunda from cluster

@@ -4,6 +4,9 @@
 # https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
 
 global:
+  image:
+    # allways work with the latest versions in development
+    tag: latest
   identity:
     auth:
       publicIssuerUrl: "https://keycloak.127.0.0.1.nip.io/auth/realms/camunda-platform"
@@ -112,10 +115,10 @@ elasticsearch:
       cpu: "1000m"
       memory: "2Gi"
   # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    storageClassName: "standard"
-    resources:
-      requests:
-        storage: 15Gi
+  # volumeClaimTemplate:
+  #   accessModes: [ "ReadWriteOnce" ]
+  #   storageClassName: "standard"
+  #   resources:
+  #     requests:
+  #       storage: 15Gi
   
