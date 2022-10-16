@@ -1,6 +1,7 @@
 .PHONY: azure-gateway-ip-address
 azure-gateway-ip-address:
 	$(eval IP := $(shell az network public-ip show -g $(nodeResourceGroup) -n $(gatewayName)-appgwpip -o json --query ipAddress | xargs))
+	@echo Appliocation Gateway IP: $(IP)
 
 camunda-values-azure.yaml: azure-gateway-ip-address
 	sed "s/127.0.0.1/$(IP)/g;" ../ingress-nginx/camunda-values.yaml > ./camunda-values-azure.yaml

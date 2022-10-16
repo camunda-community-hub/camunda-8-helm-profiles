@@ -45,3 +45,47 @@ identity:
   ingress:
     enabled: true
     host: "identity.127.0.0.1.nip.io"
+
+# Uncomment for smaller setup e.g. for dev/testing
+# zeebe:
+#   clusterSize: 1
+#   partitionCount: 1
+#   replicationFactor: 1
+#   pvcSize: 1Gi
+
+#   resources:
+#     requests:
+#       cpu: "100m"
+#       memory: "512M"
+#     limits:
+#       cpu: "512m"
+#       memory: "2Gi"
+
+# zeebe-gateway:
+#   replicas: 1
+
+#   resources:
+#     requests:
+#       cpu: "100m"
+#       memory: "512M"
+#     limits:
+#       cpu: "1000m"
+#       memory: "1Gi"
+
+#   logLevel: ERROR
+
+# elasticsearch:
+#   enabled: true
+#   imageTag: 7.17.3
+#   replicas: 1
+#   minimumMasterNodes: 1
+#   # Allow no backup for single node setups
+#   clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+
+#   resources:
+#     requests:
+#       cpu: "100m"
+#       memory: "512M"
+#     limits:
+#       cpu: "1000m"
+#       memory: "2Gi"
