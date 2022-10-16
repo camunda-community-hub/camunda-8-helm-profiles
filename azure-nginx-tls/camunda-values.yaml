@@ -2,82 +2,66 @@
 # This file deliberately contains only the values that differ from the defaults.
 # For changes and documentation, use your favorite diff tool to compare it with:
 # https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+# See options: https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/README.md
 
 global:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "mydnslabel.eastus.cloudapp.azure.com"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
   image:
     # allways work with the latest versions in development
     tag: latest
   identity:
     auth:
-      publicIssuerUrl: "https://keycloak.127.0.0.1.nip.io/auth/realms/camunda-platform"
+      publicIssuerUrl: "https://mydnslabel.eastus.cloudapp.azure.com/auth/realms/camunda-platform"
       operate:
-        redirectUrl: "https://operate.127.0.0.1.nip.io"
+        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/operate"
       tasklist:
-        redirectUrl: "https://tasklist.127.0.0.1.nip.io"
+        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/tasklist"
       optimize:
-        redirectUrl: "https://optimize.127.0.0.1.nip.io"
+        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/optimize"
 operate:
-  ingress:
-    enabled: true
-    host: "operate.127.0.0.1.nip.io"
-    tls:
-      enabled: true
-      secretName: "tls-secret"
-
+  contextPath: "/operate"
 tasklist:
-  ingress:
-    enabled: true
-    host: "tasklist.127.0.0.1.nip.io"
-    tls:
-      enabled: true
-      secretName: "tls-secret"
-
+  contextPath: "/tasklist"
 optimize:
+  contextPath: "/optimize"
   env:
    - name: CAMUNDA_OPTIMIZE_EMAIL_ACCESS_URL
-     value: "https://optimize.127.0.0.1.nip.io"
-  ingress:
-    enabled: true
-    host: "optimize.127.0.0.1.nip.io"
-    tls:
-      enabled: false
-      secretName: "tls-secret"    
-
+     value: "https://mydnslabel.eastus.cloudapp.azure.com/optimize"
 identity:
+  contextPath: "/identity"
   env:
    - name: IDENTITY_URL
-     value: "https://identity.127.0.0.1.nip.io"
-  ingress:
-    enabled: true
-    host: "identity.127.0.0.1.nip.io"
-    tls:
-      enabled: true
-      secretName: "tls-secret"
+     value: "mydnslabel.eastus.cloudapp.azure.com/identity"
+  
   keycloak:
-    ingress:
-      enabled: true
-      ingressClassName: nginx
-      hostname: "keycloak.127.0.0.1.nip.io"
-      tls: false
-      extraHosts: []
-      extraTls:
-      - hosts:
-        - keycloak.127.0.0.1.nip.io
-        secretName: "tls-secret"
+  #   ingress:
+  #     enabled: true
+  #     ingressClassName: nginx
+  #     hostname: "mydnslabel.eastus.cloudapp.azure.com"
+  #     path: "/keycloak"
+  #     tls: true
+  #     extraHosts: []
+  #     extraTls:
+  #     - hosts:
+  #       - mydnslabel.eastus.cloudapp.azure.com
+  #       secretName: "tls-secret"
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
-        value: "https://keycloak.127.0.0.1.nip.io"
+        value: "https://mydnslabel.eastus.cloudapp.azure.com/keycloak"
 
 zeebe-gateway:
-  replicas: 1
   ingress:
     enabled: true
-    host: zeebe.127.0.0.1.nip.io
-    tls:
-      enabled: true
-      secretName: "tls-secret"
+    className: nginx
+    host: "zeebe.mydnslabel.eastus.cloudapp.azure.com"
   resources:
     requests:
       memory: "512Mi"
@@ -115,10 +99,10 @@ elasticsearch:
       cpu: "1000m"
       memory: "2Gi"
   # Request smaller persistent volumes.
-  # volumeClaimTemplate:
-  #   accessModes: [ "ReadWriteOnce" ]
-  #   storageClassName: "standard"
-  #   resources:
-  #     requests:
-  #       storage: 15Gi
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "standard"
+    resources:
+      requests:
+        storage: 30Gi
   
