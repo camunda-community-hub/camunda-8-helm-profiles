@@ -58,6 +58,7 @@ identity:
         value: "https://mydnslabel.eastus.cloudapp.azure.com/keycloak"
 
 zeebe-gateway:
+  replicas: 1
   ingress:
     enabled: true
     className: nginx
@@ -99,10 +100,10 @@ elasticsearch:
       cpu: "1000m"
       memory: "2Gi"
   # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    storageClassName: "standard"
-    resources:
-      requests:
-        storage: 30Gi
+  # volumeClaimTemplate:
+  #   accessModes: [ "ReadWriteOnce" ]
+  #   storageClassName: "standard"
+  #   resources:
+  #     requests:
+  #       storage: 30Gi
   

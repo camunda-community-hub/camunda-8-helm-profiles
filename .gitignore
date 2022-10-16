@@ -4,4 +4,4 @@ ingress-azure/camunda-values-azure.yaml
 ingress-aws/camunda-values-aws.yaml
 ingress-nginx/camunda-values-nginx.yaml
 cert
-azure-nginx-tls/camunda-values-nginx.yaml
+azure-nginx-tls/camunda-values-nginx-tls.yaml
