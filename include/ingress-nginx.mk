@@ -11,7 +11,7 @@ ingress-nginx:
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
 	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
-	echo "Ingress controller will be configured to use address: http://$(IP).nip.io"
+	@echo "Ingress controller will be configured to use address: http://$(IP).nip.io"
 
 camunda-values-nginx.yaml: ingress-ip-from-service
 	sed "s/127.0.0.1/$(IP)/g;" ../ingress-nginx/camunda-values.yaml > ./camunda-values-nginx.yaml
