@@ -13,8 +13,7 @@ global:
       enabled: true
       secretName: "tls-secret"
   image:
-    # allways work with the latest versions in development
-    tag: latest
+      tag: 8.1.1
   identity:
     auth:
       publicIssuerUrl: "https://mydnslabel.eastus.cloudapp.azure.com/auth/realms/camunda-platform"
