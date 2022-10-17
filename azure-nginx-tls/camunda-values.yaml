@@ -37,7 +37,7 @@ identity:
   contextPath: "/identity"
   env:
    - name: IDENTITY_URL
-     value: "mydnslabel.eastus.cloudapp.azure.com/identity"
+     value: "https://mydnslabel.eastus.cloudapp.azure.com/identity"
   
   keycloak:
   #   ingress:
@@ -55,7 +55,7 @@ identity:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
-        value: "https://mydnslabel.eastus.cloudapp.azure.com/keycloak"
+        value: "https://mydnslabel.eastus.cloudapp.azure.com/auth"
 
 zeebe-gateway:
   replicas: 1
@@ -105,5 +105,5 @@ elasticsearch:
   #   storageClassName: "standard"
   #   resources:
   #     requests:
-  #       storage: 30Gi
+  #       storage: 50Gi
   
