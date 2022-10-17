@@ -14,7 +14,8 @@ global:
       secretName: "tls-secret"
   image:
       tag: 8.1.1
-      pullPolicy: Always
+      # tag: latest
+      # pullPolicy: Always
   identity:
     auth:
       publicIssuerUrl: "https://mydnslabel.eastus.cloudapp.azure.com/auth/realms/camunda-platform"
