@@ -37,8 +37,9 @@ nginx-dns-tls:
 
 # 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
 .PHONY: camunda-values-nginx-tls.yaml
-camunda-values-nginx-tls.yaml: ingress-ip-from-service
-	@sed "s/mydnslabel.eastus.cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
+camunda-values-nginx-tls.yaml:
+	@echo Ingress controller will use fqdn: $(fqdn).$(region).cloudapp.azure.com
+	@sed "s/mydnslabel.$(region).cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 
