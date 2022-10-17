@@ -53,9 +53,25 @@ clean-camunda:
 	-kubectl delete -n $(namespace) pvc -l app=elasticsearch-master
 	-kubectl delete namespace $(namespace)
 
-.PHONY: logs
-logs:
+.PHONY: zeebe-logs
+zeebe-logs:
 	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=zeebe
+
+.PHONY: keycloak-logs
+keycloak-logs:
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=keycloak
+
+.PHONY: identity-logs
+identity-logs:
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=identity
+
+.PHONY: operate-logs
+operate-logs:
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=operate
+
+.PHONY: es-logs
+es-logs:
+	kubectl logs -f -n $(namespace) -l app=elasticsearch-master
 
 .PHONY: watch
 watch:
