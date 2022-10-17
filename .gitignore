@@ -3,4 +3,4 @@ workspace.code-workspace
 ingress-azure/camunda-values-azure.yaml
 ingress-aws/camunda-values-aws.yaml
 ingress-nginx/camunda-values-nginx.yaml
-azure/nginx/tls/camunda-values-tls.yaml
+azure/nginx/tls/camunda-values-nginx-tls.yaml
