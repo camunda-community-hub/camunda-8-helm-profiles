@@ -24,7 +24,7 @@ keycloak-password:
 
 .PHONY: config-keycloak
 config-keycloak: keycloak-password
-	kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=keycloak --timeout=300s
+	kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=keycloak --timeout=600s
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/camunda-platform -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 
@@ -56,6 +56,22 @@ clean-camunda:
 .PHONY: logs
 logs:
 	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=zeebe
+
+.PHONY: keycloak-logs
+keycloak-logs:
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=keycloak
+
+.PHONY: identity-logs
+identity-logs:
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=identity
+
+.PHONY: operate-logs
+operate-logs:
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=operate
+
+.PHONY: es-logs
+es-logs:
+	kubectl logs -f -n $(namespace) -l app=elasticsearch-master
 
 .PHONY: watch
 watch:
