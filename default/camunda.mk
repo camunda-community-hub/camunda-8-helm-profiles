@@ -69,6 +69,10 @@ identity-logs:
 operate-logs:
 	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=operate
 
+.PHONY: tasklist-logs
+tasklist-logs:
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=tasklist
+
 .PHONY: es-logs
 es-logs:
 	kubectl logs -f -n $(namespace) -l app=elasticsearch-master
