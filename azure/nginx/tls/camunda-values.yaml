@@ -1,0 +1,109 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+# See options: https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/README.md
+
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "mydnslabel.eastus.cloudapp.azure.com"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  image:
+    # allways work with the latest versions in development
+    tag: latest
+  identity:
+    auth:
+      publicIssuerUrl: "https://mydnslabel.eastus.cloudapp.azure.com/auth/realms/camunda-platform"
+      operate:
+        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/operate"
+      tasklist:
+        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/tasklist"
+      optimize:
+        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/optimize"
+operate:
+  contextPath: "/operate"
+tasklist:
+  contextPath: "/tasklist"
+optimize:
+  contextPath: "/optimize"
+  env:
+   - name: CAMUNDA_OPTIMIZE_EMAIL_ACCESS_URL
+     value: "https://mydnslabel.eastus.cloudapp.azure.com/optimize"
+identity:
+  contextPath: "/identity"
+  env:
+   - name: IDENTITY_URL
+     value: "https://mydnslabel.eastus.cloudapp.azure.com/identity"
+  
+  keycloak:
+  #   ingress:
+  #     enabled: true
+  #     ingressClassName: nginx
+  #     hostname: "mydnslabel.eastus.cloudapp.azure.com"
+  #     path: "/keycloak"
+  #     tls: true
+  #     extraHosts: []
+  #     extraTls:
+  #     - hosts:
+  #       - mydnslabel.eastus.cloudapp.azure.com
+  #       secretName: "tls-secret"
+    extraEnvVars:
+      - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+        value: "true"
+      - name: KEYCLOAK_FRONTEND_URL
+        value: "https://mydnslabel.eastus.cloudapp.azure.com/auth"
+
+zeebe-gateway:
+  replicas: 1
+  ingress:
+    enabled: true
+    className: nginx
+    host: "zeebe.mydnslabel.eastus.cloudapp.azure.com"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2048Mi"
+      cpu: "1000m"  
+
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 1Gi
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+  
+elasticsearch:
+  enabled: true
+  imageTag: 7.17.3
+  replicas: 1
+  minimumMasterNodes: 1
+  # Allow no backup for single node setups
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+  # Request smaller persistent volumes.
+  # volumeClaimTemplate:
+  #   accessModes: [ "ReadWriteOnce" ]
+  #   storageClassName: "standard"
+  #   resources:
+  #     requests:
+  #       storage: 50Gi
+  
