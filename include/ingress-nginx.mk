@@ -3,11 +3,10 @@ ingress: ingress-nginx camunda-values-nginx.yaml
 
 .PHONY: ingress-nginx
 ingress-nginx:
-	-kubectl create namespace ingress-nginx
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	helm repo update ingress-nginx
 	helm search repo ingress-nginx
-	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
