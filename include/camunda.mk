@@ -77,6 +77,10 @@ tasklist-logs:
 es-logs:
 	kubectl logs -f -n $(namespace) -l app=elasticsearch-master
 
+.PHONY: get-ingress
+get-ingress:
+	kubectl get ingress -l app.kubernetes.io/name=camunda-platform -o yaml
+
 .PHONY: watch
 watch:
 	kubectl get pods -w -n $(namespace)
