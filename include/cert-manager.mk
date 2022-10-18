@@ -23,3 +23,8 @@ letsencypt-prod:
 letsencypt-prod-patch:
 	kubectl patch ClusterIssuer letsencrypt --type json -p '[{"op": "replace", "path": "/spec/acme/sever", "value":"$(prodserver)"}]'
 	kubectl describe ClusterIssuer letsencrypt | grep letsencrypt.org
+
+.PHONY: annotate-camunda-ingress
+annotate-camunda-ingress:
+	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
+	make get-ingress
