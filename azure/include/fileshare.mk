@@ -1,3 +1,4 @@
+# https://learn.microsoft.com/en-us/azure/aks/azure-files-volume
 # https://9to5tutorial.com/mount-an-azure-file-share-from-a-pod-on-an-aks-virtual-node-aci
 # https://zimmergren.net/mount-an-azure-storage-file-share-to-deployments-in-azure-kubernetes-services-aks/
 fsAccount ?= mystorage
@@ -11,13 +12,14 @@ fileshare:
 	@echo $(fsAccount)
 	az group create -n $(fsRg) -l $(region)
 	az storage account create -n $(fsAccount) -g $(fsRg) -l $(region) --sku Standard_LRS
-#	$(eval fsConStr := $(shell az storage account show-connection-string -n $(fsAccount) -g $(fsRg) -o tsv))
-#	az storage share create -n $(fsShare) --connection-string $(fsConStr)
-#	$(eval fsKey := $(shell az storage account keys list --resource-group $(fsRg) --account-name $(fsAccount) --query "[0].value" -o tsv))
-	@echo Storage account name: $(fsAccount)
-	@echo Storage account key: $(fsKey)
+	$(eval fsConStr := $(shell az storage account show-connection-string -n $(fsAccount) -g $(fsRg) -o tsv))
+	az storage share create -n $(fsShare) --connection-string $(fsConStr)
+	$(eval fsKey := $(shell az storage account keys list --resource-group $(fsRg) --account-name $(fsAccount) --query "[0].value" -o tsv))
+	@echo Creating secerte for storage account name: $(fsAccount) and key: $(fsKey)
+	kubectl create secret generic fs-secret --from-literal=azurestorageaccountname=$$(fsAccount) --from-literal=azurestorageaccountkey=$(fsKey)
 
 .PHONY: clean-fileshare
 clean-fileshare:
 	az storage share delete -n $(fsAccount)
 	az group delete -n $(fsRg) -l $(region)
+
