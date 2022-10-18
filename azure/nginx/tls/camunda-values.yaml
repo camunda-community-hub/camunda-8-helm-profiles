@@ -25,33 +25,32 @@ global:
         redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/tasklist"
       optimize:
         redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/optimize"
+
 operate:
   contextPath: "/operate"
+
 tasklist:
   contextPath: "/tasklist"
+
 optimize:
   contextPath: "/optimize"
-  env:
-   - name: CAMUNDA_OPTIMIZE_EMAIL_ACCESS_URL
-     value: "https://mydnslabel.eastus.cloudapp.azure.com/optimize"
+
 identity:
   contextPath: "/identity"
-  env:
-   - name: IDENTITY_URL
-     value: "https://mydnslabel.eastus.cloudapp.azure.com/identity"
+  fullURL: "https://mydnslabel.eastus.cloudapp.azure.com/identity"
   
   keycloak:
-  #   ingress:
-  #     enabled: true
-  #     ingressClassName: nginx
-  #     hostname: "mydnslabel.eastus.cloudapp.azure.com"
-  #     path: "/keycloak"
-  #     tls: true
-  #     extraHosts: []
-  #     extraTls:
-  #     - hosts:
-  #       - mydnslabel.eastus.cloudapp.azure.com
-  #       secretName: "tls-secret"
+  #  ingress:
+  #    enabled: true
+  #    ingressClassName: nginx
+  #    hostname: "mydnslabel.eastus.cloudapp.azure.com"
+  #    path: "/keycloak"
+  #    tls: true
+  #    extraHosts: []
+  #    extraTls:
+  #    - hosts:
+  #      - mydnslabel.eastus.cloudapp.azure.com
+  #      secretName: "tls-secret"
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
@@ -59,18 +58,18 @@ identity:
         value: "https://mydnslabel.eastus.cloudapp.azure.com/auth"
 
 zeebe-gateway:
-  replicas: 1
   ingress:
     enabled: true
     className: nginx
     host: "zeebe.mydnslabel.eastus.cloudapp.azure.com"
+  replicas: 1
   resources:
     requests:
       memory: "512Mi"
       cpu: "250m"
     limits:
       memory: "2048Mi"
-      cpu: "1000m"  
+      cpu: "1000m"   
 
 zeebe:
   clusterSize: 1
