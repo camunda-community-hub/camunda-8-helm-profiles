@@ -19,6 +19,7 @@ letsencypt-staging:
 letsencypt-prod:
 	cat $(root)include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | sed -E "s/acme-staging-v02/acme-v02/g" | kubectl apply -n cert-manager -f -
 
+#TODO: succeeds, but does not seem to have right effect
 .PHONY: letsencypt-prod-patch
 letsencypt-prod-patch:
 	kubectl patch ClusterIssuer letsencrypt --type json -p '[{"op": "replace", "path": "/spec/acme/sever", "value":"$(prodserver)"}]'
