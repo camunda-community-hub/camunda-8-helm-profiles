@@ -11,18 +11,19 @@ maxSize ?= 6
 # These must be set to match resources that already exist inside an existing Azure Environment
 resourceGroup ?= camunda-rg
 chartValues ?= camunda-values-nginx-tls.yaml
-dnsLabel ?= camundaapac
+dnsLabel ?= ...
 certEmail ?= robert.emsbach@camunda.com
 fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
+# fqdn = $(IP).nip.io
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gatewya required)
 
 .PHONY: all
-all: cert-manager letsencypt-staging nginx-dns-tls camunda-values-nginx-tls.yaml camunda config-keycloak external-urls
+all: cert-manager letsencypt-staging nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls config-keycloak external-urls
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
-# 2 letsencypt-staging from cert-manager.mk: create letsencypt cert issuer
+# 2 letsencypt-staging/-prod from cert-manager.mk: create letsencypt cert issuer
 
 # 3 create nginx ingress controller with dns and tls
 .PHONY: nginx-dns-tls
@@ -32,20 +33,23 @@ nginx-dns-tls:
 	helm search repo ingress-nginx
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
 	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
+	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
 	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt"
-	@echo $(fqdn)
 
 # 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
 .PHONY: camunda-values-nginx-tls.yaml
-camunda-values-nginx-tls.yaml:
-	@echo Ingress controller will use fqdn: $(fqdn).$(region).cloudapp.azure.com
+camunda-values-nginx-tls.yaml: ingress-ip-from-service
+	@echo Ingress controller will use fqdn: $(fqdn)
 	@sed "s/mydnslabel.$(region).cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
+#	@sed "s/mydnslabel.$(region).cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 
-# 6 config-keycloak from camunda.mk: let keycloak allow non-ssl connections
+# 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
 
-# 7 Show external URLs
+# 7 config-keycloak from camunda.mk: let keycloak allow non-ssl connections
+
+# 8 Show external URLs
 .PHONY: external-urls
 external-urls: ingress-ip-from-service
 	@echo https://$(fqdn)/auth
@@ -58,8 +62,8 @@ external-urls: ingress-ip-from-service
 # <--- End of setup --->
 
 # Remove nginx ingress and Camunda from cluster
-.PHONY: clean
-clean: clean-ingress clean-camunda
+.PHONY: clean-all
+clean-all: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
 
 # clean cert-manager and cluster issuer
