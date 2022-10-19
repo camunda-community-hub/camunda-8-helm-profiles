@@ -13,7 +13,7 @@ cert-manager:
 
 .PHONY: letsencypt-staging
 letsencypt-staging:
-	cat $(root)include/letsencypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl create -n cert-manager -f -
+	cat $(root)include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl create -n cert-manager -f -
 	
 .PHONY: letsencypt-prod
 letsencypt-prod:
@@ -25,7 +25,7 @@ letsencypt-prod-patch:
 	kubectl patch ClusterIssuer letsencrypt --type json -p '[{"op": "replace", "path": "/spec/acme/sever", "value":"$(prodserver)"}]'
 	kubectl describe ClusterIssuer letsencrypt | grep letsencrypt.org
 
-.PHONY: annotate-camunda-ingress
-annotate-camunda-ingress:
+.PHONY: annotate-ingress-tls
+annotate-ingress-tls:
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
 	make get-ingress
