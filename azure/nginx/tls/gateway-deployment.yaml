@@ -1,0 +1,44 @@
+---
+# Source: camunda-platform/charts/zeebe-gateway/templates/gateway-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "camunda-zeebe-gateway"
+spec:
+  selector:
+    matchLabels:
+      app: camunda-platform
+      app.kubernetes.io/name: zeebe-gateway
+      app.kubernetes.io/instance: camunda
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/part-of: camunda-platform
+      app.kubernetes.io/component: zeebe-gateway
+  template:
+    metadata:
+      labels:
+        app: camunda-platform
+        app.kubernetes.io/name: zeebe-gateway
+        app.kubernetes.io/instance: camunda
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: camunda-platform
+        helm.sh/chart: zeebe-gateway-8.0.14
+        app.kubernetes.io/version: "8.1.1"
+        app.kubernetes.io/component: zeebe-gateway
+      annotations:
+        {}
+    spec:
+      containers:
+        - name: zeebe-gateway
+      volumes:
+        - name: azure
+          csi:
+            driver: file.csi.azure.com
+            readOnly: false
+            volumeAttributes:
+              secretName: fs-secret
+              shareName: aksshare
+              mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"  # optional
+        - name: config
+          configMap:
+            name: camunda-zeebe-gateway-gateway
+            defaultMode: 484
