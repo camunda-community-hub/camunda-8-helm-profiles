@@ -11,7 +11,7 @@ maxSize ?= 6
 # These must be set to match resources that already exist inside an existing Azure Environment
 resourceGroup ?= camunda-rg
 chartValues ?= camunda-values-nginx-tls.yaml
-dnsLabel ?= ...
+dnsLabel ?= camapac
 certEmail ?= robert.emsbach@camunda.com
 fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
 # fqdn = $(IP).nip.io
@@ -19,7 +19,7 @@ fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gatewya required)
 
 .PHONY: all
-all: cert-manager letsencypt-staging nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls config-keycloak external-urls
+all: cert-manager letsencypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls config-keycloak external-urls
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
@@ -66,18 +66,11 @@ external-urls: ingress-ip-from-service
 clean-all: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
 
-# clean cert-manager and cluster issuer
-.PHONY: clean-cert-manager
-clean-cert-manager:
-	helm --namespace cert-manager delete cert-manager
-	kubectl delete namespace cert-manager
-
 include $(root)include/camunda.mk
 include $(root)include/ingress-nginx.mk
 include $(root)include/cert-manager.mk
-include $(root)azure/include/cluster.mk
-include $(root)include/zbctl.mk
+include $(root)azure/include/aks.mk
 include $(root)azure/include/fileshare.mk
-
+# include $(root)include/zbctl.mk
 
 

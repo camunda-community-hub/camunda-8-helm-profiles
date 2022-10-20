@@ -29,3 +29,9 @@ letsencypt-prod-patch:
 annotate-ingress-tls:
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
 	make get-ingress
+
+# clean cert-manager and cluster issuer
+.PHONY: clean-cert-manager
+clean-cert-manager:
+	helm --namespace cert-manager delete cert-manager
+	kubectl delete namespace cert-manager
