@@ -1,5 +1,7 @@
 ---
 # Source: camunda-platform/charts/zeebe-gateway/templates/gateway-deployment.yaml
+# https://docs.camunda.io/docs/self-managed/zeebe-deployment/interceptors/#loading-an-interceptor-into-a-gateway
+# https://github.com/camunda-community-hub/zeebe-keycloak-interceptor
 apiVersion: apps/v1
 kind: Deployment
 metadata:
