@@ -1,8 +1,8 @@
 helmProfilesDir ?= ../../camunda-8-helm-profiles
 
 project ?= camunda-researchanddevelopment
-clusterName ?= camunda-greenfield-01
-region ?= us-east1-b
+clusterName ?= camunda
+region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
 machineType ?= n1-standard-16
 
 # This file is created during the make call which runs inside `$(helmProfilesDir)/ingress-nginx`
