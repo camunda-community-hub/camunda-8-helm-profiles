@@ -20,7 +20,7 @@ kube:
 	  --maintenance-window=4:00 \
 	  --release-channel=regular \
 	  --cluster-version=latest
-	kubectl apply -f ./ssd-storageclass-gke.yaml
+	kubectl apply -f ../include/ssd-storageclass-gke.yaml
 	gcloud config set project $(project)
 	gcloud container clusters get-credentials $(clusterName) --region $(region)
 
