@@ -28,3 +28,23 @@ Or the development profile, which can be used with KIND:
 ```
 helm install test-core camunda/camunda-platform --values https://raw.githubusercontent.com/camunda-community-hub/camunda-8-helm-profiles/master/development/camunda-values.yaml
 ```
+
+# Global Prerequisites
+
+Complete the following steps regardless of which cloud provider you use.
+
+1. Verify `kubectl` is installed
+
+       kubectl --help
+
+2. Verify `helm` is installed. Helm version must be at least `3.7.0`
+
+       helm version
+
+3. Verify GNU `make` is installed. 
+
+       make --version
+
+If you don't have one already, the next step is to create a Kubernetes cluster, e.g. on the cloud provider of your choice. See the subfolders:
+
+- [google](google) - Google Cloud Platform (GCP)
