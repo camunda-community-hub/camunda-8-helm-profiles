@@ -1,3 +1,4 @@
+# TODO move this to ingress-nginx or helm chart
 camunda-values.yaml:
 	sed "s/127.0.0.1/$(ipAddress)/g;" camunda-values.tpl.yaml > camunda-values.yaml
 
@@ -6,6 +7,7 @@ clean-files:
 	rm -f .disks
 	rm -f camunda-values.yaml
 
+# TODO maybe make initial cluster size bigger so that `helm install` doesn't have to wait for the autoscaler to spin up nodes
 .PHONY: kube
 kube:
 	gcloud config set project $(project)
