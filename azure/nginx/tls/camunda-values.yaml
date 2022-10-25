@@ -13,18 +13,18 @@ global:
       enabled: true
       secretName: "tls-secret"
   image:
-      tag: 8.1.1
+      tag: 8.1.2
       # tag: latest
       # pullPolicy: Always
   identity:
     auth:
-      publicIssuerUrl: "https://mydnslabel.eastus.cloudapp.azure.com/auth/realms/camunda-platform"
+      publicIssuerUrl: "https://dnslabel.location.cloudapp.azure.com/auth/realms/camunda-platform"
       operate:
-        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/operate"
+        redirectUrl: "https://dnslabel.location.cloudapp.azure.com/operate"
       tasklist:
-        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/tasklist"
+        redirectUrl: "https://dnslabel.location.cloudapp.azure.com/tasklist"
       optimize:
-        redirectUrl: "https://mydnslabel.eastus.cloudapp.azure.com/optimize"
+        redirectUrl: "https://dnslabel.location.cloudapp.azure.com/optimize"
 
 operate:
   contextPath: "/operate"

@@ -19,7 +19,7 @@ fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gatewya required)
 
 .PHONY: all
-all: cert-manager letsencypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls config-keycloak external-urls
+all: cert-manager letsencypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
@@ -40,16 +40,14 @@ nginx-dns-tls:
 .PHONY: camunda-values-nginx-tls.yaml
 camunda-values-nginx-tls.yaml: ingress-ip-from-service
 	@echo Ingress controller will use fqdn: $(fqdn)
-	@sed "s/mydnslabel.$(region).cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
+	@sed "s/dnslabel.location.cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
 #	@sed "s/mydnslabel.$(region).cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 
 # 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
 
-# 7 config-keycloak from camunda.mk: let keycloak allow non-ssl connections
-
-# 8 Show external URLs
+# 7 Show external URLs
 .PHONY: external-urls
 external-urls: ingress-ip-from-service
 	@echo https://$(fqdn)/auth
@@ -59,7 +57,14 @@ external-urls: ingress-ip-from-service
 	@echo https://$(fqdn)/optimize
 	@echo zeebe.$(fqdn):26500
 
-# <--- End of setup --->
+# 8 public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
+.PHONY: public-zeebe-ingress
+public-zeebe-ingress: 
+	cat $(root)/azure/include/public-zeebe-ingress.yaml | sed -E "s/MY_HOSTNAME/$(fqdn)/g;" | kubectl create -n $(namespace) -f -
+
+# Optional: Run 'make config-keycloak' from camunda.mk to allow non-ssl connections to Keycloak
+
+### <--- End of setup --->
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean-all
