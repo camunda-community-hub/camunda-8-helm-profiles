@@ -67,7 +67,7 @@ watch-zeebe:
 
 .PHONY: await-zeebe
 await-zeebe:
-	kubectl wait --for=condition=Ready pod -n $(namespace) -l app.kubernetes.io/name=zeebe --timeout=900s
+	kubectl rollout status --watch statefulset/$(release)-zeebe --timeout=900s -n $(namespace)
 
 .PHONY: port-zeebe
 port-zeebe:
