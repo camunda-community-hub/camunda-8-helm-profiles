@@ -14,6 +14,8 @@ global:
 
 identity:
   enabled: false
+  keycloak:
+    enabled: false
 
 operate:
   enabled: false
