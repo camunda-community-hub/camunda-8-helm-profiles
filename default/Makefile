@@ -10,4 +10,4 @@ all: camunda
 .PHONY: clean
 clean: clean-camunda
 
-include ../include/camunda.mk
+include ./camunda.mk

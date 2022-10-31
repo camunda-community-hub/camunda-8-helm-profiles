@@ -6,8 +6,7 @@ and also serves as a template for creating new profiles.
 
 This folder contains a [Helm](https://helm.sh/) [values file](camunda-values.yaml)
 for installing the [Camunda Platform Helm Chart](https://helm.camunda.io/)
-on an existing Kubernetes cluster (if you don't have one yet,
-see [Camunda 8 Kubernetes Installation](https://github.com/camunda-community-hub/camunda8-greenfield-installation)).
+on an existing Kubernetes cluster (if you don't have one yet, see [Cloud-platform-specific Profiles](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/README.md#cloud-platform-specific-profiles)).
 A [Makefile](Makefile) is provided to automate the installation process.
 
 ## Install
