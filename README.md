@@ -8,9 +8,9 @@
 
 This is a Community Project that helps to install Camunda and other supporting technologies into Kubernetes.
 
-If you're a DevOps and Kubernetes expert, you may find it easier to use the official [Camunda Helm Charts](https://github.com/camunda/camunda-platform-helm) along with your own methods and tools. 
+If you're a DevOps Kubernetes expert, you may find it easier to use the official [Camunda Helm Charts](https://github.com/camunda/camunda-platform-helm) along with your own methods and tools. 
 
-However, for the rest of us, this project provides `Makefiles`, along with custom scripts and `camunda-values.yaml` files, to help setup a Camunda environment in Kubernetes.
+However, for the rest of us, this project provides `Makefiles`, along with custom scripts and `camunda-values.yaml` files, to help install Camunda into Kubernetes.
 
 If you don't yet have access to a Kubernetes cluster, this project provides scripts to help create a Kubernetes Cluster from scratch in several popular cloud providers, including Google Cloud Platform, Azure, AWS, and Kind. 
 
@@ -18,7 +18,7 @@ If you already have access to a cluster, this project provides scripts to help a
 
 ## How is it Organized?
 
-This repository is organized into sub folders. Each subfolder (except the `include` folder) is designed to support a specific (and opinionated) use case (aka "profile").
+Each subfolder of this project is designed to support a specific (and opinionated) use case (aka "profile").
 
 For example, the `azure/nginx/tls` profile contains everything needed to create a new AKS Cluster, and setup Camunda with TLS nginx ingress.
 
@@ -30,7 +30,7 @@ Please see the `README.md` file inside each profile for more information about t
 
 ## How does it work?
 
-Each profile contains a `Makefile`. These `Makefiles` define `Make` targets for running everything needed for a complete installation. 
+Each profile contains a `Makefile`. These `Makefiles` define `Make` targets to accomplish the work of each profile. 
 
 For example, let's say your use case is to have a fully working Camunda 8 Environment in an Azure AKS Cluster. Simply `cd` into the `azure/nginx/tls` directory, and run `make`. The `Make` targets found there will use the `az` command line tool as well as `kubectl`, and `helm` command line tools to do the tasks needed to create a fully functioning environment. See `azure/nginx/tls/README.md` for more details.
 
@@ -92,7 +92,11 @@ The following profiles can be run against an existing Kubernetes Cluster. If you
 - Metrics - TODO
 - Benchmark - TODO
 
-# Building Custom Profiles
+# Connecting to an existing cluster
+
+TODO: describe how to use `make use-kube`
+
+# Customizing Profiles
 
 It can be convenient to pick and choose pieces of this project and customize it for your own specific purpose.
 
