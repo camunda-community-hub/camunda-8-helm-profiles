@@ -1,0 +1,73 @@
+alertmanager:
+  enabled: false
+
+grafana:
+  image:
+    tag: 8.1.1
+  admin:
+    existingSecret: grafana-admin-password
+    userKey: admin-user
+    passwordKey: admin-password
+  grafana.ini:
+    # auth.github:
+    #   enabled: true
+    #   allow_sign_up: true
+    #   scopes: user:email,read:org
+    #   auth_url: https://github.com/login/oauth/authorize
+    #   token_url: https://github.com/login/oauth/access_token
+    #   api_url: https://api.github.com/user
+    #   allowed_organizations: zeebe-io camunda camunda-cloud
+    #   client_id: "$__file{/etc/secrets/auth-github-oauth/client_id}"
+    #   client_secret: "$__file{/etc/secrets/auth-github-oauth/client_secret}"
+    #   role_attribute_path: "editor"
+  # extraSecretMounts:
+  #   - name: auth-github-oauth
+  #     secretName: auth-github-oauth
+  #     defaultMode: 0440
+  #     mountPath: /etc/secrets/auth-github-oauth
+  #     readOnly: true
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: default
+          orgId: 1
+          folder:
+          type: file
+          disableDeletion: true
+          editable: false
+          options:
+            path: /var/lib/grafana/dashboards/default
+  dashboards:
+    default:
+      zeebe:
+        url: https://raw.githubusercontent.com/zeebe-io/zeebe/develop/monitor/grafana/zeebe.json
+  persistence:
+    enabled: true
+    storageClassName: ssd
+  sidecar:
+    dashboards:
+      searchNamespace: ALL
+#
+# prometheusOperator:
+#   admissionWebhooks:
+#     enabled: false
+
+prometheus:
+  prometheusSpec:
+    retention: 90d
+    shards: null
+    storageSpec:
+      volumeClaimTemplate:
+        metadata:
+          name: prometheus
+          # selector:
+          #   matchLabels:
+          #     app: prometheus
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Gi
+          storageClassName: ssd
