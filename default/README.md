@@ -10,6 +10,9 @@ on an existing Kubernetes cluster (if you don't have one yet, see [Cloud-platfor
 A [Makefile](Makefile) is provided to automate the installation process.
 
 ## Install
+
+Make sure you meet [these prerequisites](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/README.md#prerequisites).
+
 Configure the desired Kubernetes `namespace`, Helm `release` name, and Helm `chart` in [Makefile](Makefile)
 and run:
 
