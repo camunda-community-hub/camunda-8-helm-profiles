@@ -19,10 +19,19 @@ template:
 
 .PHONY: keycloak-password
 keycloak-password:
-	kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode))
+	@echo KeyCloak Admin password: $(kcPassword)	
+
+.PHONY: config-keycloak
+config-keycloak: keycloak-password
+	kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=keycloak --timeout=600s
+	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
+	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/camunda-platform -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 
 .PHONY: update
 update:
+	helm repo update camunda
+	helm search repo $(chart)
 	OPERATE_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-operate-identity-secret" -o jsonpath="{.data.operate-secret}" | base64 --decode); \
 	TASKLIST_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode); \
 	OPTIMIZE_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-optimize-identity-secret" -o jsonpath="{.data.optimize-secret}" | base64 --decode); \
@@ -58,7 +67,7 @@ watch-zeebe:
 
 .PHONY: await-zeebe
 await-zeebe:
-	kubectl wait --for=condition=Ready pod -n $(namespace) -l app.kubernetes.io/name=zeebe --timeout=900s
+	kubectl rollout status --watch statefulset/$(release)-zeebe --timeout=900s -n $(namespace)
 
 .PHONY: port-zeebe
 port-zeebe:
@@ -95,3 +104,5 @@ url-grafana:
 .PHONY: open-grafana
 open-grafana:
 	xdg-open http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath={..ip})/d/I4lo7_EZk/zeebe?var-namespace=$(namespace) &
+
+

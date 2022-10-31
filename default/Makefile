@@ -1,6 +1,7 @@
 namespace ?= camunda
 release ?= camunda
 chart ?= camunda/camunda-platform
+chartValues ?= camunda-values.yaml
 
 
 .PHONY: all
