@@ -40,7 +40,7 @@ Complete the following steps regardless of which cloud provider you use.
 
 1. Clone the [Camunda 8 Helm Profiles git repository](https://github.com/camunda-community-hub/camunda-8-helm-profiles).
 
-> :information_source: **Note** As of October 2022, the [Camunda 8 Greenfield installation project](https://github.com/camunda-community-hub/camunda8-greenfield-installation) has been deprecated. All functionality has been moved from the Greenfield Project into this one. 
+> **Note** As of October 2022, the [Camunda 8 Greenfield installation project](https://github.com/camunda-community-hub/camunda8-greenfield-installation) has been deprecated. All functionality has been moved from the Greenfield Project into this one. 
 
 2. Verify `kubectl` is installed
 
