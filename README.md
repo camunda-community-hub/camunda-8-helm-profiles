@@ -8,13 +8,15 @@
 
 This is a Community Project that helps to install Camunda and other supporting technologies into Kubernetes.
 
-If you're a DevOps Kubernetes expert, you may find it easier to use the official [Camunda Helm Charts](https://github.com/camunda/camunda-platform-helm) along with your own methods and tools. 
+Those who are already familiar with DevOps and Kubernetes may find it easier, and more flexible, to use the official [Camunda Helm Charts](https://github.com/camunda/camunda-platform-helm) along with your own methods and tools. 
 
-However, for the rest of us, this project provides `Makefiles`, along with custom scripts and `camunda-values.yaml` files, to help install Camunda into Kubernetes.
+Otherwise, for those looking for more guidance, this project provides `Makefiles`, along with custom scripts and `camunda-values.yaml` files to help with: 
 
-If you don't yet have access to a Kubernetes cluster, this project provides scripts to help create a Kubernetes Cluster from scratch in several popular cloud providers, including Google Cloud Platform, Azure, AWS, and Kind. 
+- Creating Kubernetes Clusters from scratch in several popular cloud providers, including Google Cloud Platform, Azure, AWS, and Kind. 
 
-If you already have access to a cluster, this project provides scripts to help automate tasks such as installing and configuring Camunda, installing Nginx Ingress controllers, configuring TLS certificates and more. 
+- Installing Camunda into existing Kubernetes Clusters by providing `camunda-values.yaml` pre-configured for specific use cases. 
+
+- Automating common tasks, such as installing Nginx Ingress controllers, configuring TLS certificates, installing Prometheus and Grafana for metrics, etc.  
 
 ## How is it Organized?
 
