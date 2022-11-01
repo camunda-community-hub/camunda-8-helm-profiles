@@ -18,11 +18,12 @@ Update the [Makefile](Makefile). Edit the bash variables so that they are approp
 If you already have a AKS Cluster, set these values to match your existing environment. Otherwise, these values will be used to create a new AKS Cluster:  
 
     region ?= eastus
-    clusterName ?= <YOUR CLUSTER NAME>
+    clusterName ?= MY_CLUSTER_NAME
+    resourceGroup ?= MY_CLUSTER_NAME-rg
+    dnsLabel ?= MY_DOMAIN_NAME
     machineType ?= Standard_A8_v2
     minSize ?= 1
     maxSize ?= 6
-    resourceGroup ?= <YOUR GROUP NAME>
 
 ## Create AKS Cluster
 

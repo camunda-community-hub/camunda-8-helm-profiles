@@ -1,3 +1,58 @@
+# Camunda 8 Helm Profile: Azure App Gateway Ingress (no TLS)
+
+This folder contains scripts, a [Helm](https://helm.sh/) [values file](camunda-values.yaml), and a `Makefile` to help with the following:
+
+- create a AKS Cluster (if you don't have one yet)
+- configure a [Camunda Helm](https://helm.sh/) [values file](camunda-values.yaml) to use app gateway ingress
+- install Camunda 
+- Networking is configured to use multiple domains using [this technique](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/README.md#networking)
+
+## Prerequisites
+
+Make sure you meet [these prerequisites](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/azure/README.md)
+
+## Configure
+
+Update the [Makefile](Makefile). Edit the bash variables so that they are appropriate for your specific environment.
+
+If you already have a AKS Cluster, set these values to match your existing environment. Otherwise, these values will be used to create a new AKS Cluster:
+
+    region ?= eastus
+    clusterName ?= MY_CLUSTER_NAME
+    resourceGroup ?= MY_CLUSTER_NAME-rg
+    dnsLabel ?= MY_DOMAIN_NAME
+    machineType ?= Standard_A8_v2
+    minSize ?= 1
+    maxSize ?= 6
+
+## Create AKS Cluster
+
+If you don't have an AKS Cluster yet, use the `Makefile` to create the cluster.
+
+> **Note** By default, the vCPU Quota is set to 10 but if your cluster requires
+> more than 10 vCPUS. You may need to go to the Quotas page and request an increase in the vCPU quota for the
+> machine type that you choose.
+
+Open a terminal inside the same directory as this [README](README.md) file, then run:
+
+```shell
+make kube
+```
+
+If all goes well, you should be able to navigate to the Azure Console and see your newly created AKS cluster.
+
+## Install into existing Cluster
+
+Open a terminal inside the same directory as this [README](README.md) file, then run:
+
+```shell
+make
+```
+
+This will setup an nginx ingress controller, setup TLS certificates and install Camunda.
+
+
+
 # Azure Ingress
 
 If you don't have an Azure Kubernetes Cluster yet, then [start here](https://github.com/camunda-community-hub/camunda8-greenfield-installation/tree/main/azure)
