@@ -1,4 +1,4 @@
-root ?= /home/rob/helm-profiles/
+root ?= .
 # Set these values to what you want for your specific environment
 namespace ?= camunda
 release ?= camunda
@@ -16,7 +16,7 @@ certEmail ?= robert.emsbach@camunda.com
 fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
 # fqdn = $(IP).nip.io
 
-# 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gatewya required)
+# 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 
 .PHONY: all
 all: cert-manager letsencypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls

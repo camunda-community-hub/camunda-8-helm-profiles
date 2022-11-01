@@ -54,7 +54,7 @@ identity:
 
 If your Kubernetes cluster does not use "private" IP addresses for internal communication, i.e. it does not resolve the internal service names to "private" IP addresses, then the first time you attempt to authenticate to keycloak, you may encounter the following error:
 
-![Keycloak ssl required](../docs/images/keycloak_ssl_required.png?raw=true)
+![Keycloak ssl required](../../docs/images/keycloak_ssl_required.png?raw=true)
 
 In order to address this issue, make sure the target *config-keycloak* completed successfully.
 You can repeatedly run ```make config-keycloak``` without having to clean the installation and start over.
