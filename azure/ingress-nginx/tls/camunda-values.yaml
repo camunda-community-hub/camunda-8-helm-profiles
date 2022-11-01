@@ -8,7 +8,7 @@ global:
   ingress:
     enabled: true
     className: nginx
-    host: "mydnslabel.eastus.cloudapp.azure.com"
+    host: "dnslabel.location.cloudapp.azure.com"
     tls:
       enabled: true
       secretName: "tls-secret"
@@ -43,25 +43,25 @@ identity:
   #  ingress:
   #    enabled: true
   #    ingressClassName: nginx
-  #    hostname: "mydnslabel.eastus.cloudapp.azure.com"
+  #    hostname: "dnslabel.location.cloudapp.azure.com"
   #    path: "/keycloak"
   #    tls: true
   #    extraHosts: []
   #    extraTls:
   #    - hosts:
-  #      - mydnslabel.eastus.cloudapp.azure.com
+  #      - dnslabel.location.cloudapp.azure.com
   #      secretName: "tls-secret"
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
-        value: "https://mydnslabel.eastus.cloudapp.azure.com/auth"
+        value: "https://dnslabel.location.cloudapp.azure.com/auth"
 
 zeebe-gateway:
   ingress:
     enabled: true
     className: nginx
-    host: "zeebe.mydnslabel.eastus.cloudapp.azure.com"
+    host: "dnslabel.location.cloudapp.azure.com"
   replicas: 1
   resources:
     requests:

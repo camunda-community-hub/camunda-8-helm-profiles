@@ -15,7 +15,7 @@ kube-nginx:
 	kubectl config unset clusters.$(clusterName)
 	kubectl config unset users.clusterUser_$(resourceGroup)_$(clusterName)
 	az aks get-credentials --resource-group $(resourceGroup) --name $(clusterName)
-	kubectl apply -f $(root)azure/include/ssd-storageclass.yaml
+	kubectl apply -f $(root)/azure/include/ssd-storageclass.yaml
 
 .PHONY: kube-agic
 kube-agic:
@@ -37,7 +37,7 @@ kube-agic:
 	kubectl config unset clusters.$(clusterName)
 	kubectl config unset users.clusterUser_$(resourceGroup)_$(clusterName)
 	az aks get-credentials --resource-group $(resourceGroup) --name $(clusterName)
-	kubectl apply -f $(root)azure/include/ssd-storageclass.yaml
+	kubectl apply -f $(root)/azure/include/ssd-storageclass.yaml
 
 .PHONY: clean-kube
 clean-kube: use-kube

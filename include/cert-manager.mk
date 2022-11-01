@@ -13,11 +13,11 @@ cert-manager:
 
 .PHONY: letsencypt-staging
 letsencypt-staging:
-	cat $(root)include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl create -n cert-manager -f -
+	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl create -n cert-manager -f -
 	
 .PHONY: letsencypt-prod
 letsencypt-prod:
-	cat $(root)include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | sed -E "s/acme-staging-v02/acme-v02/g" | kubectl apply -n cert-manager -f -
+	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | sed -E "s/acme-staging-v02/acme-v02/g" | kubectl apply -n cert-manager -f -
 
 #TODO: succeeds, but does not seem to have right effect
 .PHONY: letsencypt-prod-patch
