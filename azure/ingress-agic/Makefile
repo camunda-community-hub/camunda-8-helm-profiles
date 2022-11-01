@@ -28,9 +28,17 @@ chartValues ?= camunda-values-azure.yaml
 .PHONY: all
 all: ingress-azure camunda-values-azure.yaml camunda config-keycloak
 
+# 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
+.PHONY: kube
+kube: kube-agic
+
 .PHONY: clean
 clean: clean-ingress-azure clean-camunda
 	rm -f camunda-values-azure.yaml
 
-include ../include/ingress-azure.mk
-include ../include/camunda.mk
+include $(root)/include/camunda.mk
+include $(root)/include/ingress-nginx.mk
+include $(root)/include/cert-manager.mk
+include $(root)/azure/include/aks.mk
+include $(root)/azure/include/fileshare.mk
+# include $(root)/include/zbctl.mk
