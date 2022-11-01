@@ -77,8 +77,8 @@ public-zeebe-ingress:
 ### <--- End of setup --->
 
 # Remove nginx ingress and Camunda from cluster
-.PHONY: clean-all
-clean-all: clean-camunda clean-ingress clean-cert-manager
+.PHONY: clean
+clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
 
 include $(root)/include/camunda.mk
