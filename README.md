@@ -124,3 +124,46 @@ Or, as another example, you might manually edit the `ingress-nginx/camunda-value
 helm install test-core camunda/camunda-platform --values ingress-nginx/camunda-values.yaml
 ```
 
+# Networking
+
+There are 2 techniques to setup networking for a Camunda 8 Environment. 
+
+1. Serve each application using a separate domain name. For example: 
+
+```shell
+identity.mydomain.com
+operate.mydomain.com
+tasklist.mydomain.com
+optimize.mydomain.com
+```
+
+2. Use a single domain, and serve each application as a different context path. For example: 
+
+```shell
+mydomain.com/identity
+mydomain.com/operate
+mydomain.com/tasklist
+mydomain.com/optimize
+```
+
+Kubernetes Networking is, of course, a very complicated topic! There are many ways to configure Ingress and networks. And to make things worse, each cloud provider has a slightly different flavor of load
+balancers and network configuration options.
+
+For a variety of reasons, it's often convenient (and sometimes required) to access services via dns names rather than IP addresses.
+
+Provisioning a custom domain name can be time consuming and complicated, especially for demonstrations or prototypes. 
+
+Here's a technique using a public service called [nip.io](https://nip.io) that might be useful. [nip.io](https://nip.io) makes it possible to quickly and easily translate ip addresses into domain names.
+
+[nip.io](https://nip.io) provides dynamic domain names for any ip address. For example, if your ip address is `1.2.3.4`, a doman name like `my-domain.1.2.3.4.nip.io` will resolve to ip address `1.2.3.4`.
+
+So, for example, say our Cloud provider created a Load Balancer listening on ip address `54.210.85.151`. We can configure our environment to use dns names like this: 
+
+```shell
+http://identity.54.210.85.151.nip.io
+http://keycloak.54.210.85.151.nip.io
+http://operate.54.210.85.151.nip.io
+http://tasklist.54.210.85.151.nip.io
+```
+
+Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome to substitute you're own domain name. To do so, might take some manual configuration. 
