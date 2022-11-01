@@ -1,11 +1,12 @@
-# Camunda 8 Helm Profile: Azure App Gateway Ingress (no TLS)
+# Camunda 8 Helm Profile: Azure App Gateway Ingress with TLS
+
+> **Note**  this profile uses an Azure App Gateway which [doesn't support GRPC traffic](https://azure.microsoft.com/en-gb/blog/application-gateway-ingress-controller-for-azure-kubernetes-service/). You probably want to use [the nginx ingress profile](../ingress-nginx/tls) instead.
 
 This folder contains scripts, a [Helm](https://helm.sh/) [values file](camunda-values.yaml), and a `Makefile` to help with the following:
 
 - create a AKS Cluster (if you don't have one yet)
 - configure a [Camunda Helm](https://helm.sh/) [values file](camunda-values.yaml) to use app gateway ingress
 - install Camunda 
-- Networking is configured to use multiple domains using [this technique](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/README.md#networking)
 
 ## Prerequisites
 
