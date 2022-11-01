@@ -1,4 +1,4 @@
-root ?= .
+root ?= $(shell pwd)/../../..
 
 # Set these values to what you want for your specific environment
 # If this is an existing AKS Cluster, set these values to point to your existing environment
