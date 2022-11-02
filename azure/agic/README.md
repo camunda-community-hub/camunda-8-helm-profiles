@@ -1,6 +1,6 @@
 # Camunda 8 Helm Profile: Azure App Gateway Ingress with TLS
 
-> **Note**  this profile uses an Azure App Gateway which [doesn't support GRPC traffic](https://azure.microsoft.com/en-gb/blog/application-gateway-ingress-controller-for-azure-kubernetes-service/). You probably want to use [the nginx ingress profile](../ingress-nginx/tls) instead.
+> **Note**  this profile uses an Azure App Gateway which [doesn't support GRPC traffic](https://azure.microsoft.com/en-gb/blog/application-gateway-ingress-controller-for-azure-kubernetes-service/). You probably want to use [the nginx ingress profile](../nginx/tls) instead.
 
 This folder contains scripts, a [Helm](https://helm.sh/) [values file](camunda-values.yaml), and a `Makefile` to help with the following:
 

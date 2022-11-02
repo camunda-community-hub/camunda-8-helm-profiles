@@ -7,4 +7,4 @@ watch/await pods, get logs, forward ports, and open URLs with `kubectl`
 
 [ingress-nginx.mk](ingress-nginx.mk) is the installation script for an Nginx Ingress Controller and getting its IP.
 
-[ingress-azure.mk](../azure/ingress-agic/agic.mk) is the installation script for using Azure Application Gateway as an Ingress Controller.
+[ingress-azure.mk](../azure/agic/agic.mk) is the installation script for using Azure Application Gateway as an Ingress Controller.
