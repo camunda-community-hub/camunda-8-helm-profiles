@@ -7,6 +7,7 @@
 global:
   ingress:
     enabled: true
+    className: null
     annotations:
       kubernetes.io/ingress.class: "azure/application-gateway"
     host: "dnslabel.location.cloudapp.azure.com"
