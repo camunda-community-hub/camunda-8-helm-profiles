@@ -5,19 +5,19 @@
 
 project ?= camunda-researchanddevelopment
 region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
-clusterName ?= MY_CLUSTER_NAME
+clusterName ?= dave-greenfield-01
 # Azure provides temporary dns names such as:  MY_DOMAIN_NAME.region.cloudapp.azure.com
 # However GCP does not. DNS names will be configured using https://nip.io
 # dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= n1-standard-16
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@camunda.com
+certEmail ?= david.paroulek@camunda.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 
-root ?= $(shell pwd)/../../..
+root ?= $(shell pwd)/../../../..
 
 # Camunda components will be installed into the following Kubernetes namespace
 namespace ?= camunda
@@ -34,10 +34,10 @@ all: ingress-nginx-camunda urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
-kube: kube-nginx
+kube: kube-gke metrics
 
-.PHONY: kube-metrics-all
-kube-metrics-all: kube metrics all
+.PHONY: clean-kube
+clean-kube: clean-metrics clean-kube-gke
 
 .PHONY: ingress-nginx-camunda
 ingress-nginx-camunda:
@@ -46,8 +46,7 @@ ingress-nginx-camunda:
 .PHONY: clean
 clean: clean-ingress-nginx-camunda
 
-.PHONY: clean-kube-metrics-all
-clean-kube-metrics-all: clean clean-metrics clean-kube
+
 
 .PHONY: clean-ingress-nginx-camunda
 clean-ingress-nginx-camunda:

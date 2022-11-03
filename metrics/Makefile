@@ -1,7 +1,9 @@
+root ?= $(shell pwd)/../
+
 .PHONY: all
 all: metrics
 
 .PHONY: clean
 clean: clean-metrics
 
-include ./metrics.mk
+include $(root)/metrics/metrics.mk

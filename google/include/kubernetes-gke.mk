@@ -8,13 +8,13 @@ clean-files:
 	rm -f camunda-values.yaml
 
 # TODO maybe make initial cluster size bigger so that `helm install` doesn't have to wait for the autoscaler to spin up nodes
-.PHONY: kube
-kube:
+.PHONY: kube-gke
+kube-gke:
 	gcloud config set project $(project)
 	gcloud container clusters create $(clusterName) \
 	  --region $(region) \
 	  --num-nodes=1 \
-	  --enable-autoscaling --max-nodes=256 --min-nodes=1 \
+	  --enable-autoscaling --max-nodes=$(maxSize) --min-nodes=$(minSize) \
 	  --enable-ip-alias \
 	  --machine-type=$(machineType) \
 	  --disk-type "pd-ssd" \
@@ -22,12 +22,12 @@ kube:
 	  --maintenance-window=4:00 \
 	  --release-channel=regular \
 	  --cluster-version=latest
-	kubectl apply -f ../include/ssd-storageclass-gke.yaml
+	kubectl apply -f $(root)/google/include/ssd-storageclass-gke.yaml
 	gcloud config set project $(project)
 	gcloud container clusters get-credentials $(clusterName) --region $(region)
 
 
-.PHONY: clean-kube
+.PHONY: clean-kube-gke
 clean-kube: use-kube
 #	-kubectl delete pvc --all
 	@echo "Please check the console if all PVCs have been deleted: https://console.cloud.google.com/compute/disks?authuser=0&project=$(project)&supportedpurview=project"
