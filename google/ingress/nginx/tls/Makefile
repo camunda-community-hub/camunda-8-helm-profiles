@@ -30,23 +30,46 @@ chart ?= camunda/camunda-platform
 chartValues ?= "camunda-values-nginx.yaml"
 
 .PHONY: all
-all: ingress-nginx-camunda urls
+all: cert-manager letsencrypt-prod ingress-nginx-tls camunda-values-nginx.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
 kube: kube-gke metrics
 
+# 1 cert-manager from cert-manager.mk: create certificate manager for tls
+
+# 2 letsencypt-staging/-prod from cert-manager.mk: create letsencypt cert issuer
+
+# 3 create nginx ingress controller with dns and tls
+.PHONY: ingress-nginx-tls
+ingress-nginx-tls:
+	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+	helm repo update ingress-nginx
+	helm search repo ingress-nginx
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt"
+
+# 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
+
+# 5 helm install camunda from camunda.mk with own tls config, combined ingress
+
+# 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
+
+# 7 Show external URLs
+.PHONY: external-urls
+external-urls: ingress-ip-from-service
+	@echo https://$(IP).nip.io/auth
+	@echo https://$(IP).nip.io/identity
+	@echo https://$(IP).nip.io/operate
+	@echo https://$(IP).nip.io/tasklist
+	@echo https://$(IP).nip.io/optimize
+	@echo $(IP).nip.io:443
 .PHONY: clean-kube
 clean-kube: clean-metrics clean-kube-gke
 
-.PHONY: ingress-nginx-camunda
-ingress-nginx-camunda:
-	$(MAKE) -e -C ../../ingress-nginx all
-
 .PHONY: clean
 clean: clean-ingress-nginx-camunda
-
-
 
 .PHONY: clean-ingress-nginx-camunda
 clean-ingress-nginx-camunda:

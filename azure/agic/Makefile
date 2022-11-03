@@ -44,7 +44,6 @@ kube: kube-agic
 camunda-values-agic-tls.yaml: ingress-ip-from-service
 	@echo Ingress controller will use fqdn: $(fqdn)
 	@sed "s/dnslabel.location.cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
-#	@sed "s/mydnslabel.$(region).cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 

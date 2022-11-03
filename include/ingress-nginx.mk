@@ -14,7 +14,7 @@ ingress-ip-from-service:
 	@echo "Ingress controller uses IP address: $(IP)"
 
 camunda-values-nginx.yaml: ingress-ip-from-service
-	sed "s/127.0.0.1/$(IP)/g;" ../ingress-nginx/camunda-values.yaml > ./camunda-values-nginx.yaml
+	sed "s/127.0.0.1/$(IP)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx.yaml
 
 .PHONY: clean-ingress
 clean-ingress:
