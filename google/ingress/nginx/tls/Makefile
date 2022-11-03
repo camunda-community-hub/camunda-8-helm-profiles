@@ -5,14 +5,14 @@
 
 project ?= camunda-researchanddevelopment
 region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
-clusterName ?= dave-greenfield-01
+clusterName ?= CLUSTER_NAME
 # Azure provides temporary dns names such as:  MY_DOMAIN_NAME.region.cloudapp.azure.com
 # However GCP does not. DNS names will be configured using https://nip.io
 # dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= n1-standard-16
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= david.paroulek@camunda.com
+certEmail ?= YOUR_EMAIL@yourdomain.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -65,15 +65,13 @@ external-urls: ingress-ip-from-service
 	@echo https://$(IP).nip.io/tasklist
 	@echo https://$(IP).nip.io/optimize
 	@echo $(IP).nip.io:443
+
 .PHONY: clean-kube
 clean-kube: clean-metrics clean-kube-gke
 
 .PHONY: clean
-clean: clean-ingress-nginx-camunda
-
-.PHONY: clean-ingress-nginx-camunda
-clean-ingress-nginx-camunda:
-	$(MAKE) -e -C ../../ingress-nginx clean
+clean: clean-camunda clean-ingress clean-cert-manager
+	rm -f $(root)/google/ingress/nginx/tls/camunda-values-nginx.yaml
 
 include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk
