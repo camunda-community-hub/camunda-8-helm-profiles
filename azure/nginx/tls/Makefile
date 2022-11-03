@@ -33,7 +33,7 @@ chartValues ?= camunda-values-nginx-tls.yaml
 .PHONY: all
 all: cert-manager letsencypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
 
-# 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
+# 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
 kube: kube-nginx
 
