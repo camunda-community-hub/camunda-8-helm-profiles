@@ -40,6 +40,7 @@ kube: kube-gke metrics
 
 # 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 
+# TODO: both google and aws use this. we can combine this into an include possibly?
 # 3 create nginx ingress controller with dns and tls
 .PHONY: ingress-nginx-tls
 ingress-nginx-tls:
@@ -65,6 +66,11 @@ external-urls: ingress-ip-from-service
 	@echo https://$(IP).nip.io/tasklist
 	@echo https://$(IP).nip.io/optimize
 	@echo $(IP).nip.io:443
+
+# Getting url for grafana is vendor specific
+.PHONY: url-grafana
+url-grafana:
+	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/I4lo7_EZk/zeebe?var-namespace=$(namespace)"
 
 .PHONY: clean-kube
 clean-kube: clean-metrics clean-kube-gke

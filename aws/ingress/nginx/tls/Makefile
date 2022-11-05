@@ -38,17 +38,33 @@ chartValues ?= camunda-values-nginx-tls.yaml
 
 
 .PHONY: all
-all: cert-manager letsencrypt-prod
+all: cert-manager letsencrypt-prod ingress-nginx-tls
 #all: cluster.yaml kube oidc-provider metrics ingress-nginx-camunda urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
-kube: kube-aws
+kube: kube-aws oidc-provider metrics
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
 # 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 
+# TODO: both google and aws use this. we can combine this into an include possibly?
+# 3 create nginx ingress controller with dns and tls
+.PHONY: ingress-nginx-tls
+ingress-nginx-tls:
+	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+	helm repo update ingress-nginx
+	helm search repo ingress-nginx
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt"
+
+# 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
+
+.PHONY: url-grafana
+url-grafana:
+	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].hostname' | tail -n 1`/d/I4lo7_EZk/zeebe?var-namespace=$(namespace)"
 
 .PHONY: clean
 clean: clean-ingress-nginx-camunda clean-metrics clean-kube clean-files
@@ -61,5 +77,4 @@ include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
 include $(root)/aws/include/kubernetes-aws.mk
-
-# include $(root)/include/zbctl.mk
+include $(root)/metrics/metrics.mk

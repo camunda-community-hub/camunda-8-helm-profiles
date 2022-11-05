@@ -16,10 +16,6 @@ clean-metrics:
 	-kubectl delete pvc -l app.kubernetes.io/name=prometheus -n default
 	-kubectl delete pvc -l app.kubernetes.io/name=grafana -n default
 
-.PHONY: url-grafana
-url-grafana:
-	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/I4lo7_EZk/zeebe?var-namespace=$(namespace)"
-
 .PHONY: port-grafana
 port-grafana:
 	kubectl port-forward svc/metrics-grafana-loadbalancer 8080:80 -n default
