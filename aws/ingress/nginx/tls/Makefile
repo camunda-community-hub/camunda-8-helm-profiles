@@ -5,9 +5,7 @@
 
 region ?= us-east-1
 zones ?= ['us-east-1a', 'us-east-1b']
-clusterName ?= MY_CLUSTER_NAME
-# This dnsLabel value will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
-dnsLabel ?= MY_DOMAIN_NAME
+clusterName ?= dave-greenfield
 machineType ?= c6i.4xlarge
 # TODO: Currently, auto scaling configuration using these scripts for AWS is not working
 # desiredSize is used as the starting size of the cluster
@@ -68,7 +66,7 @@ ingress-aws-ip-from-service: await-elb
 	@echo "AWS ELB id: $(ELB_ID)"
 	$(eval IP_TMP := $(shell aws ec2 describe-network-interfaces --filters Name=description,Values="ELB ${ELB_ID}" --query 'NetworkInterfaces[0].PrivateIpAddresses[*].Association.PublicIp' --output text))
 	#$(eval IP := $(shell echo ${IP_TMP} | sed 's/\./-/g'))
-    $(eval IP := $(shell echo ${IP_TMP} | sed 's/\./-/g'))
+	$(eval IP := $(shell echo ${IP_TMP} ))
 	#@echo "AWS ELB IP: ec2-$(IP).compute-1.amazonaws.com"
 	@echo "AWS ELB IP: $(IP).nip.io"
 
@@ -88,7 +86,7 @@ external-urls: ingress-aws-ip-from-service
 	@echo https://$(IP).nip.io/operate
 	@echo https://$(IP).nip.io/tasklist
 	@echo https://$(IP).nip.io/optimize
-	@echo $(IP).nip.io:443
+	@echo zbctl status --address $(IP).nip.io:443
 
 # Getting url for grafana is vendor specific
 .PHONY: url-grafana
