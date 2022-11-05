@@ -17,7 +17,7 @@ kube-aws: cluster.yaml
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
 
 .PHONY: clean-kube-aws
-clean-kub-awse: use-kube
+clean-kube-aws: use-kube
 	eksctl delete cluster --name $(clusterName) --region $(region)
 
 .PHONY: use-kube
