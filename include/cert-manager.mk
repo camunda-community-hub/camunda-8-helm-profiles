@@ -11,17 +11,17 @@ cert-manager:
   	--version v1.9.1 \
 	--set installCRDs=true
 
-.PHONY: letsencypt-staging
-letsencypt-staging:
+.PHONY: letsencrypt-staging
+letsencrypt-staging:
 	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl create -n cert-manager -f -
 	
-.PHONY: letsencypt-prod
-letsencypt-prod:
+.PHONY: letsencrypt-prod
+letsencrypt-prod:
 	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | sed -E "s/acme-staging-v02/acme-v02/g" | kubectl apply -n cert-manager -f -
 
 #TODO: succeeds, but does not seem to have right effect
-.PHONY: letsencypt-prod-patch
-letsencypt-prod-patch:
+.PHONY: letsencrypt-prod-patch
+letsencrypt-prod-patch:
 	kubectl patch ClusterIssuer letsencrypt --type json -p '[{"op": "replace", "path": "/spec/acme/sever", "value":"$(prodserver)"}]'
 	kubectl describe ClusterIssuer letsencrypt | grep letsencrypt.org
 

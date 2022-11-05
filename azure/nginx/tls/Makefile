@@ -31,7 +31,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-tls.yaml
 
 .PHONY: all
-all: cert-manager letsencypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
+all: cert-manager letsencrypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -39,7 +39,7 @@ kube: kube-nginx
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
-# 2 letsencypt-staging/-prod from cert-manager.mk: create letsencypt cert issuer
+# 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 
 # 3 create nginx ingress controller with dns and tls
 .PHONY: nginx-dns-tls

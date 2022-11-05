@@ -27,7 +27,7 @@ chartValues ?= camunda-values-agic-tls.yaml
 
 
 .PHONY: all
-all: cert-manager letsencypt-prod camunda-values-agic-tls.yaml camunda annotate-ingress-tls external-urls
+all: cert-manager letsencrypt-prod camunda-values-agic-tls.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -35,7 +35,7 @@ kube: kube-agic
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
-# 2 letsencypt-staging/-prod from cert-manager.mk: create letsencypt cert issuer
+# 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 
 # 3 application gateway is already created, no need for ingress controller
 

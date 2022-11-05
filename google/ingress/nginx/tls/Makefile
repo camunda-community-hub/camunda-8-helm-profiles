@@ -38,7 +38,7 @@ kube: kube-gke metrics
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
-# 2 letsencypt-staging/-prod from cert-manager.mk: create letsencypt cert issuer
+# 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 
 # 3 create nginx ingress controller with dns and tls
 .PHONY: ingress-nginx-tls
