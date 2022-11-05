@@ -7,7 +7,7 @@ global:
   ingress:
     enabled: true
     className: nginx
-    host: "127.0.0.1.nip.io"
+    host: "YOUR_HOSTNAME"
     tls:
       enabled: true
       secretName: "tls-secret"
@@ -17,13 +17,13 @@ global:
     # pullPolicy: Always
   identity:
     auth:
-      publicIssuerUrl: "https://127.0.0.1.nip.io/auth/realms/camunda-platform"
+      publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
       operate:
-        redirectUrl: "https://127.0.0.1.nip.io/operate"
+        redirectUrl: "https://YOUR_HOSTNAME/operate"
       tasklist:
-        redirectUrl: "https://127.0.0.1.nip.io/tasklist"
+        redirectUrl: "https://YOUR_HOSTNAME/tasklist"
       optimize:
-        redirectUrl: "https://127.0.0.1.nip.io/optimize"
+        redirectUrl: "https://YOUR_HOSTNAME/optimize"
 
 operate:
   contextPath: "/operate"
@@ -37,7 +37,7 @@ optimize:
 
 identity:
   contextPath: "/identity"
-  fullURL: "https://127.0.0.1.nip.io/identity"
+  fullURL: "https://YOUR_HOSTNAME/identity"
 
   keycloak:
     #  ingress:
@@ -55,13 +55,13 @@ identity:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
-        value: "https://127.0.0.1.nip.io/auth"
+        value: "https://YOUR_HOSTNAME/auth"
 
 zeebe-gateway:
   ingress:
     enabled: true
     className: nginx
-    host: "127.0.0.1.nip.io"
+    host: "YOUR_HOSTNAME"
   replicas: 1
   resources:
     requests:

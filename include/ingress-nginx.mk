@@ -13,8 +13,16 @@ ingress-ip-from-service:
 	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
 	@echo "Ingress controller uses IP address: $(IP)"
 
-camunda-values-nginx.yaml: ingress-ip-from-service
-	sed "s/127.0.0.1/$(IP)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx.yaml
+.PHONY: ingress-hostname-from-service
+ingress-hostname-from-service:
+	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.hostname}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
+	@echo "Ingress controller uses hostname: $(IP)"
+
+camunda-values-nginx-ip.yaml: ingress-ip-from-service
+	sed "s/YOUR_HOSTNAME/$(IP).nip.io/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml
+
+camunda-values-nginx-hostname.yaml: ingress-hostname-from-service
+	sed "s/YOUR_HOSTNAME/$(IP)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-hostname.yaml
 
 .PHONY: clean-ingress
 clean-ingress:
