@@ -6,13 +6,13 @@
 region ?= us-east-1
 zones ?= ['us-east-1a', 'us-east-1b']
 clusterName ?= MY_CLUSTER_NAME
-resourceGroup ?= MY_CLUSTER_NAME-rg
 # This dnsLabel value will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
 dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= c6i.4xlarge
 # TODO: Currently, auto scaling configuration using these scripts for AWS is not working
-# for now, minSize is also used as the starting size of the cluster
-minSize ?= 3
+# desiredSize is used as the starting size of the cluster
+desiredSize ?= 3
+minSize ?= 1
 maxSize ?= 6
 certEmail ?= YOUR_EMAIL@camunda.com
 
@@ -22,7 +22,7 @@ certEmail ?= YOUR_EMAIL@camunda.com
 clusterVersion ?= 1.23
 volumeSize ?= 128
 
-root ?= $(shell pwd)/../../..
+root ?= $(shell pwd)/../../../..
 fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
 # fqdn = $(IP).nip.io
 
@@ -59,6 +59,6 @@ clean-ingress-nginx-camunda:
 include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
-include $(root)/azure/include/kubernetes-aws.mk
+include $(root)/aws/include/kubernetes-aws.mk
 
 # include $(root)/include/zbctl.mk

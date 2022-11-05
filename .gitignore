@@ -6,3 +6,4 @@ ingress-nginx/camunda-values-nginx.yaml
 azure/nginx/tls/camunda-values-nginx-tls.yaml
 azure/nginx/tls/camunda-platform
 google/ingress/nginx/tls/camunda-values-nginx.yaml
+aws/ingress/nginx/tls/cluster.yaml
