@@ -1,4 +1,10 @@
-# Amazon Web Services Prerequisites
+# Helm Profiles for Camunda 8 on Amazon Web Services (AWS)
+
+Create a Camunda 8 self-managed Kubernetes Cluster in 3 Steps:
+
+Step 1: Setup some [global prerequisites](../README.md#prerequisites)
+
+Step 2: Setup command line tools for AWS:
 
 1. Verify `aws` command line tool is installed (https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
@@ -17,35 +23,9 @@ Double check you can connect by running the following
 
        $ eksctl version
 
-4. Use the AWS-specific `Makefile` to create a GKE cluster
+4. Go into one of the profiles inside this `aws` folder and use the `Makefile` to create a EKS cluster.
 
-`cd` into the `aws` directory
-
-Edit the `./aws/Makefile` and set the following bash variables so that they are appropriate for your specific environment.
-
-     clusterName ?= <YOUR CLUSTER NAME>
-     region ?= us-east-1
-     zones ?= ['us-east-1a', 'us-east-1b']
-     machineType ?= m5.2xlarge
-     minSize ?= 4
-
-> :information_source: **Note** Currently autoscaling for AWS is not working yet. For now, minSize is also used to set
-> the starting size of the cluster
-
-5. Run `make` to create a new AKS Cluster and install Camunda
-
-Note that the make file for `aws` will attempt to automatically find the IP address of the nginx ingress. For more details
-see the section below which describes how to find the IP Address of the Load Balancer of your newly created EKS cluster.
-
-6. Run `kubectl get ingress`. The Values listed in the `HOSTS` column will show the urls that can be used to access your environment
-
-7. By default, Prometheus metrics and a Grafana Dashboard are also installed and configured. You can access this by running the following:
-
-```shell
-kubectl get service metrics-grafana-loadbalancer --namespace default
-```
-
-Copy the `EXTERNAL-IP` to access the Grafana Dashboard Web UI. The username and password can be found inside `./metrics/grafana-secret.yaml`
+e.g. `cd` into the `ingress/nginx/tls` directory and see the [README.md](./ingress/nginx/tls/README.md) for more.
 
 ## EKS Load Balancer IP Address
 

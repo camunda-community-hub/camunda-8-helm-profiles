@@ -18,3 +18,12 @@ If `make` is correctly configured, you should also get tab completion for all av
 ```sh
 make clean
 ```
+
+
+7. By default, Prometheus metrics and a Grafana Dashboard are also installed and configured. You can access this by running the following:
+
+```shell
+kubectl get service metrics-grafana-loadbalancer --namespace default
+```
+
+Copy the `EXTERNAL-IP` to access the Grafana Dashboard Web UI. The username and password can be found inside `./metrics/grafana-secret.yaml`

@@ -1,18 +1,10 @@
-# Camunda 8 Helm Profile: Azure
+# Helm Profiles for Camunda 8 on Microsoft Azure
 
-The azure folder contains generic artifacts which can be used with any of the specific Azure profiles. 
+Create a Camunda 8 self-managed Kubernetes Cluster in 3 Steps:
 
-The sub folders contains the artifacts for specific configurations. 
+Step 1: Setup some [global prerequisites](../README.md#prerequisites)
 
-See README inside sub folders for more info:
-- ingress-nginx/tls: Use nginx ingress controller with azure fqdn and enabled tls. If you're just getting started, start with this profile. 
-- ingress-agic: Use Azure Application Gateway as an ingress controller
-
-## Basic Prerequisites
-
-Make sure you meet [these prerequisites](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/README.md#prerequisites).
-
-## Microsoft Azure Prerequisites
+Step 2: Setup command line tools for Azure: 
 
 1. Verify that the `az` cli tool is installed (https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
@@ -24,13 +16,15 @@ Make sure you meet [these prerequisites](https://github.com/camunda-community-hu
         "extensions": {}
        }
 
-2. Make sure you are authenticated. If you don't already have one, you'll need to sign up for a new
-   Azure Account. Then, run the following command and then follow the instructions to authenticate via your browser.
+2. Make sure you are authenticated. If you don't already have one, you'll need to sign up for a new Azure Account. Then, run the following command and then follow the instructions to authenticate via your browser.
 
        $ az login
 
 > **Tip** If you or your company uses SSO to sign in to Microsoft, first, open a browser and sign in
 > to your Azure/Microsoft account. Then try doing the `az login` command again.
 
+3. Go into one of the profiles inside this `azure` folder and use the `Makefile` to create a AKS cluster. 
+
+e.g. `cd` into the `ingress/nginx/tls` directory and see the [README.md](ingress/nginx/tls/README.md) for more.
 
 

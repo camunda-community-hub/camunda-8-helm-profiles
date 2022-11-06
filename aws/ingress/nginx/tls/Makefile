@@ -5,7 +5,7 @@
 
 region ?= us-east-1
 zones ?= ['us-east-1a', 'us-east-1b']
-clusterName ?= dave-greenfield
+clusterName ?= CLUSTER_NAME
 machineType ?= c6i.4xlarge
 # TODO: Currently, auto scaling configuration using these scripts for AWS is not working
 # desiredSize is used as the starting size of the cluster

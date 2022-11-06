@@ -1,52 +1,42 @@
-# Camunda 8 Helm Profile: Azure Nginx Ingress with TLS
+# Camunda 8 Helm Profile: Ingress NGINX for Azure with TLS Certificates
 
-This folder contains scripts, a [Helm](https://helm.sh/) [values file](camunda-values.yaml), and a `Makefile` to help with the following: 
+Open a Terminal and `cd` into this directory
 
-- create a AKS Cluster (if you don't have one yet)
-- setup TLS and an nginx ingress
-- install Camunda
-- Networking is configured to use a single domain with seperate context paths for each application
+Edit the [Makefile](Makefile) found in this directory and set the following bash variables so that they are appropriate for your specific environment.
 
-## Prerequisites
+If you don't have a Kubernetes cluster, the values provided will be used to create a new cluster. Otherwise, the values are used to connect and manage an existing cluster.
 
-Make sure you meet [these prerequisites](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/azure/README.md)
+```
+region ?= eastus
+clusterName ?= MY_CLUSTER_NAME
+resourceGroup ?= MY_CLUSTER_NAME-rg
+# This dnsLabel value will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
+dnsLabel ?= MY_DOMAIN_NAME
+machineType ?= Standard_A8_v2
+minSize ?= 1
+maxSize ?= 6
+certEmail ?= YOUR_EMAIL@camunda.com
+```
 
-## Configure
-
-Update the [Makefile](Makefile). Edit the bash variables so that they are appropriate for your specific environment.
-
-If you already have a AKS Cluster, set these values to match your existing environment. Otherwise, these values will be used to create a new AKS Cluster:  
-
-    region ?= eastus
-    clusterName ?= MY_CLUSTER_NAME
-    resourceGroup ?= MY_CLUSTER_NAME-rg
-    dnsLabel ?= MY_DOMAIN_NAME
-    machineType ?= Standard_A8_v2
-    minSize ?= 1
-    maxSize ?= 6
-
-## Create AKS Cluster
-
-If you don't have an AKS Cluster yet, use the `Makefile` to create the cluster. 
+If you need to create a new AKS Cluster, run `make kube`.
 
 > **Note** By default, the vCPU Quota is set to 10 but if your cluster requires
 > more than 10 vCPUS. You may need to go to the Quotas page and request an increase in the vCPU quota for the
 > machine type that you choose.
 
-Open a terminal inside the same directory as this [README](README.md) file, then run:
+Once you have a AKS Cluster, run `make` to do the following:
 
-```shell
-make kube
+1. Set up a Kubernetes letsencrypt certificate manager
+2. Install a Kubernetes Nginx Ingress Controller. A corresponding Load Balancer is provisioned automatically
+3. Attempt to find the ip address of the Load Balancer. This ip address is then used generate a `camunda-values.yaml` file.
+4. Helm is used to install Camunda 8 using the `camunda-values.yaml` file with the Load Balancer IP Address
+5. The ingress controller is annotated so that letsencrypt tls certificates are provisioned.
+
+## Check TLS Certificates
+
+To check to make sure that letsencrypt has successfully issued tls certs, use the following command:
+
+```
+kubectl get certificaterequest --all-namespaces
 ```
 
-If all goes well, you should be able to navigate to the Azure Console and see your newly created AKS cluster. 
-
-## Install into existing Cluster
-
-Open a terminal inside the same directory as this [README](README.md) file, then run:
-
-```shell
-make
-```
-
-This will setup an nginx ingress controller, setup TLS certificates and install Camunda.

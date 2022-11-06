@@ -14,19 +14,19 @@ For those looking for more guidance, this project provides `Makefiles`, along wi
 
 - Installing Camunda into existing Kubernetes Clusters by providing `camunda-values.yaml` pre-configured for specific use cases. 
 
-- Automating common tasks, such as installing Nginx Ingress controllers, configuring TLS certificates, installing Prometheus and Grafana for metrics, etc.  
+- Automating common tasks, such as installing Ingress controllers, configuring temporary TLS certificates, installing Prometheus and Grafana for metrics, etc.  
 
 ## How is it Organized?
 
-Each subfolder of this project is designed to support a specific (and opinionated) use case (aka "profile").
+Each subfolder of this project is intended to support a specific (and opinionated) use case (aka "profile").
 
-The [Azure Nginx Ingress TLS profile](azure/ingress/nginx/tls/README.md) helps to create Azure Kubernetes (AKS) cluster, install Camunda, and configure an nginx ingress with tls certificates.
+The [Azure Nginx Ingress TLS profile](azure/ingress/nginx/tls/README.md) helps to create Azure Kubernetes (AKS) cluster, install Camunda, and configure an nginx ingress with temporary tls certificates.
 
-The [AWS Nginx Ingress TLS profile](aws/ingress/nginx/tls/README.md) helps to create an AWS Kubernetes (EKS) cluster, install Camunda, and configure an nginx ingress with tls certificates.
+The [AWS Nginx Ingress TLS profile](aws/ingress/nginx/tls/README.md) helps to create an AWS Kubernetes (EKS) cluster, install Camunda, and configure an nginx ingress with temporary tls certificates.
 
-The [Google Nginx Ingress TLS profile](google/ingress/nginx/tls/README.md) helps to create an Google Kubernetes (GKE) cluster, install Camunda, and configure an nginx ingress with tls certificates.
+The [Google Nginx Ingress TLS profile](google/ingress/nginx/tls/README.md) helps to create an Google Kubernetes (GKE) cluster, install Camunda, and configure an nginx ingress with temporary tls certificates.
 
-The [metrics profile](metrics/README.md) sets up a performance monitory web dashboard using Prometheus and grafana.
+The [metrics profile](metrics/README.md) sets up a systems monitoring web dashboard using Prometheus and Grafana.
 
 Explore the subfolders of this project fo discover more profiles. See the `README.md` file inside each profile for more information about the specific details. 
 
@@ -34,7 +34,7 @@ Explore the subfolders of this project fo discover more profiles. See the `READM
 
 Each profile contains a `Makefile`. These `Makefiles` define `Make` targets. `Make` targets use command line tools and bash scripts to accomplish the work of each profile. 
 
-For example, let's say your use case is to have a fully working Camunda 8 Environment in an Azure AKS Cluster. `cd` into the `azure/ingress/nginx/tls` directory, and run `make`. The `Make` targets found there will use the `az` command line tool as well as `kubectl`, and `helm` commands to do the tasks needed to create a fully functioning environment. See `azure/ingress/nginx/tls/README.md` for more details.
+For example, let's say your use case is to have a fully working Camunda 8 Environment in an Azure AKS Cluster. `cd` into the `azure/ingress/nginx/tls` directory, and run `make`. The `Make` targets found there will use the `az` command line tool as well as `kubectl`, and `helm` commands to do the tasks needed to create a fully functioning environment. See the [Azure Nginx Ingress TLS profile](azure/ingress/nginx/tls/README.md) for more details.
 
 # Prerequisites
 
@@ -90,7 +90,7 @@ Or, as another example, you might manually edit the `ingress-nginx/camunda-value
 helm install test-core camunda/camunda-platform --values ingress-nginx/camunda-values.yaml
 ```
 
-# Networking
+# Networking with nip.io
 
 There are 2 techniques to setup networking for a Camunda 8 Environment. 
 
@@ -132,4 +132,4 @@ http://operate.54.210.85.151.nip.io
 http://tasklist.54.210.85.151.nip.io
 ```
 
-Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome to substitute your own domain name. To do so, you may need to make some manual configuration changes. 
+Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome (and encouraged!) to substitute your own domain name. To do so, you will need to make some manual configuration changes to the `camunda-values.yaml` files.  
