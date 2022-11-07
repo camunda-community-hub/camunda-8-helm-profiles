@@ -60,17 +60,30 @@ Complete the following steps regardless of which cloud provider you use.
 
 If you have an idea for a new profile that is not yet available here, please open a [GitHub Issue](https://github.com/camunda-community-hub/camunda-8-helm-profiles/issues).
 
-# Connecting to an existing cluster
+# Troubleshooting, Tips, and Tricks
 
-TODO: describe how to use `make use-kube`
+## Troubleshoot TLS Certificates
 
-# Customizing Profiles
+To check to make sure that letsencrypt has successfully issued tls certs, use the following command:
 
-It can be convenient to pick and choose pieces of this project and customize it for your own specific purpose.
+```
+kubectl get certificaterequest --all-namespaces
+```
 
-Here are some ideas and tips and tricks for customizing the scripts and tools found in this project to meet your specific needs. 
+## Configure Kubectl to connect to an existing cluster
 
-## Use several `camunda-values.yaml` files
+[By default](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/), `kubectl` looks for a file named `config` ins the $HOME/.kube directory.  
+
+As a convenience, this project provides a `Makefile` target to help configure `kubectl` connect to an existing Kubernetes environment.
+
+Run `make use-kube` from inside one of the profiles to configure your `kubectl` appropriately.
+
+For example, running `make use-kube` from inside the `google/ingress/nginx/tls` directory will configure your `kubectl` to connect
+to an existing GKE cluster. 
+
+Running `make use-kube` from an aws, or azure profile should configure `kubectl` appropriately. 
+
+## Use custom `camunda-values.yaml` files
 
 Instead of running `make` inside the profile folder, it's possible to use of camunda values yaml files directly with Helm using:
 
@@ -90,7 +103,7 @@ Or, as another example, you might manually edit the `ingress-nginx/camunda-value
 helm install test-core camunda/camunda-platform --values ingress-nginx/camunda-values.yaml
 ```
 
-# Networking with nip.io
+## Networking with nip.io
 
 There are 2 techniques to setup networking for a Camunda 8 Environment. 
 
@@ -134,7 +147,7 @@ http://tasklist.54.210.85.151.nip.io
 
 Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome (and encouraged!) to substitute your own domain name. To do so, you will need to make some manual configuration changes to the `camunda-values.yaml` files. 
 
-# Keycloak Admin User and Password
+## Keycloak Admin User and Password
 
 By default, the Camunda Helm Charts configure a Keycloak Administrator user with username `admin`. 
 
@@ -146,7 +159,7 @@ make keycloak-password
 
 You should be able to authenticate to Keycload using `admin` as username and the `password` retrieved by the command above. 
 
-# Keycloak requires SSL for requests from external sources 
+## Keycloak requires SSL for requests from external sources 
 
 If your Kubernetes cluster does not use "private" IP addresses for internal communication, i.e. it does not resolve the internal service names to "private" IP addresses, then the first time you attempt to authenticate to keycloak, you may encounter the following error:
 

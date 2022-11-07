@@ -32,11 +32,6 @@ Once you have a AKS Cluster, run `make` to do the following:
 4. Helm is used to install Camunda 8 using the `camunda-values.yaml` file with the Load Balancer IP Address
 5. The ingress controller is annotated so that letsencrypt tls certificates are provisioned.
 
-## Check TLS Certificates
+You can re-install this profile easily. First run `make clean` to remove all kubernetes objects created by `make`. Then, re-run `make` to re-install.
 
-To check to make sure that letsencrypt has successfully issued tls certs, use the following command:
-
-```
-kubectl get certificaterequest --all-namespaces
-```
-
+WARNING!!! This will completely destroy your cluster and everything inside of it!!! To completely delete your cluster, run `make clean-kube`.
