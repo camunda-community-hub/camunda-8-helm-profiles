@@ -132,4 +132,32 @@ http://operate.54.210.85.151.nip.io
 http://tasklist.54.210.85.151.nip.io
 ```
 
-Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome (and encouraged!) to substitute your own domain name. To do so, you will need to make some manual configuration changes to the `camunda-values.yaml` files.  
+Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome (and encouraged!) to substitute your own domain name. To do so, you will need to make some manual configuration changes to the `camunda-values.yaml` files. 
+
+# Keycloak Admin User and Password
+
+By default, the Camunda Helm Charts configure a Keycloak Administrator user with username `admin`. 
+
+To retrieve the admin password from the Kubernetes secret and decode it you can run:
+
+```
+make keycloak-password
+```
+
+You should be able to authenticate to Keycload using `admin` as username and the `password` retrieved by the command above. 
+
+# Keycloak requires SSL for requests from external sources 
+
+If your Kubernetes cluster does not use "private" IP addresses for internal communication, i.e. it does not resolve the internal service names to "private" IP addresses, then the first time you attempt to authenticate to keycloak, you may encounter the following error:
+
+![Keycloak ssl required](docs/images/keycloak_ssl_required.png?raw=true)
+
+> Users can interact with Keycloak without SSL so long as they stick to private IP addresses like localhost, 127.0.0.1, 10.x.x.x, 192.168.x.x, and 172.16.x.x. If you try to access Keycloak without SSL from a non-private IP address you will get an error.
+
+This project provides a `Makefile` target named `config-keycloak`. If you run the following against an existing environment, it should fix this issue: 
+
+```shell
+make config-keycloak
+```
+
+For more details on how to fix this issue manually [see here](https://docs.camunda.io/docs/self-managed/platform-deployment/troubleshooting/#keycloak-requires-ssl-for-requests-from-external-sources)
