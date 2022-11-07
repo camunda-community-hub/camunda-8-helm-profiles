@@ -16,7 +16,7 @@ certEmail ?= YOUR_EMAIL@camunda.com
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 
-root ?= $(shell pwd)/../../..
+root ?= $(shell pwd)/../../../..
 fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
 # fqdn = $(IP).nip.io
 
