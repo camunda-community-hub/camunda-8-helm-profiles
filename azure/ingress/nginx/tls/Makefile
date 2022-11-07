@@ -70,7 +70,7 @@ external-urls: ingress-ip-from-service
 	@echo https://$(fqdn)/operate
 	@echo https://$(fqdn)/tasklist
 	@echo https://$(fqdn)/optimize
-	@echo $(fqdn):443
+	@echo zbctl status --address $(fqdn):443
 
 # 8 public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
 .PHONY: public-zeebe-ingress
