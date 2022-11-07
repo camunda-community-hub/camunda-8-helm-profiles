@@ -70,6 +70,7 @@ To check to make sure that letsencrypt has successfully issued tls certs, use th
 kubectl get certificaterequest --all-namespaces
 ```
 
+
 ## Configure Kubectl to connect to an existing cluster
 
 [By default](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/), `kubectl` looks for a file named `config` ins the $HOME/.kube directory.  
@@ -82,6 +83,7 @@ For example, running `make use-kube` from inside the `google/ingress/nginx/tls` 
 to an existing GKE cluster. 
 
 Running `make use-kube` from an aws, or azure profile should configure `kubectl` appropriately. 
+
 
 ## Use custom `camunda-values.yaml` files
 
@@ -102,6 +104,7 @@ Or, as another example, you might manually edit the `ingress-nginx/camunda-value
 ```
 helm install test-core camunda/camunda-platform --values ingress-nginx/camunda-values.yaml
 ```
+
 
 ## Networking with nip.io
 
@@ -147,6 +150,7 @@ http://tasklist.54.210.85.151.nip.io
 
 Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome (and encouraged!) to substitute your own domain name. To do so, you will need to make some manual configuration changes to the `camunda-values.yaml` files. 
 
+
 ## Keycloak Admin User and Password
 
 By default, the Camunda Helm Charts configure a Keycloak Administrator user with username `admin`. 
@@ -158,6 +162,7 @@ make keycloak-password
 ```
 
 You should be able to authenticate to Keycload using `admin` as username and the `password` retrieved by the command above. 
+
 
 ## Keycloak requires SSL for requests from external sources 
 

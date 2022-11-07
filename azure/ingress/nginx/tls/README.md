@@ -35,3 +35,5 @@ Once you have a AKS Cluster, run `make` to do the following:
 You can re-install this profile easily. First run `make clean` to remove all kubernetes objects created by `make`. Then, re-run `make` to re-install.
 
 WARNING!!! This will completely destroy your cluster and everything inside of it!!! To completely delete your cluster, run `make clean-kube`.
+
+See the main README for [Troubleshooting, Tips, and Tricks](../../../../README.md##troubleshooting-tips-and-tricks)

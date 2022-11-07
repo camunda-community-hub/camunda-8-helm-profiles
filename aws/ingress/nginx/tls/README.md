@@ -32,18 +32,8 @@ Once you have a EKS Cluster, run `make` to do the following:
 4. Helm is used to install Camunda 8 using the `camunda-values.yaml` file with the Load Balancer IP Address
 5. The ingress controller is annotated so that letsencrypt tls certificates are provisioned.
 
-## Check TLS Certificates
+You can re-install this profile easily. First run `make clean` to remove all kubernetes objects created by `make`. Then, re-run `make` to re-install.
 
-To check to make sure that letsencrypt has successfully issued tls certs, use the following command: 
+WARNING!!! This will completely destroy your cluster and everything inside of it!!! To completely delete your cluster, run `make clean-kube`.
 
-```
-kubectl get certificaterequest --all-namespaces
-```
-
-### Note about AWS Load Balancer domain name tls certs
-
-AWS gives domain names for Load Balancers. We tried to configure letsencrypt to create certificates for these domain names, however, let's encrypt can only generate certs for domain names less than a certain length. It should be possible, but there is some work left to do.   
-
-```
-Message:               Failed to wait for order resource "tls-secret-ltx5k-1407422140" to become ready: order is in "errored" state: Failed to create Order: 400 urn:ietf:params:acme:error:rejectedIdentifier: NewOrder request did not include a SAN short enough to fit in CN
-```
+See the main README for [Troubleshooting, Tips, and Tricks](../../../../README.md##troubleshooting-tips-and-tricks)
