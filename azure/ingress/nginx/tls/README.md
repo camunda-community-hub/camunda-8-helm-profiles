@@ -36,4 +36,4 @@ You can re-install this profile easily. First run `make clean` to remove all kub
 
 WARNING!!! This will completely destroy your cluster and everything inside of it!!! To completely delete your cluster, run `make clean-kube`.
 
-See the main README for [Troubleshooting, Tips, and Tricks](../../../../README.md##troubleshooting-tips-and-tricks)
+See the main README for [Troubleshooting, Tips, and Tricks](../../../../README.md#troubleshooting-tips-and-tricks)

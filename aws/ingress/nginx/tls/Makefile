@@ -99,7 +99,6 @@ clean-kube: clean-metrics clean-kube-aws
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(root)/aws/ingress/nginx/tls/camunda-values-nginx-aws.yaml
-	rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml
 
 include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk
