@@ -1,6 +1,6 @@
 # Create a cert to use with GRPC gateway
 # this script uses dependencies (cfssl, cfssljosn, jq)
-ROOT ?= ..
+root ?= $(shell pwd)/..
 
 namespace ?= camunda
 # Service to apply cert
@@ -12,7 +12,7 @@ signerName ?= example.com\/pdiddy
 
 .PHONY: all
 all: cfssl-create-csr kube-upload-csr kube-approve-csr \
-		 cfssl-create-cert-authority cfssl-sign-certificate \
-		 kube-upload-cert kube-create-secret clean-certs
+	 cfssl-create-cert-authority cfssl-sign-certificate \
+	 kube-upload-cert kube-create-secret clean-certs
 
-include ./tls-certs.mk
+include $(root)/cfssl/cfssl-certs.mk
