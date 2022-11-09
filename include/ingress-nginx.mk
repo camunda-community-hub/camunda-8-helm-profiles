@@ -10,7 +10,7 @@ ingress-nginx:
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
-	$(eval HOSTNAME := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
+	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
 	@echo "Ingress controller uses IP address: $(IP)"
 
 .PHONY: ingress-hostname-from-service
