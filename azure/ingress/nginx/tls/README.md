@@ -1,5 +1,9 @@
 # Camunda 8 Helm Profile: Ingress NGINX for Azure with TLS Certificates
 
+If this is your first time here, make sure you have [installed the prerequisites](../../../README.md).
+
+After you've installed the prerequisites, follow these steps:
+
 Open a Terminal and `cd` into this directory
 
 Edit the [Makefile](Makefile) found in this directory and set the following bash variables so that they are appropriate for your specific environment.
