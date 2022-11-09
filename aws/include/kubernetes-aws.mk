@@ -23,4 +23,4 @@ use-kube:
 
 .PHONY: urls
 urls:
-	@echo "Cluster: https://us-east-1.console.aws.amazon.com/eks/home?region=us-east-1#/clusters/$(clusterName)"
+	@echo "Cluster: https://$(region).console.aws.amazon.com/eks/home?region=$(region)#/clusters/$(clusterName)"
