@@ -27,13 +27,7 @@ make clean
 
 ## Troubleshooting
 
-### Debug logging for Identity
-```yaml
-identity:
-  env:
-   - name: LOGGING_LEVEL_ROOT
-     value: DEBUG
-```
+
 
 ### Keycloak requires SSL for requests from publicly routed IP addresses
 

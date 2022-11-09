@@ -10,3 +10,5 @@ aws/ingress/nginx/tls/cluster.yaml
 aws/ingress/nginx/tls/camunda-values-nginx-aws.yaml
 kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 kind/camunda-values-kind.yaml
+cfssl/csr.yaml
+cfssl/certs

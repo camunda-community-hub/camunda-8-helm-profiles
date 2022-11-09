@@ -179,3 +179,15 @@ make config-keycloak
 ```
 
 For more details on how to fix this issue manually [see here](https://docs.camunda.io/docs/self-managed/platform-deployment/troubleshooting/#keycloak-requires-ssl-for-requests-from-external-sources)
+
+
+## Troubleshooting Identity
+
+Enable Debug logging for Identity by adding the following to `camunda-values.yaml`
+
+```yaml
+identity:
+  env:
+   - name: LOGGING_LEVEL_ROOT
+     value: DEBUG
+```
