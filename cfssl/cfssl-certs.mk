@@ -5,7 +5,7 @@
 cfssl-create-csr:
 	-mkdir certs
 	-cat $(root)/cfssl/template/csr.json | cfssl genkey - | cfssljson -bare server -f
-	-mv server* $(root)/cfssl/certs/ #TODO: update to use fully qualified paths?
+	-mv server* $(root)/cfssl/certs/
 
 .PHONY: kube-upload-csr
 kube-upload-csr:
@@ -24,16 +24,16 @@ kube-approve-csr:
 .PHONY: cfssl-create-cert-authority
 cfssl-create-cert-authority:
 	cat $(root)/cfssl/template/ca.json | cfssl gencert -initca - | cfssljson -bare ca
-	mv ca* $(root)/cfssl/certs/ #TODO: update to use fully qualified paths?
+	mv ca* $(root)/cfssl/certs/
 
 .PHONY: cfssl-sign-certificate
 cfssl-sign-certificate:
 	kubectl get csr $(service).$(namespace) -o jsonpath='{.spec.request}' | \
   base64 --decode | \
   cfssl sign -ca $(root)/cfssl/certs/ca.pem -ca-key $(root)/cfssl/certs/ca-key.pem \
-		-config $(root)/certs/template/server-signing-config.json - | \
+		-config $(root)/cfssl/template/server-signing-config.json - | \
   	cfssljson -bare ca-signed-server -n $(namespace)
-	mv ca* $(root)/cfssl/certs/ # TODO: update to use fully qualified paths
+	mv ca* $(root)/cfssl/certs/
 
 .PHONY: kube-upload-cert
 kube-upload-cert:
@@ -47,7 +47,9 @@ kube-create-secret:
 	-kubectl delete secret $(secret_name)
 	$(shell kubectl get csr $(service).$(namespace) -n $(namespace) -o jsonpath='{.status.certificate}' \
     | base64 --decode > ./signed-server.crt)
-	kubectl create secret tls $(secret_name) --cert $(root)/cfssl/certs/signed-server.crt --key $(root)/cfssl/certs/server-key.pem -n $(namespace)
+#	kubectl create secret tls $(secret_name) --cert $(root)/cfssl/certs/signed-server.crt --key $(root)/cfssl/certs/server-key.pem -n $(namespace)
+#	Is this correct?
+	kubectl create secret tls $(secret_name) --cert $(root)/cfssl/certs/ca-signed-server.pem --key $(root)/cfssl/certs/server-key.pem -n $(namespace)
 	kubectl get secret $(secret_name) -n $(namespace) -o json
 
 .PHONY: clean-certs
