@@ -54,7 +54,7 @@ nginx-dns-tls:
 
 # 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
 .PHONY: camunda-values-nginx-tls.yaml
-camunda-values-nginx-tls.yaml: ingress-ip-from-service
+camunda-values-nginx-tls.yaml: ingress-hostname-from-service
 	@echo Ingress controller will use fqdn: $(fqdn)
 	@sed "s/dnslabel.location.cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
 
@@ -64,7 +64,8 @@ camunda-values-nginx-tls.yaml: ingress-ip-from-service
 
 # 7 Show external URLs
 .PHONY: external-urls
-external-urls: ingress-ip-from-service
+external-urls: ingress-hostname-from-service
+	@echo Hostname of Load balancer: $(ip)
 	@echo https://$(fqdn)/auth
 	@echo https://$(fqdn)/identity
 	@echo https://$(fqdn)/operate

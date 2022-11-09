@@ -37,7 +37,7 @@ optimize:
 
 identity:
   contextPath: "/identity"
-  fullURL: "https://mydnslabel.eastus.cloudapp.azure.com/identity"
+  fullURL: "https://dnslabel.location.cloudapp.azure.com/identity"
   
   keycloak:
   #  ingress:
