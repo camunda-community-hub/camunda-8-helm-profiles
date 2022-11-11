@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1ez7f3l" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.3.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.0.0">
+  <bpmn:process id="BenchmarkProcess" name="Benchmark Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1s4b8s3</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1s4b8s3" sourceRef="StartEvent_1" targetRef="Activity_1mhxn7w" />
+    <bpmn:sequenceFlow id="Flow_1i59n1a" sourceRef="Activity_1mhxn7w" targetRef="Activity_0io9qnw" />
+    <bpmn:sequenceFlow id="Flow_1trfmps" sourceRef="Activity_0io9qnw" targetRef="Activity_13vp1p6" />
+    <bpmn:sequenceFlow id="Flow_0b7wqqt" sourceRef="Activity_13vp1p6" targetRef="Activity_15z22gq" />
+    <bpmn:serviceTask id="Activity_1mhxn7w" name="Service Task 1">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-1" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1s4b8s3</bpmn:incoming>
+      <bpmn:outgoing>Flow_1i59n1a</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0io9qnw" name="Service Task 2">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-2" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1i59n1a</bpmn:incoming>
+      <bpmn:outgoing>Flow_1trfmps</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_13vp1p6" name="Service Task 3">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1trfmps</bpmn:incoming>
+      <bpmn:outgoing>Flow_0b7wqqt</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_15z22gq" name="Service Task 4">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-4" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0b7wqqt</bpmn:incoming>
+      <bpmn:outgoing>Flow_084zor4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_18ep2ui" name="Service Task 5">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-5" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_084zor4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vybfv9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_14npahi" name="Service Task 6">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-6" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1vybfv9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hbyrye</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_1yw8bp6" name="Service Task 7">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-7" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0hbyrye</bpmn:incoming>
+      <bpmn:outgoing>Flow_1w7b049</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0p2eo9n" name="Service Task 8">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="benchmark-task-8" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1w7b049</bpmn:incoming>
+      <bpmn:outgoing>Flow_1smiieb</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1vybfv9" sourceRef="Activity_18ep2ui" targetRef="Activity_14npahi" />
+    <bpmn:sequenceFlow id="Flow_0hbyrye" sourceRef="Activity_14npahi" targetRef="Activity_1yw8bp6" />
+    <bpmn:sequenceFlow id="Flow_1w7b049" sourceRef="Activity_1yw8bp6" targetRef="Activity_0p2eo9n" />
+    <bpmn:sequenceFlow id="Flow_084zor4" sourceRef="Activity_15z22gq" targetRef="Activity_18ep2ui" />
+    <bpmn:endEvent id="Event_0m85qxr">
+      <bpmn:incoming>Flow_1smiieb</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1smiieb" sourceRef="Activity_0p2eo9n" targetRef="Event_0m85qxr" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BenchmarkProcess">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0bk20tl_di" bpmnElement="Activity_1mhxn7w">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0kcy687_di" bpmnElement="Activity_0io9qnw">
+        <dc:Bounds x="430" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0yq75bo_di" bpmnElement="Activity_13vp1p6">
+        <dc:Bounds x="590" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1nh2pbx_di" bpmnElement="Activity_15z22gq">
+        <dc:Bounds x="750" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1bylwpz" bpmnElement="Activity_18ep2ui">
+        <dc:Bounds x="910" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0nadgih" bpmnElement="Activity_14npahi">
+        <dc:Bounds x="1070" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0sjsyxu" bpmnElement="Activity_1yw8bp6">
+        <dc:Bounds x="1230" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_119k9vr" bpmnElement="Activity_0p2eo9n">
+        <dc:Bounds x="1390" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0m85qxr_di" bpmnElement="Event_0m85qxr">
+        <dc:Bounds x="1552" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1s4b8s3_di" bpmnElement="Flow_1s4b8s3">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i59n1a_di" bpmnElement="Flow_1i59n1a">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="430" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1trfmps_di" bpmnElement="Flow_1trfmps">
+        <di:waypoint x="530" y="117" />
+        <di:waypoint x="590" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b7wqqt_di" bpmnElement="Flow_0b7wqqt">
+        <di:waypoint x="690" y="117" />
+        <di:waypoint x="750" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_0p8bdod" bpmnElement="Flow_1vybfv9">
+        <di:waypoint x="1010" y="117" />
+        <di:waypoint x="1070" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_1wkb84b" bpmnElement="Flow_0hbyrye">
+        <di:waypoint x="1170" y="117" />
+        <di:waypoint x="1230" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_07m5ik9" bpmnElement="Flow_1w7b049">
+        <di:waypoint x="1330" y="117" />
+        <di:waypoint x="1390" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_084zor4_di" bpmnElement="Flow_084zor4">
+        <di:waypoint x="850" y="117" />
+        <di:waypoint x="910" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1smiieb_di" bpmnElement="Flow_1smiieb">
+        <di:waypoint x="1490" y="117" />
+        <di:waypoint x="1552" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
