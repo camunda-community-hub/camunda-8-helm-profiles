@@ -10,7 +10,10 @@ on an existing Kubernetes cluster (if you don't have one yet,
 see [Camunda 8 Kubernetes Installation](https://github.com/camunda-community-hub/camunda8-greenfield-installation)).
 A [Makefile](Makefile) is provided to automate the installation process.
 
-## Install
+![Camunda 8 and NGINX](Camunda%208%20and%20Nginx.png)
+
+## Installation
+
 Configure the desired Kubernetes `namespace`, Helm `release` name, and Helm `chart` in [Makefile](Makefile)
 and run:
 

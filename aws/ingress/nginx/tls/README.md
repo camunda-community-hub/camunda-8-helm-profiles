@@ -1,5 +1,19 @@
 # Camunda 8 Helm Profile: Ingress NGINX for AWS EKS
 
+A configuration for Camunda Platform 8
+that uses [NGINX](https://www.nginx.com/products/nginx-ingress-controller/)
+as an [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
+
+This folder contains a [Helm](https://helm.sh/) [values file](camunda-values.yaml)
+for installing the [Camunda Platform Helm Chart](https://helm.camunda.io/)
+on an existing AWS EKS cluster (if you don't have one yet,
+see [Kubernetes Installation for Camunda 8 on AWS](../../../README.md)).
+A [Makefile](Makefile) is provided to automate the installation process.
+
+![Camunda 8 and NGINX](../../../../ingress-nginx/Camunda%208%20and%20Nginx.png)
+
+## Installation
+
 If this is your first time here, make sure you have [installed the prerequisites](../../../README.md).
 
 After you've installed the prerequisites, follow these steps: 
