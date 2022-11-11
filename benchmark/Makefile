@@ -6,7 +6,7 @@ export release ?= camunda
 export chart ?= camunda/camunda-platform
 
 # This file is created during the make call which runs inside `$(helmProfilesDir)/ingress-aws`
-export chartValues ?= "./camunda-values-benchmark.yaml"
+export chartValues ?= "./camunda-values-benchmark.yaml" # -f "../t-size-large/camunda-values.yaml"
 
 
 .PHONY: all
