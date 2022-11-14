@@ -20,6 +20,8 @@ global:
       secretName: "tls-secret"
   image:
       tag: 8.1.3
+      # tag: latest
+      # pullPolicy: Alwaysmake clean camunda
   identity:
     auth:
       enabled: true
@@ -46,7 +48,11 @@ operate:
       value: "elastic"
     - name: CAMUNDA_OPERATE_ZEEBE_ELASTICSEARCH_PASSWORD
       value: "topsecret"
-
+    - name: "CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_PREFIX"
+      value: "robs-zeebe"
+    - name: "CAMUNDA_OPERATE_ELASTICSEARCH_INDEXPREFIX"
+      value: "robs-operate"
+      
 tasklist:
   contextPath: "/tasklist"
   env:
@@ -62,6 +68,10 @@ tasklist:
       value: "elastic"
     - name: CAMUNDA_TASKLIST_ZEEBE_ELASTICSEARCH_PASSWORD
       value: "topsecret"
+    - name: CAMUNDA_TASKLIST_ZEEBEELASTICSEARCH_PREFIX
+      value: "robs-zeebe"
+    - name: CAMUNDA_TASKLIST_ELASTICSEARCH_INDEXPREFIX
+      value: "robs-tasklist"
 
 optimize:
   contextPath: "/optimize"
@@ -72,8 +82,19 @@ optimize:
       value: "elastic"
     - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_PASSWORD
       value: "topsecret"
-    # - name: CAMUNDA_OPTIMIZE_ZEEBE_NAME
-    #   value: "zeebe1"
+    - name: CAMUNDA_OPTIMIZE_ZEEBE_NAME
+      value: "robs-zeebe"
+  extraVolumes:
+  - name: optimize-config
+    configMap:
+      name: optimize-config
+      items:
+      - key: "environment-config.yaml"
+        path: "environment-config.yaml"
+  extraVolumeMounts:
+  - mountPath: /optimize/config/environment-config.yaml
+    subPath: environment-config.yaml
+    name: optimize-config
 
 identity:
   enabeld: "true"
@@ -124,6 +145,9 @@ zeebe:
       value: "elastic"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_AUTHENTICATION_PASSWORD
       value: "topsecret"
+    - name: "ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_INDEX_PREFIX"
+      value: "robs-zeebe"
+      
 
 elasticsearch:
   enabled: false 

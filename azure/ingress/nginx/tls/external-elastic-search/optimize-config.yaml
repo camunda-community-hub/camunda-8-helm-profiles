@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    kubernetes.io/description: Contains the Optmize configuration
+  name: optimize-config
+  namespace: camunda
+data:
+  environment-config.yaml: |
+    es:
+      settings:
+        index:
+          prefix: robs-optimize

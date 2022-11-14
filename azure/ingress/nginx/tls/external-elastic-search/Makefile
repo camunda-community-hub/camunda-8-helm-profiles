@@ -73,14 +73,17 @@ external-urls: ingress-hostname-from-service
 	@echo https://$(fqdn)/optimize
 	@echo zbctl status --address $(fqdn):443
 
-# 8 public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
-.PHONY: public-zeebe-ingress
-public-zeebe-ingress: 
-	cat $(root)/azure/include/public-zeebe-ingress.yaml | sed -E "s/MY_HOSTNAME/$(fqdn)/g;" | kubectl create -n $(namespace) -f -
+.PHONY: optimize-config-map
+optimize-config-map:
+# kubectl create namespace $(namespace)
+	kubectl apply -n $(namespace) -f ./optimize-config.yaml
 
 # Optional: Run 'make config-keycloak' from camunda.mk to allow non-ssl connections to Keycloak
 
 ### <--- End of setup --->
+
+.PHONY: update-camunda-tls
+update-camunda-tls: camunda-values-nginx-tls.yaml optimize-config-map camunda annotate-ingress-tls
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
