@@ -3,20 +3,20 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-region ?= eastus
-clusterName ?= MY_CLUSTER_NAME
-resourceGroup ?= MY_CLUSTER_NAME-rg
+region ?= southeastasia
+clusterName ?= camaks
+resourceGroup ?= camunda-rg
 # This dnsLabel value will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
-dnsLabel ?= MY_DOMAIN_NAME
+dnsLabel ?= bingo
 machineType ?= Standard_A8_v2
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@camunda.com
+certEmail ?= robert.emsbach@camunda.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 
-root ?= $(shell pwd)/../../../..
+root ?= $(shell pwd)/../../../../..
 fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
 # fqdn = $(IP).nip.io
 
