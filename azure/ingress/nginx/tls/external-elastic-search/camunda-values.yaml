@@ -57,7 +57,7 @@ tasklist:
     - name: CAMUNDA_TASKLIST_ELASTICSEARCH_PASSWORD
       value: "topsecret"
     - name: CAMUNDA_TASKLIST_ZEEBE_ELASTICSEARCH_URL
-      value: "https://camunda-apac.es.asia-southeast1.gcp.elastic-cloud.com/"
+      value: "https://camunda-apac.es.asia-southeast1.gcp.elastic-cloud.com"
     - name: CAMUNDA_TASKLIST_ZEEBE_ELASTICSEARCH_USERNAME
       value: "elastic"
     - name: CAMUNDA_TASKLIST_ZEEBE_ELASTICSEARCH_PASSWORD
