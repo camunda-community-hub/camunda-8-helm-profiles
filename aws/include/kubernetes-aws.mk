@@ -2,6 +2,10 @@
 cluster.yaml:
 	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g;" $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
 
+.PHONY: clean-cluster-yaml
+clean-cluster-yaml:
+	rm -rf cluster.yaml
+
 .PHONY: oidc-provider
 oidc-provider:
 	eksctl utils associate-iam-oidc-provider --cluster $(clusterName) --approve --region $(region)
@@ -57,7 +61,6 @@ restart-ebs-csi-controller:
 .PHONY: kube-aws
 kube-aws: cluster.yaml
 	eksctl create cluster -f cluster.yaml
-	rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml
 	# eksctl upgrade cluster --name=$(clusterName) --version=$(clusterVersion)
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
 	kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
@@ -76,7 +79,7 @@ delete-iam-role: detach-role-policy-mapping
 	rm ebs-csi-driver-trust-policy.json
 
 .PHONY: clean-kube-aws
-clean-kube-aws: use-kube delete-iam-role
+clean-kube-aws: clean-cluster-yaml delete-iam-role use-kube
 	eksctl delete cluster --name $(clusterName) --region $(region)
 
 .PHONY: use-kube
