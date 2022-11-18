@@ -32,16 +32,16 @@ prometheusServiceMonitor:
 zeebe:
   resources:
     limits:
-      cpu: 15
-      memory: 50Gi
+      cpu: 8
+      memory: 16Gi
     requests:
-      cpu: 15
-      memory: 50Gi
-  clusterSize: "12"
+      cpu: 7
+      memory: 16Gi
+  clusterSize: "3"
   partitionCount: "80"
   replicationFactor: "3"
-  cpuThreadCount: 15
-  ioThreadCount: 15
+  cpuThreadCount: 5
+  ioThreadCount: 2
   persistenceType: disk
   pvcSize: 128Gi
   pvcStorageClassName: ssd
@@ -49,25 +49,25 @@ zeebe:
   env:
     - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
       value: "true"
-    - name: ZEEBE_BROKER_EXPERIMENTAL_DISABLEEXPLICITRAFTFLUSH
-      value: "true"
-    - name: ZEEBE_BROKER_BACKPRESSURE_ENABLED
-      value: "true"
+    - name: "ZEEBE_BROKER_CLUSTER_MESSAGECOMPRESSION"
+      value: "SNAPPY"
 zeebe-gateway:
   replicas: 1
   resources:
     limits:
-      cpu: 15
-      memory: 50Gi
+      cpu: 3
+      memory: 16Gi
     requests:
-      cpu: 15
-      memory: 50Gi
+      cpu: 3
+      memory: 16Gi
   logLevel: ERROR
   env:
     - name: ZEEBE_GATEWAY_MONITORING_ENABLED
       value: "true"
     - name: ZEEBE_GATEWAY_THREADS_MANAGEMENTTHREADS
-      value: "15"
+      value: "3"
+    - name: ZEEBE_GATEWAY_CLUSTER_MESSAGECOMPRESSION
+      value: "SNAPPY"
 # ELASTIC
 elasticsearch:
   enabled: false

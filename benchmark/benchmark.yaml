@@ -17,21 +17,27 @@ spec:
     spec:
       containers:
       - name: benchmark
-        image: gcr.io/camunda-researchanddevelopment/falko-camunda-8-benchmark:0.0.1-SNAPSHOT
+        image: berndruecker/camunda-8-benchmark:main
         imagePullPolicy: Always
         env:
           - name: JAVA_OPTIONS
             value: >-
               -Dzeebe.client.broker.gateway-address=camunda-zeebe-gateway:26500
               -Dzeebe.client.security.plaintext=true
-          - name: ZEEBE_CLIENT_BROKER_GATEWAY_ADDRESS
-            value: camunda-zeebe-gateway:26500
-          - name: ZEEBE_CLIENT_SECURITY_PLAINTEXT
-            value: "true"
-          - name: BENCHMARK_MESSAGESSCENARIOSPERSECOND
-            value: "90"
-          - name: BENCHMARK_MESSAGESLOADDURATION
-            value: "6000000"
+              -Dzeebe.client.request-timeout=600s
+              -Dzeebe.client.job.poll-interval=1ms
+              -Dzeebe.client.worker.max-jobs-active=2000
+              -Dbenchmark.startPiPerSecond=5
+              -Dbenchmark.maxBackpressurePercentage=1.0
+              -Dbenchmark.taskCompletionDelay=10
+              -Dbenchmark.bpmnProcessId=BenchmarkProcess
+              -Dbenchmark.jobType=benchmark-task
+              -Dbenchmark.multipleJobTypes=8
+              -Dbenchmark.payloadPath=payload.json
+              -Dbenchmark.autoDeployProcess=false
+              -Dbenchmark.warmupPhaseDurationMillis=300000
+              -Dbenchmark.startRateAdjustmentStrategy=backpressure
+              -Dbenchmark.startPiIncreaseFactor=0.4
         resources:
           limits:
             cpu: 1
