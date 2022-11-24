@@ -12,8 +12,3 @@ chaos-mesh:
 clean-chaos:
 	-rm -rf chaos-mesh
 	-helm --namespace default uninstall chaos-mesh
-	
-	
-	
-	kubectl apply -f network-chaos.yaml -n default
-	-kubectl delete -f network-chaos.yaml -n default

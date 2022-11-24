@@ -1,4 +1,4 @@
-# Camunda 8 Helm Profile: Ingress NGINX for GCP with TLS Certificates
+# Camunda 8 Helm Profile: Google benchmark with chaos-mesh
 
 If this is your first time here, make sure you have [installed the prerequisites](../../../README.md).
 
@@ -20,18 +20,19 @@ clusterName ?= CLUSTER_NAME
 machineType ?= n1-standard-16
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@yourdomain.com
+gcpClientId ?= GCP_CLIENT_ID # see: https://chaos-mesh.org/docs/next/gcp-authentication/
+gcpClientSecret ?= GCP_CLIENT_SECRET # see: https://chaos-mesh.org/docs/next/gcp-authentication/
 ```
 
 If you need to create a new GKE Cluster, run `make kube`. 
 
 Once you have a GKE Cluster, run `make` to do the following:
 
-1. Set up a Kubernetes letsencrypt certificate manager
-2. Install a Kubernetes Nginx Ingress Controller. A corresponding GCP Load Balancer is provisioned automatically
-3. Attempt to find the ip address of the Load Balancer. This ip address is then used generate a `camunda-values.yaml` file. 
-4. Helm is used to install Camunda 8 using the `camunda-values.yaml` file with the Load Balancer IP Address
-5. The ingress controller is annotated so that letsencrypt tls certificates are provisioned. 
+1. Set up a Camunda cluster
+2. Deploy the model
+3. Rebalance partitions
+4. install the chaos-experiment as described in `chaos-network-brokers.yaml`
+5. execute the benchmark 
 
 You can re-install this profile easily. First run `make clean` to remove all kubernetes objects created by `make`. Then, re-run `make` to re-install.
 
