@@ -19,7 +19,7 @@ endif
 chartValues ?= "$(root)/benchmark/camunda-values.yaml"
 
 .PHONY: all
-all: camunda await-zeebe deploy-models rebalance-partitions benchmark
+all: camunda await-zeebe deploy-models rebalance-leaders benchmark
 
 .PHONY: chaos-all
 chaos-all: all chaosmesh

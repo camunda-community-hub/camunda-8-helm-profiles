@@ -46,6 +46,13 @@ update:
 	  --set identity.keycloak.auth.managementPassword=$$KEYCLOAK_MANAGEMENT_SECRET \
 	  --set identity.keycloak.postgresql.auth.password=$$POSTGRESQL_SECRET
 
+.PHONY: rebalance-leaders
+rebalance-leaders:
+	kubectl port-forward --namespace camunda $$(kubectl get pod --namespace camunda --selector="app=camunda-platform,app.kubernetes.io/component=zeebe-gateway,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=zeebe-gateway,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') 5433:9600 > pid.txt &
+	curl -X POST http://localhost:5433/actuator/rebalance/
+	sleep 10
+	kill $$(ps aux | grep 'kubectl' | awk '{print $$1}')
+
 .PHONY: clean-camunda
 clean-camunda:
 	-helm --namespace $(namespace) uninstall $(release)

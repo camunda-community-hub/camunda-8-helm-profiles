@@ -35,7 +35,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= "$(root)/benchmark/camunda-values.yaml"
 
 .PHONY: all
-all: camunda await-zeebe deploy-models rebalance-partitions chaos-experiment benchmark 
+all: camunda await-zeebe deploy-models rebalance-leaders chaos-experiment benchmark 
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
