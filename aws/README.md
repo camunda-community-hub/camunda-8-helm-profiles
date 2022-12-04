@@ -62,3 +62,11 @@ dig +short ac5770377baff43b7b35f28d725538eb-1410992827.us-east-1.elb.amazonaws.c
 ```
 
 The first IP Address is used to configure Camunda Ingress Rules. 
+
+## EBS CSI Driver Addon
+
+AWS requires you to install the [EBS CSI Driver Addon](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) on EKS Clusters running version 1.23. 
+
+Any persistent volumes will fail on EKS Clusters v1.23 unless the EBS CSI Driver Addon is installed. 
+
+This project has some scripts to help install and configure the addon. Take a look at the `make` target named `ebs-csi-controller-addon` inside [kubernetes-aws.mk](include/kubernetes-aws.mk) to see how the scripts work. 

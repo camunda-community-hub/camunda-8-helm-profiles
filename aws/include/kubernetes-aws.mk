@@ -61,10 +61,14 @@ restart-ebs-csi-controller:
 .PHONY: kube-aws
 kube-aws: cluster.yaml
 	eksctl create cluster -f cluster.yaml
-	# eksctl upgrade cluster --name=$(clusterName) --version=$(clusterVersion)
+	rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
 	kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
+.PHONY: kube-upgrade
+kube-upgrade:
+	eksctl upgrade cluster --name=$(clusterName) --version=$(clusterVersion) --approve
 
 .PHONY: detach-role-policy-mapping
 detach-role-policy-mapping:
