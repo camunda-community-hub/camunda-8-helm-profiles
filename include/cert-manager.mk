@@ -13,7 +13,7 @@ cert-manager:
 
 .PHONY: letsencrypt-staging
 letsencrypt-staging:
-	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl create -n cert-manager -f -
+	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl apply -n cert-manager -f -
 	
 .PHONY: letsencrypt-prod
 letsencrypt-prod:

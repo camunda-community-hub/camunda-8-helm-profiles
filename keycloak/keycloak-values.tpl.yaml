@@ -1,0 +1,36 @@
+---
+image:
+  tag: KEYCLOAK_VERSION
+
+auth:
+  adminUser: "KEYCLOAK_ADMIN_USER"
+  existingSecret: "camunda-keycloak"
+  passwordSecretKey: "admin-password"
+
+service:
+  type: ClusterIP
+
+extraEnvVars:
+  # KEYCLOAK_PROXY_ADDRESS_FORWARDING can be used with Ingress that has SSL Termination. It will be "true" if the TLS
+  # in global Ingress is enabled, but it could be overwritten with separate Ingress setup.
+  - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+    value: "true"
+  # KEYCLOAK_HTTP_RELATIVE_PATH is valid for v19.x.x only and it's added for compatibility between Keycloak versions
+  # where in Keycloak v16.x.x it's hard-coded as '/auth', but in v19.x.x it's '/'.
+  - name: KEYCLOAK_HTTP_RELATIVE_PATH
+    value: "/"
+
+# Keycloak.ingress can be used to configure an Ingress for Keycloak. No need to enable it if the global Ingress
+# under "global.ingress" is enabled. However, it's possible to setup Keycloak on a separate Ingress if needed.
+# For more details: https://github.com/bitnami/charts/tree/main/bitnami/keycloak#configure-ingress
+ingress:
+  enabled: true
+  hostname: KEYCLOAK_HOSTNAME
+  path: KEYCLOAK_CONTEXT_PATH
+  ingressClassName: nginx
+  tls: true
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt"

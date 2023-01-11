@@ -8,6 +8,15 @@ ingress-nginx:
 	helm search repo ingress-nginx
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait
 
+.PHONY: ingress-nginx-tls
+ingress-nginx-tls:
+	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+	helm repo update ingress-nginx
+	helm search repo ingress-nginx
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt"
+
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
 	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
