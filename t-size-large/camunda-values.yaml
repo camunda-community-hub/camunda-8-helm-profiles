@@ -1,0 +1,34 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+zeebe:
+  resources:
+    limits:
+      cpu: 10
+      memory: 32Gi
+    requests:
+      cpu: 6
+      memory: 24Gi
+  clusterSize: "5"
+  partitionCount: "18"
+  replicationFactor: "3"
+  cpuThreadCount: 10
+  ioThreadCount: 10
+  persistenceType: disk
+  pvcSize: 500Gi
+  pvcStorageClassName: ssd
+
+zeebe-gateway:
+  replicas: 3
+  resources:
+    limits:
+      cpu: 3
+      memory: 3Gi
+    requests:
+      cpu: 2
+      memory: 2Gi
+  env:
+    - name: ZEEBE_GATEWAY_THREADS_MANAGEMENTTHREADS
+      value: "3"
