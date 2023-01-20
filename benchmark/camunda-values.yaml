@@ -38,7 +38,7 @@ zeebe:
       cpu: 7
       memory: 16Gi
   clusterSize: "3"
-  partitionCount: "80"
+  partitionCount: "9"
   replicationFactor: "3"
   cpuThreadCount: 5
   ioThreadCount: 2
