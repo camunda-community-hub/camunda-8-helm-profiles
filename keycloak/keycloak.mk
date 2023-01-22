@@ -1,13 +1,13 @@
 .PHONY: create-namespace-keycloak
 create-namespace-keycloak:
-	-kubectl create namespace $(keycloakNamespace)
+	-kubectl create namespace $(namespace)
 
 .PHONY: clean-namespace-keycloak
 clean-namespace-keycloak:
-	-kubectl delete namespace $(keycloakNamespace)
+	-kubectl delete namespace $(namespace)
 
 keycloak-secrets.yaml:
-	sed -e "s/KEYCLOAK_NAMESPACE/$(keycloakNamespace)/g;" -e "s/ADMIN_PASSWORD/$(keycloakBase64EncodedAdminPassword)/g;" -e "s/MANAGEMENT_PASSWORD/$(keycloakBase64EncodedManagementPassword)/g;" $(root)/keycloak/keycloak-secrets.tpl.yaml > $(root)/keycloak/keycloak-secrets.yaml
+	sed -e "s/KEYCLOAK_NAMESPACE/$(namespace)/g;" -e "s/ADMIN_PASSWORD/$(keycloakBase64EncodedAdminPassword)/g;" -e "s/MANAGEMENT_PASSWORD/$(keycloakBase64EncodedManagementPassword)/g;" $(root)/keycloak/keycloak-secrets.tpl.yaml > $(root)/keycloak/keycloak-secrets.yaml
 
 .PHONY: clean-keycloak-secrets-yaml
 clean-keycloak-secrets-yaml:
@@ -15,11 +15,11 @@ clean-keycloak-secrets-yaml:
 
 .PHONY: create-secret-keycloak
 create-secret-keycloak: keycloak-secrets.yaml
-	-kubectl apply -f $(root)/keycloak/keycloak-secrets.yaml --namespace $(keycloakNamespace)
+	-kubectl apply -f $(root)/keycloak/keycloak-secrets.yaml --namespace $(namespace)
 
 keycloak-values.yaml:
 	sed -e "s|KEYCLOAK_VERSION|$(keycloakVersion)|g;"      \
-	-e "s|KEYCLOAK_NAMESPACE|$(keycloakNamespace)|g;"      \
+	-e "s|KEYCLOAK_NAMESPACE|$(namespace)|g;"      \
 	-e "s|KEYCLOAK_ADMIN_USER|$(keycloakAdminUser)|g;"     \
 	-e "s|KEYCLOAK_HOSTNAME|$(keycloakHostName)|g;" \
 	-e "s|KEYCLOAK_CONTEXT_PATH|$(keycloakContextPath)|g;" \
@@ -33,7 +33,7 @@ clean-keycloak-values-yaml:
 install-keycloak: keycloak-values.yaml
 	-helm repo add bitnami https://charts.bitnami.com/bitnami
 	-helm repo update bitnami
-	-helm upgrade --namespace $(keycloakNamespace) -f $(root)/keycloak/keycloak-values.yaml keycloak bitnami/keycloak --version $(keycloakChartVersion) --atomic --install
+	-helm upgrade --namespace $(namespace) -f $(root)/keycloak/keycloak-values.yaml keycloak bitnami/keycloak --version $(keycloakChartVersion) --atomic --install
 
 .PHONY: port-keycloak
 port-keycloak:
@@ -41,7 +41,7 @@ port-keycloak:
 
 .PHONY: keycloak-password
 keycloak-password:
-	$(eval kcPassword := $(shell kubectl get secret --namespace $(keycloakNamespace) "camunda-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode))
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "camunda-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode))
 	@echo KeyCloak Admin password: $(kcPassword)
 
 .PHONY: clean-keycloak

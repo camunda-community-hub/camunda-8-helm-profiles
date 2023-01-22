@@ -10,11 +10,13 @@ customers would like to use an existing Keycloak.
 These scripts help with setting up a standalone Keycloak accessible over https with valid tls certificates. This is convenient for
 testing Camunda Helm scripts against an existing, "external", Keycloak.
 
+The [google external keycloak profile](../google/external-keycloak) helps to install Camunda to point to an existing, external Keycloak. So, once you're done here and have a running cluster with Keycloak, you might be interested in using the [google external keycloak profile](../google/external-keycloak) to configure Camunda in a separate cluster (pointing to the Keycloak you set up here).
+
 ## Install
 
 Make sure you meet [these prerequisites](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/README.md#prerequisites).
 
-Open a terminal, cd to this directory, and edit the [Makefile](./Makefile) and change the parameters as needed. At the very least, replace `YOUR_KEYCLOAK_HOSTNAME` with a valid domain name.
+Open a terminal, cd to this directory, and edit the [Makefile](./Makefile) and change the parameters as needed. At the very least, replace the following: `KEYCLOAK_HOSTNAME`, `CLUSTER_NAME`, `YOUR_EMAIL@yourdomain.com`
 
 Then run:
 

@@ -6,8 +6,8 @@ ingress-nginx/camunda-values-nginx.yaml
 azure/ingress/nginx/tls/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/camunda-platform
 google/ingress/nginx/tls/camunda-values-nginx.yaml
-google/ingress/nginx/tls/ext-keycloak/camunda-values-ext-keycloak.yaml
-google/ingress/nginx/tls/ext-keycloak/keycloak-secrets.yaml
+google/external-keycloak/camunda-values-ext-keycloak.yaml
+google/external-keycloak/keycloak-secrets.yaml
 aws/ingress/nginx/tls/cluster.yaml
 aws/ingress/nginx/tls/camunda-values-nginx-aws.yaml
 kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
