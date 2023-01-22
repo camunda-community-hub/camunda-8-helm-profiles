@@ -17,7 +17,17 @@ clean-keycloak-secrets-yaml:
 create-secret-keycloak: keycloak-secrets.yaml
 	-kubectl apply -f $(root)/keycloak/keycloak-secrets.yaml --namespace $(namespace)
 
-keycloak-values.yaml:
+.PHONY: keycloak-values-ip
+keycloak-values-ip: ingress-ip-from-service
+	sed -e "s|KEYCLOAK_VERSION|$(keycloakVersion)|g;"      \
+	-e "s|KEYCLOAK_NAMESPACE|$(namespace)|g;"      \
+	-e "s|KEYCLOAK_ADMIN_USER|$(keycloakAdminUser)|g;"     \
+	-e "s|KEYCLOAK_HOSTNAME|$(IP).nip.io|g;" \
+	-e "s|KEYCLOAK_CONTEXT_PATH|$(keycloakContextPath)|g;" \
+	 $(root)/keycloak/keycloak-values.tpl.yaml > $(root)/keycloak/keycloak-values.yaml
+
+.PHONY: keycloak-values-hostname
+keycloak-values:
 	sed -e "s|KEYCLOAK_VERSION|$(keycloakVersion)|g;"      \
 	-e "s|KEYCLOAK_NAMESPACE|$(namespace)|g;"      \
 	-e "s|KEYCLOAK_ADMIN_USER|$(keycloakAdminUser)|g;"     \
@@ -30,7 +40,7 @@ clean-keycloak-values-yaml:
 	-rm $(root)/keycloak/keycloak-values.yaml
 
 .PHONY: install-keycloak
-install-keycloak: keycloak-values.yaml
+install-keycloak:
 	-helm repo add bitnami https://charts.bitnami.com/bitnami
 	-helm repo update bitnami
 	-helm upgrade --namespace $(namespace) -f $(root)/keycloak/keycloak-values.yaml keycloak bitnami/keycloak --version $(keycloakChartVersion) --atomic --install

@@ -14,11 +14,12 @@ keycloakAdminUser ?= admin
 keycloakBase64EncodedAdminPassword ?= WTg1a2hvYklyYg==
 keycloakBase64EncodedManagementPassword ?= NEtHclRnbTJjWg==
 keycloakContextPath ?= /
-keycloakHostName ?= KEYCLOAK_HOSTNAME
-
 # Azure provides temporary dns names such as:  MY_DOMAIN_NAME.region.cloudapp.azure.com
 # However GCP does not. DNS names will be configured using https://nip.io
-# dnsLabel ?= MY_DOMAIN_NAME
+# To use a custom hostname, uncomment the following,
+# and change to use `keycloak-values-hostname` instead of `keycloak-values-ip`
+# keycloakHostName ?= KEYCLOAK_HOSTNAME
+
 machineType ?= n1-standard-16
 minSize ?= 1
 maxSize ?= 6
@@ -38,7 +39,7 @@ namespace ?= keycloak
 
 
 .PHONY: all
-all: cert-manager letsencrypt-staging ingress-nginx-tls create-namespace-keycloak create-secret-keycloak install-keycloak
+all: cert-manager letsencrypt-staging ingress-nginx-tls create-namespace-keycloak create-secret-keycloak keycloak-values-ip install-keycloak
 
 # 0 kube from cluster.mk: Create Kubernetes cluster.
 .PHONY: kube
@@ -54,7 +55,9 @@ kube: kube-gke metrics
 
 # 5 create keycloak secret
 
-# 6 helm install keycloak using values file with parameters from this makefile
+# 6 create keycloak values (by default uses `keycloak-values-ip`. `keycloak-values-hostname` is also available)
+
+# 7 helm install keycloak using `keycloak-values.yaml`
 
 .PHONY: clean
 clean: clean-keycloak
