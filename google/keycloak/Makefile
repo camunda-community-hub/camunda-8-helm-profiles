@@ -43,7 +43,7 @@ all: cert-manager letsencrypt-staging ingress-nginx-tls create-namespace-keycloa
 
 # 0 kube from cluster.mk: Create Kubernetes cluster.
 .PHONY: kube
-kube: kube-gke metrics
+kube: kube-gke
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
@@ -53,7 +53,7 @@ kube: kube-gke metrics
 
 # 4 create keycloak namespace
 
-# 5 create keycloak secret
+# 5 create keycloak secret (this will be reused when installing camunda)
 
 # 6 create keycloak values (by default uses `keycloak-values-ip`. `keycloak-values-hostname` is also available)
 
@@ -71,4 +71,3 @@ include $(root)/include/cert-manager.mk
 include $(root)/include/ingress-nginx.mk
 
 include $(root)/google/include/kubernetes-gke.mk
-include $(root)/metrics/metrics.mk

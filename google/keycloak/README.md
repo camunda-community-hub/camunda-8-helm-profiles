@@ -17,11 +17,13 @@ If this is your first time here, make sure you have [installed the prerequisites
 
 After you've installed the prerequisites, follow these steps:
 
-Open a terminal, cd to this directory, and edit the [Makefile](./Makefile) and change the parameters as needed. At the very least, replace the following: `KEYCLOAK_HOSTNAME`, `CLUSTER_NAME`, `YOUR_EMAIL@yourdomain.com`
+Open a terminal, cd to this directory, and edit the [Makefile](./Makefile) and change the parameters as needed. At the very least, replace the following: `CLUSTER_NAME` and `YOUR_EMAIL@yourdomain.com`. 
 
 If you don't have a Kubernetes cluster, the values provided will be used to create a new cluster. Otherwise, the values are used to connect and manage an existing cluster.
 
 If you need to create a new GKE Cluster, run `make kube`.
+
+Note that by default, this will use `keycloak-values-ip` to create a values file using the IP address of the ingress controller and the nip.io service. As an advanced option, you can define a hostname by using the `keycloak-values-hostname` target (and setting `KEYCLOAK_HOSTNAME` in the `Makefile`) 
 
 Once you have a GKE Cluster, run `make` to do the following:
 
@@ -48,3 +50,7 @@ Then, access keycloak over https://YOUR_KEYCLOAK_HOSTNAME
 ```sh
 make clean
 ````
+
+WARNING!!! This will completely destroy your cluster and everything inside of it!!! To completely delete your cluster, run `make clean-kube`.
+
+See the main README for [Troubleshooting, Tips, and Tricks](../../README.md#troubleshooting-tips-and-tricks)
