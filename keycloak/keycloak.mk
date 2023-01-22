@@ -24,6 +24,7 @@ keycloak-values-ip: ingress-ip-from-service
 	-e "s|KEYCLOAK_ADMIN_USER|$(keycloakAdminUser)|g;"     \
 	-e "s|KEYCLOAK_HOSTNAME|$(IP).nip.io|g;" \
 	-e "s|KEYCLOAK_CONTEXT_PATH|$(keycloakContextPath)|g;" \
+	-e "s|//realms|/realms|g;" \
 	 $(root)/keycloak/keycloak-values.tpl.yaml > $(root)/keycloak/keycloak-values.yaml
 
 .PHONY: keycloak-values-hostname
@@ -33,6 +34,7 @@ keycloak-values:
 	-e "s|KEYCLOAK_ADMIN_USER|$(keycloakAdminUser)|g;"     \
 	-e "s|KEYCLOAK_HOSTNAME|$(keycloakHostName)|g;" \
 	-e "s|KEYCLOAK_CONTEXT_PATH|$(keycloakContextPath)|g;" \
+	-e "s|//realms|/realms|g;" \
 	 $(root)/keycloak/keycloak-values.tpl.yaml > $(root)/keycloak/keycloak-values.yaml
 
 .PHONY: clean-keycloak-values-yaml

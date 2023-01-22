@@ -27,9 +27,9 @@ certEmail ?= YOUR_EMAIL@yourdomain.com
 # The following variables should not be changed except for advanced use cases
 
 ifeq ($(OS),Windows_NT)
-    root ?= $(CURDIR)/../..
+    root ?= $(CURDIR)/../../..
 else
-    root ?= $(shell pwd)/../..
+    root ?= $(shell pwd)/../../..
 endif
 
 # Camunda components will be installed into the following Kubernetes namespace
@@ -44,7 +44,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-ext-keycloak.yaml
 
 .PHONY: all
-all: cert-manager letsencrypt-staging ingress-nginx-tls create-secret-keycloak camunda-values-ext-keycloak-ip.yaml namespace camunda annotate-ingress-tls external-urls
+all: cert-manager letsencrypt-staging ingress-nginx-tls namespace create-secret-keycloak camunda-values-ext-keycloak-ip.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -64,6 +64,7 @@ camunda-values-ext-keycloak-ip.yaml: ingress-ip-from-service
 	-e "s|KEYCLOAK_HOSTNAME|$(keycloakHostname)|g;" \
 	-e "s|KEYCLOAK_PORT|$(keycloakPort)|g;" \
 	-e "s|KEYCLOAK_CONTEXT_PATH|$(keycloakContextPath)|g;" \
+	-e "s|//realms|/realms|g;" \
 	$(root)/keycloak/camunda-values-ext-keycloak.tpl.yaml > ./camunda-values-ext-keycloak.yaml
 
 # 6 helm install camunda from camunda.mk with own tls config, combined ingress, and external keycloak
