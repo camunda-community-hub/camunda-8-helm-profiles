@@ -36,13 +36,36 @@ endif
 
 namespace ?= keycloak
 
+
 .PHONY: all
 all: cert-manager letsencrypt-staging ingress-nginx-tls create-namespace-keycloak create-secret-keycloak install-keycloak
 
+# 0 kube from cluster.mk: Create Kubernetes cluster.
+.PHONY: kube
+kube: kube-gke metrics
+
+# 1 cert-manager from cert-manager.mk: create certificate manager for tls
+
+# 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
+
+# 3 create nginx ingress controller with dns and tls
+
+# 4 create keycloak namespace
+
+# 5 create keycloak secret
+
+# 6 helm install keycloak using values file with parameters from this makefile
+
 .PHONY: clean
 clean: clean-keycloak
+
+.PHONY: clean-kube
+clean-kube: clean-metrics clean-kube-gke
 
 
 include $(root)/keycloak/keycloak.mk
 include $(root)/include/cert-manager.mk
 include $(root)/include/ingress-nginx.mk
+
+include $(root)/google/include/kubernetes-gke.mk
+include $(root)/metrics/metrics.mk
