@@ -35,3 +35,10 @@ annotate-ingress-tls:
 clean-cert-manager:
 	helm --namespace cert-manager delete cert-manager
 	kubectl delete namespace cert-manager
+
+# create a secret containing a cacerts truststore containing the lets encrypt staging CA certificates
+.PHONY: cacerts-staging
+cacerts-staging:
+	-kubectl create secret generic "cacerts-staging" \
+	--namespace=$(namespace) \
+	--from-file=cacerts_staging=$(root)/include/cacerts_staging

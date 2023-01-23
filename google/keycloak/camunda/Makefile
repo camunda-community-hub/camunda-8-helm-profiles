@@ -44,7 +44,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-ext-keycloak.yaml
 
 .PHONY: all
-all: cert-manager letsencrypt-staging ingress-nginx-tls namespace create-secret-keycloak camunda-values-ext-keycloak-ip.yaml camunda annotate-ingress-tls external-urls
+all: cert-manager letsencrypt-staging ingress-nginx-tls namespace create-secret-keycloak cacerts-staging camunda-values-ext-keycloak-ip.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube

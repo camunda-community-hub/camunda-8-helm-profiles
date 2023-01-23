@@ -26,11 +26,14 @@ If you need to create a new GKE Cluster, run `make kube`.
 
 Once you have a GKE Cluster, run `make` to do the following:
 
-1. Set up a Kubernetes letsencrypt certificate manager
+1. Set up a Kubernetes letsencrypt staging certificate manager
 2. Install a Kubernetes Nginx Ingress Controller. A corresponding GCP Load Balancer is provisioned automatically
 3. Attempt to find the ip address of the Load Balancer. This ip address is then used generate a `camunda-values.yaml` file. 
-4. Helm is used to install Camunda 8 using the `camunda-values.yaml` file with the Load Balancer IP Address. Identity is configured to connect to the existing, external Keycloak.  
-5. The ingress controller is annotated so that letsencrypt tls certificates are provisioned. 
+4. A `camunda-values-ext-keycloak.yaml` will be generated with the appropriate Load Balancer IP Address. 
+5. Helm is used to install Camunda 8 using the `camunda-values-ext-keycloak.yaml` file. Identity is configured to connect to the existing, external Keycloak.  
+6. The ingress controller is annotated so that letsencrypt tls certificates are provisioned.
+
+Note!!! It's often necessary to sign certificates with a custom Certificate Authority. This profile has an example of extra configuration needed if you use a Custom CA. This profile is using Let's Encrypt [Staging Environment](https://letsencrypt.org/docs/staging-environment/) to provision tls certificates. By default, these certificates will not be trusted by your browser or by the JVM. This [truststore](../../../include/cacerts_staging) contains all of the Certificate Authorities used by Let's Encrypt Staging certificates. When Camunda is installed, each of the webapps are setup to use this [truststore](../../../include/cacerts_staging).  
 
 You can re-install this profile easily. First run `make clean` to remove all kubernetes objects created by `make`. Then, re-run `make` to re-install.
 

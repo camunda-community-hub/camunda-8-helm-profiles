@@ -37,18 +37,74 @@ global:
 
 operate:
   contextPath: "/operate"
+  env:
+    - name: JAVA_TOOL_OPTIONS
+      value: "-Djavax.net.ssl.trustStore=/usr/local/certificates/cacerts_staging"
+  extraVolumeMounts:
+    - mountPath: /usr/local/certificates/cacerts_staging
+      subPath: cacerts_staging
+      name: cacerts-staging
+  extraVolumes:
+    - name: cacerts-staging
+      secret:
+        secretName: cacerts-staging
+        items:
+          - key: cacerts_staging
+            path: cacerts_staging
 
 tasklist:
   contextPath: "/tasklist"
+  env:
+    - name: JAVA_TOOL_OPTIONS
+      value: "-Djavax.net.ssl.trustStore=/usr/local/certificates/cacerts_staging"
+  extraVolumeMounts:
+    - mountPath: /usr/local/certificates/cacerts_staging
+      subPath: cacerts_staging
+      name: cacerts-staging
+  extraVolumes:
+    - name: cacerts-staging
+      secret:
+        secretName: cacerts-staging
+        items:
+          - key: cacerts_staging
+            path: cacerts_staging
 
 optimize:
   contextPath: "/optimize"
+  env:
+    - name: JAVA_TOOL_OPTIONS
+      value: "-Djavax.net.ssl.trustStore=/usr/local/certificates/cacerts_staging"
+  extraVolumeMounts:
+    - mountPath: /usr/local/certificates/cacerts_staging
+      subPath: cacerts_staging
+      name: cacerts-staging
+  extraVolumes:
+    - name: cacerts-staging
+      secret:
+        secretName: cacerts-staging
+        items:
+          - key: cacerts_staging
+            path: cacerts_staging
 
 identity:
   contextPath: "/identity"
   fullURL: "https://YOUR_HOSTNAME/identity"
   keycloak:
     enabled: false
+  env:
+    - name: JAVA_TOOL_OPTIONS
+      value: "-Djavax.net.ssl.trustStore=/usr/local/certificates/cacerts_staging"
+  extraVolumeMounts:
+    - mountPath: /usr/local/certificates/cacerts_staging
+      subPath: cacerts_staging
+      name: cacerts-staging
+  extraVolumes:
+    - name: cacerts-staging
+      secret:
+        secretName: cacerts-staging
+        items:
+          - key: cacerts_staging
+            path: cacerts_staging
 
 zeebe-gateway:
   ingress:
