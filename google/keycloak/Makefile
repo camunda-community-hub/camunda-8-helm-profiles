@@ -63,7 +63,7 @@ kube: kube-gke
 clean: clean-keycloak
 
 .PHONY: clean-kube
-clean-kube: clean-metrics clean-kube-gke
+clean-kube: clean-kube-gke
 
 
 include $(root)/keycloak/keycloak.mk
