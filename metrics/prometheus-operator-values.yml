@@ -3,7 +3,7 @@ alertmanager:
 
 grafana:
   image:
-    tag: 8.1.1
+    tag: 9.3.4
   admin:
     existingSecret: grafana-admin-password
     userKey: admin-user
