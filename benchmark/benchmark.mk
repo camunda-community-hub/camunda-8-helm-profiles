@@ -16,3 +16,7 @@ benchmark: namespace
 clean-benchmark:
 	-kubectl delete -f $(root)/benchmark/benchmark.yaml -n $(namespace)
 	-kubectl delete configmap payload -n $(namespace)
+
+.PHONY: logs-benchmark
+logs-benchmark:
+	kubectl logs -f -l app=benchmark -n $(namespace)
