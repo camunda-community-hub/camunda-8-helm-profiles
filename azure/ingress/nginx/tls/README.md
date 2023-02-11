@@ -17,7 +17,7 @@ If this is your first time here, make sure you have [installed the prerequisites
 
 After you've installed the prerequisites, follow these steps:
 
-Open a Terminal and `cd` into this directory
+Open a Terminal and cd to `azure/ingress/nginx/tls` directory. 
 
 Edit the [Makefile](Makefile) found in this directory and set the following bash variables so that they are appropriate for your specific environment.
 

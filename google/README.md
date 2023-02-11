@@ -12,8 +12,12 @@ Step 2: Setup command line tools for GCP:
 
 2. Make sure you are authenticated. If you don't already have one, you'll need to sign up for a new Google Cloud Account. Then, run the following command and then follow the instructions to authenticate via your browser.
 
-       $ gcloud auth login
+       gcloud auth login
 
-3. Go into one of the profiles in the `google` folder and use the `Makefile` to create a GKE cluster
+3. Setup the gke-cloud-auth-plugin 
+
+       gcloud components install gke-gcloud-auth-plugin
+
+6. Go into one of the profiles in the `google` folder and use the `Makefile` to create a GKE cluster
 
 e.g. `cd` into the `ingress/nginx/tls` directory and see the [README.md](./ingress/nginx/tls/README.md) for more.
