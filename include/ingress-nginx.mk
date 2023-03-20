@@ -15,7 +15,8 @@ ingress-nginx-tls:
 	helm search repo ingress-nginx
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
 	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
-	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt"
+	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt" \
+	--set controller.service.externalTrafficPolicy=Local
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
