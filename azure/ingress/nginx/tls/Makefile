@@ -53,8 +53,8 @@ nginx-dns-tls:
 	helm search repo ingress-nginx
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
 	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
-	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
-	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt"
+	--set controller.service.annotations."nginx\.ingress\.kubernetes\.io/ssl-redirect"="true" \
+	--set controller.service.annotations."cert-manager\.io/cluster-issuer"="letsencrypt"
 
 # 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
 .PHONY: camunda-values-nginx-tls.yaml
