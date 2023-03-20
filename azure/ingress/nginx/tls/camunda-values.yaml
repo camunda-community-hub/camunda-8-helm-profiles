@@ -13,7 +13,7 @@ global:
       enabled: true
       secretName: "tls-secret"
   image:
-      tag: 8.1.2
+      tag: 8.2.0-alpha
       # tag: latest
       # pullPolicy: Always
   identity:
