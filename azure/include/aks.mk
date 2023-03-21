@@ -49,3 +49,11 @@ use-kube:
 	kubectl config unset clusters.$(clusterName)
 	kubectl config unset users.clusterUser_$(resourceGroup)_$(clusterName)
 	az aks get-credentials --resource-group $(resourceGroup) --name $(clusterName)
+
+.PHONY: azure-dns-zone
+azure-dns-zone:
+	az network dns zone create -g $(resourceGroup) -n $(baseDomainName)
+
+.PHONY: azure-dns-record
+azure-dns-record:
+	az network dns record-set a add-record -g $(resourceGroup) -z $(baseDomainName) -n $(subDomainName) -a $(IP)

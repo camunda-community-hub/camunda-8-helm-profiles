@@ -3,11 +3,12 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-region ?= francecentral
+region ?= eastus
 clusterName ?= MY_CLUSTER_NAME
 resourceGroup ?= MY_CLUSTER_NAME-rg
-# This dnsLabel value will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
-dnsLabel ?= MY_DOMAIN_NAME
+# This baseDomainName will be combined with subDomain Name: subDomainName.baseDomainName
+baseDomainName ?= BASE_DOMAIN_NAME
+subDomainName ?= SUB_DOMAIN_NAME
 machineType ?= Standard_A8_v2
 minSize ?= 1
 maxSize ?= 6
@@ -15,14 +16,9 @@ certEmail ?= YOUR_EMAIL@camunda.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
-ifeq ($(OS),Windows_NT) 
-    root ?= $(CURDIR)/../../../..
-else 
-    root ?= $(shell pwd)/../../../..
-endif
 
-fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
-# fqdn = $(IP).nip.io
+root ?= $(shell pwd)/../../../../..
+fqdn ?= ${subDomainName}.${baseDomainName}
 
 # Camunda components will be installed into the following Kubernetes namespace
 namespace ?= camunda
@@ -35,7 +31,8 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-tls.yaml
 
 .PHONY: all
-all: cert-manager letsencrypt-prod nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
+all: cert-manager letsencrypt-staging ingress-nginx-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
+# all: cert-manager letsencrypt-staging ingress-nginx-tls azure-dns-zone ingress-ip-from-service azure-dns-record camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -46,31 +43,24 @@ kube: kube-nginx
 # 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 
 # 3 create nginx ingress controller with dns and tls
-.PHONY: nginx-dns-tls
-nginx-dns-tls: 
-	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-	helm repo update ingress-nginx
-	helm search repo ingress-nginx
-	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
-	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
-	--set controller.service.annotations."nginx\.ingress\.kubernetes\.io/ssl-redirect"="true" \
-	--set controller.service.annotations."cert-manager\.io/cluster-issuer"="letsencrypt"
-	--set controller.service.externalTrafficPolicy=Local
 
-# 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
+# 4a azure-dns-zone to setup a Azure DNS Zone
+# 4b azure-dns-record to create A record that points to ingress controller
+
+# 5 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
 .PHONY: camunda-values-nginx-tls.yaml
 camunda-values-nginx-tls.yaml: ingress-hostname-from-service
 	@echo Ingress controller will use fqdn: $(fqdn)
-	@sed "s/dnslabel.location.cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./$(chartValues)
+	@sed "s/dnslabel.location.cloudapp.azure.com/$(fqdn)/g;" ../camunda-values.yaml > ./$(chartValues)
 
-# 5 helm install camunda from camunda.mk with own tls config, combined ingress
+# 6 helm install camunda from camunda.mk with own tls config, combined ingress
 
-# 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
+# 7 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
 
-# 7 Show external URLs
+# 8 Show external URLs
 .PHONY: external-urls
-external-urls: ingress-hostname-from-service
-	@echo Hostname of Load balancer: $(ip)
+external-urls: ingress-ip-from-service
+	@echo IP Address of Load balancer: $(IP)
 	@echo https://$(fqdn)/auth
 	@echo https://$(fqdn)/identity
 	@echo https://$(fqdn)/operate
@@ -78,7 +68,7 @@ external-urls: ingress-hostname-from-service
 	@echo https://$(fqdn)/optimize
 	@echo zbctl status --address $(fqdn):443
 
-# 8 public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
+# 9 public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
 .PHONY: public-zeebe-ingress
 public-zeebe-ingress: 
 	cat $(root)/azure/include/public-zeebe-ingress.yaml | sed -E "s/MY_HOSTNAME/$(fqdn)/g;" | kubectl create -n $(namespace) -f -

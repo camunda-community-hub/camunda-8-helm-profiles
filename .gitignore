@@ -4,6 +4,7 @@ ingress-azure/camunda-values-azure.yaml
 ingress-aws/camunda-values-aws.yaml
 ingress-nginx/camunda-values-nginx.yaml
 azure/ingress/nginx/tls/camunda-values-nginx-tls.yaml
+azure/ingress/nginx/tls/dns/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/camunda-platform
 google/ingress/nginx/tls/camunda-values-nginx.yaml
 google/keycloak/camunda/camunda-values-ext-keycloak.yaml
