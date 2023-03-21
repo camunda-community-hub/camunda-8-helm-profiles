@@ -53,6 +53,7 @@ nginx-dns-tls:
 	helm search repo ingress-nginx
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
 	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
+	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"="/healthz" \
 	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
 	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt"
 
