@@ -57,3 +57,22 @@ azure-dns-zone:
 .PHONY: azure-dns-record
 azure-dns-record:
 	az network dns record-set a add-record -g $(resourceGroup) -z $(baseDomainName) -n $(subDomainName) -a $(IP)
+
+.PHONY: azure-nginx-dns-tls
+azure-nginx-dns-tls:
+	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+	helm repo update ingress-nginx
+	helm search repo ingress-nginx
+	ifdef $(dnsLabel)
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
+	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt" \
+	--set controller.config.error-log-level="debug"
+	else
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+	--set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
+	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt" \
+	--set controller.config.error-log-level="debug"
+	endif

@@ -20,6 +20,7 @@ global:
       # pullPolicy: Always
   identity:
     auth:
+      enabled: true
       publicIssuerUrl: "https://dnslabel.location.cloudapp.azure.com/auth/realms/camunda-platform"
       operate:
         redirectUrl: "https://dnslabel.location.cloudapp.azure.com/operate"
@@ -30,7 +31,7 @@ global:
 
 operate:
   contextPath: "/operate"
-
+      
 tasklist:
   contextPath: "/tasklist"
 
@@ -50,9 +51,15 @@ identity:
 
 zeebe-gateway:
   ingress:
-    enabled: true
+    enabled: false
+    # path: "/zeebe"
     className: nginx
     host: "dnslabel.location.cloudapp.azure.com"
+#    annotations:
+#      cert-manager.io/cluster-issuer: "letsencrypt"
+#    tls:
+#      enabled: true
+#      secretName: "tls-secret"
   replicas: 1
   resources:
     requests:
@@ -75,7 +82,8 @@ zeebe:
     limits:
       cpu: "512m"
       memory: "2Gi"
-  
+
+
 elasticsearch:
   enabled: true
   imageTag: 7.17.3

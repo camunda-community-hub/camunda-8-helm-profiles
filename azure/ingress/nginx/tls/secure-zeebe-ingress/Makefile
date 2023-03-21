@@ -24,17 +24,17 @@ certEmail ?= YOUR_EMAIL@camunda.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
-ifeq ($(OS),Windows_NT)
-    root ?= $(CURDIR)/../../../..
-else
-    root ?= $(shell pwd)/../../../..
-endif
 
+root ?= $(shell pwd)/../../../../..
+
+ifdef $(dnsLabel)
 fqdn ?= ${dnsLabel}.${region}.cloudapp.azure.com
+endif
 
 ifdef $(baseDomainName)
 fqdn ?= ${subDomainName}.${baseDomainName}
 endif
+# fqdn = $(IP).nip.io
 
 # Camunda components will be installed into the following Kubernetes namespace
 namespace ?= camunda
@@ -47,7 +47,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-tls.yaml
 
 .PHONY: all
-all: cert-manager letsencrypt-prod azure-nginx-dns-tls camunda-values-nginx-tls.yaml camunda annotate-ingress-tls external-urls
+all: cert-manager letsencrypt-prod azure-nginx-dns-tls camunda-values-nginx-tls.yaml camunda external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -80,25 +80,51 @@ external-urls: ingress-ip-from-service
 	@echo https://$(fqdn)/optimize
 	@echo zbctl status --address $(fqdn):443
 
-# 8 public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
-.PHONY: public-zeebe-ingress
-public-zeebe-ingress: 
-	cat $(root)/azure/include/public-zeebe-ingress.yaml | sed -E "s/MY_HOSTNAME/$(fqdn)/g;" | kubectl create -n $(namespace) -f -
 
 # Optional: Run 'make config-keycloak' from camunda.mk to allow non-ssl connections to Keycloak
 
 ### <--- End of setup --->
+
+.PHONY: update-camunda-tls
+update-camunda-tls: camunda-values-nginx-tls.yaml camunda
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
 
+
+PHONY: logs-nginx
+logs-nginx:
+	kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx -f
+
+.PHONY: logs-oauth2
+logs-oauth2:
+	kubectl logs -n ingress-nginx -l app.kubernetes.io/name=oauth2-proxy -f
+
+.PHONY: oauth2-proxy
+oauth2-proxy:
+	helm repo add azure-marketplace https://marketplace.azurecr.io/helm/v1/repo
+	helm repo update azure-marketplace
+	helm install oauth2-proxy azure-marketplace/oauth2-proxy -n ingress-nginx --create-namespace -f oauth2-values.yaml
+	cat oauth2-ingress.yaml | sed -E "s/dnslabel.location.cloudapp.azure.com/$(fqdn)/g" | kubectl apply -f -
+# helm repo add bitnami https://charts.bitnami.com/bitnami
+# helm install my-release bitnami/oauth2-proxy
+
+.PHONY: update-oauth2
+update-oauth2:
+	helm upgrade oauth2-proxy azure-marketplace/oauth2-proxy -f oauth2-values.yaml -n ingress-nginx
+
+.PHONY: keycloak-oauth2
+keycloak-oauth2:
+	kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=keycloak --timeout=600s
+# kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
+	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/camunda-platform -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
+
 include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
 include $(root)/azure/include/aks.mk
 include $(root)/azure/include/fileshare.mk
-# include $(root)/include/zbctl.mk
-
+include ./echo-server/echo.mk
 
