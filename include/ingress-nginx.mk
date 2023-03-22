@@ -29,7 +29,11 @@ ingress-hostname-from-service:
 	@echo "Ingress controller uses hostname: $(IP)"
 
 camunda-values-nginx-ip.yaml: ingress-ip-from-service
-	sed "s/YOUR_HOSTNAME/$(IP).nip.io/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml
+	if [ -n "$(baseDomainName)" ]; then \
+  	  sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
+	else \
+	  sed "s/YOUR_HOSTNAME/$(IP).nip.io/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
+	fi
 
 camunda-values-nginx-hostname.yaml: ingress-hostname-from-service
 	sed "s/YOUR_HOSTNAME/$(IP)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-hostname.yaml

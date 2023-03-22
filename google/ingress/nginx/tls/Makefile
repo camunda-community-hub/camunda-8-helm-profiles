@@ -6,8 +6,16 @@
 project ?= camunda-researchanddevelopment
 region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
 clusterName ?= CLUSTER_NAME
-# Azure provides temporary dns names such as:  MY_DOMAIN_NAME.region.cloudapp.azure.com
-# However GCP does not. DNS names will be configured using https://nip.io
+
+# There are a few DNS options for GCP
+# Option 1 (by default) is to use https://nip.io, which will be used like so: https://<IP ADDRESS>.nip.io
+# Option 2 is to use your own dns name
+# To use Option 2 uncomment the `baseDomainName` and `subDomainName`
+# For example, if `baseDomainName` is set to `example.com`, and `subDomainName` is set to `camunda`,
+# then the fqdn will be `camunda.example.com`
+#baseDomainName ?= BASE_DOMAIN_NAME
+#subDomainName ?= SUB_DOMAIN_NAME
+
 # dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= n1-standard-16
 minSize ?= 1
@@ -16,6 +24,10 @@ certEmail ?= YOUR_EMAIL@yourdomain.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
+
+ifdef $(baseDomainName)
+fqdn ?= ${subDomainName}.${baseDomainName}
+endif
 
 root ?= $(shell pwd)/../../../..
 
