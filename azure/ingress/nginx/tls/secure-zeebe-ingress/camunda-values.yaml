@@ -9,8 +9,8 @@ global:
     enabled: true
     className: nginx
     host: "dnslabel.location.cloudapp.azure.com"
-    annotations:
-      cert-manager.io/cluster-issuer: "letsencrypt"
+#    annotations:
+#      cert-manager.io/cluster-issuer: "letsencrypt"
     tls:
       enabled: true
       secretName: "tls-secret"
