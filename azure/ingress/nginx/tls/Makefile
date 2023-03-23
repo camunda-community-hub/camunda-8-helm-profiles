@@ -4,14 +4,14 @@
 # Otherwise, these values will be used to create a new Cluster
 
 region ?= francecentral
-clusterName ?= cdame
-resourceGroup ?= cdame-rg
+clusterName ?= MY_CLUSTER_NAME
+resourceGroup ?= MY_CLUSTER_NAME-rg
 # This dnsLabel value will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
-dnsLabel ?= cdame
+dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= Standard_A8_v2
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= christophe.dame@camunda.com
+certEmail ?= YOUR_EMAIL@camunda.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
