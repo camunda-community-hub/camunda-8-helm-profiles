@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: camunda
+  name: zeebe-oauth2-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/auth-signin: https://$host/oauth2/start?rd=$escaped_request_uri
+    # nginx.ingress.kubernetes.io/auth-response-headers: Authorization
+    nginx.ingress.kubernetes.io/auth-url: https://$host/oauth2/auth
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: YOUR_HOSTNAME
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: camunda-zeebe-gateway
+                port:
+                  number: 26500
+  tls:
+    - secretName: tls-secret
+      hosts:
+        - YOUR_HOSTNAME

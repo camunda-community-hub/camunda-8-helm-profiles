@@ -1,0 +1,45 @@
+# https://github.com/oauth2-proxy/oauth2-proxy/blob/7c3efe4f42bc37ccab613fe5002c172e147e3195/docs/2_auth.md#keycloak-auth-provider
+extraArgs:
+  - --skip-jwt-bearer-tokens
+  - --provider=keycloak-oidc
+  - --client-id=oauth2
+  - --client-secret=YOUR_CLIENT_SECRET
+  - --redirect-url=https://YOUR_HOSTNAME/oauth2/callback
+  - --oidc-issuer-url=https://YOUR_HOSTNAME/auth/realms/camunda-platform
+  - --silence-ping-logging
+  - --auth-logging=true
+  - --insecure-oidc-allow-unverified-email
+  - --request-logging=true
+  - --standard-logging=true
+  # - --session-store-type=cookie
+  # - --cookie-secret=gfVLP_MPTXFi4JAXFUOOiikk5EXXgCOQsBUy3wCeNG4=
+  # - --login-url=https://tuesday.southeastasia.cloudapp.azure.com/auth/realms/camunda-platform/protocol/openid-connect/auth
+  # - --redeem-url=https://tuesday.southeastasia.cloudapp.azure.com/auth/realms/camunda-platform/protocol/openid-connect/token
+  # - --profile-url=https://tuesday.southeastasia.cloudapp.azure.com/auth/realms/camunda-platform/protocol/openid-connect/userinfo
+  # - --validate-url=https://tuesday.southeastasia.cloudapp.azure.com/auth/realms/camunda-platform/protocol/openid-connect/userinfo
+  # - --redirect-url=https://tuesday.southeastasia.cloudapp.azure.com/oauth2/callback
+  # - --keycloak-group=/users
+  # - --provider-display-name=LoginBlah
+  # - --set-xauthrequest=true
+  # - --pass-user-headers=true
+  # - --pass-access-token=true
+  # - --pass-authorization-header=true
+  # # - --scope=openid
+  # - --cookie-httponly=false
+
+
+replicaCount: 1
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: oauth2-proxy
+        topologyKey: "kubernetes.io/hostname"
+resources:
+  limits:
+    cpu: 200m
+    memory: 100Mi
+  requests:
+    cpu: 100m
+    memory: 25Mi

@@ -75,6 +75,14 @@ zeebe:
     limits:
       cpu: "512m"
       memory: "2Gi"
+  spec:
+    template:
+      spec:
+        securityContext:
+          runAsUser: 1000
+        containers:
+          securityContext:
+            runAsUser: 1000
   
 elasticsearch:
   enabled: true

@@ -30,7 +30,7 @@ ingress-hostname-from-service:
 
 camunda-values-nginx-ip.yaml: ingress-ip-from-service
 	if [ -n "$(baseDomainName)" ]; then \
-  	  sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
+	  sed "s/YOUR_HOSTNAME/$(subDomainName).$(baseDomainName)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
 	else \
 	  sed "s/YOUR_HOSTNAME/$(IP).nip.io/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
 	fi

@@ -5,6 +5,7 @@ ingress-aws/camunda-values-aws.yaml
 ingress-nginx/camunda-values-nginx.yaml
 azure/ingress/nginx/tls/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/dns/camunda-values-nginx-tls.yaml
+azure/ingress/nginx/tls/secure-zeebe-ingress/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/camunda-platform
 google/ingress/nginx/tls/camunda-values-nginx.yaml
 google/keycloak/camunda/camunda-values-ext-keycloak.yaml
@@ -17,3 +18,4 @@ cfssl/csr.yaml
 cfssl/certs
 keycloak/keycloak-secrets.yaml
 keycloak/keycloak-values.yaml
+**/oauth2-values.yaml

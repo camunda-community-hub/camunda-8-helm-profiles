@@ -5,7 +5,7 @@
 
 project ?= camunda-researchanddevelopment
 region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
-clusterName ?= CLUSTER_NAME
+clusterName ?= dave-camunda-01
 
 # There are a few DNS options for GCP
 # Option 1 (by default) is to use https://nip.io, which will be used like so: https://<IP ADDRESS>.nip.io
@@ -13,21 +13,19 @@ clusterName ?= CLUSTER_NAME
 # To use Option 2 uncomment the `baseDomainName` and `subDomainName`
 # For example, if `baseDomainName` is set to `example.com`, and `subDomainName` is set to `camunda`,
 # then the fqdn will be `camunda.example.com`
-#baseDomainName ?= BASE_DOMAIN_NAME
-#subDomainName ?= SUB_DOMAIN_NAME
+baseDomainName ?= upgradingdave.com
+subDomainName ?= gke
 
-# dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= n1-standard-16
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@yourdomain.com
+certEmail ?= david.paroulek@camunda.com
+
+# Only used for oauth2-proxy
+clientSecret ?= Iy0A5ZikhBz1fVlGC5XT2dtOWwJrSIMC
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
-
-ifdef $(baseDomainName)
-fqdn ?= ${subDomainName}.${baseDomainName}
-endif
 
 root ?= $(shell pwd)/../../../..
 
@@ -88,3 +86,5 @@ include $(root)/include/cert-manager.mk
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/metrics/metrics.mk
 include $(root)/benchmark/benchmark.mk
+include $(root)/echo-server/echo.mk
+include $(root)/oauth2-proxy/oauth2.mk

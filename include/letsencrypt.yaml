@@ -17,4 +17,7 @@ spec:
     - http01:
         ingress:
           class: nginx
-      selector: {}
+          podTemplate:
+            spec:
+              nodeSelector:
+                "kubernetes.io/os": linux

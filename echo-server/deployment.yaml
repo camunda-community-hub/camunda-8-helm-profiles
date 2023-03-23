@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echoserver
+  labels:
+    app: echoserver
+spec:
+  selector:
+    matchLabels:
+      app: echoserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: echoserver
+    spec:
+      containers:
+        - name: echoserver
+          image: registry.k8s.io/echoserver:1.4
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: "250m"
+            requests:
+              memory: 128Mi
+              cpu: "80m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echoserver-service
+spec:
+  selector:
+    app: echoserver
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

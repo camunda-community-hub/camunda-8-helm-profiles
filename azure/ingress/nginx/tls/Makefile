@@ -4,12 +4,12 @@
 # Otherwise, these values will be used to create a new Cluster
 
 region ?= eastus
-clusterName ?= MY_CLUSTER_NAME
-resourceGroup ?= MY_CLUSTER_NAME-rg
+clusterName ?= dave-camunda-01
+resourceGroup ?= dave-camunda-01-rg
 
 # There are a few DNS options for Azure.
 # Option 1 (by default) is to set `dnsLabel`, which will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
-dnsLabel ?= MY_DOMAIN_NAME
+dnsLabel ?= dave
 # Option 2 is to use your own dns name (this can be configured using Azure DNS Zones if convenient)
 # To use Option 2 uncomment the `baseDomainName` and `subDomainName`
 # For example, if `baseDomainName` is set to `example.com`, and `subDomainName` is set to `camunda`,
@@ -20,7 +20,7 @@ dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= Standard_A8_v2
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@camunda.com
+certEmail ?= david.paroulek@camunda.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
