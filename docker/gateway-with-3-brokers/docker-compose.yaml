@@ -1,0 +1,85 @@
+version: '3'
+
+volumes:
+  broker_1: {}
+  broker_2: {}
+  broker_3: {}
+
+services:
+
+  gateway:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    ports:
+      - 26500:26500
+      - 9600:9600
+    environment:
+      - ZEEBE_STANDALONE_GATEWAY=true
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+    depends_on:
+      - broker-1
+
+  broker-1:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    environment:
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_BROKER_CLUSTER_NODEID=0
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    volumes:
+      - broker_1:/usr/local/zeebe/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  broker-2:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    environment:
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_BROKER_CLUSTER_NODEID=1
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    volumes:
+      - broker_2:/usr/local/zeebe/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - broker-1
+    restart: always
+
+  broker-3:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    environment:
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_BROKER_CLUSTER_NODEID=2
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    volumes:
+      - broker_3:/usr/local/zeebe/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - broker-1
+    restart: always
+
