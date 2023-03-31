@@ -13,12 +13,8 @@ dockerComposeFile ?= $(root)/docker/gateway-with-3-brokers/docker-compose.yaml
 .PHONY: all
 all: docker-compose-up
 
-.PHONY: health
-health:
-	docker inspect gateway-with-3-brokers-broker-1-1 | jq ".[].State.Health.Status"
-	docker inspect gateway-with-3-brokers-broker-2-1 | jq ".[].State.Health.Status"
-	docker inspect gateway-with-3-brokers-broker-3-1 | jq ".[].State.Health.Status"
-	docker inspect gateway-with-3-brokers-gateway-1 | jq ".[].State.Health.Status"
+.PHONY: status
+status: docker-compose-ps
 
 # curl -f http://localhost:9600/health
 
