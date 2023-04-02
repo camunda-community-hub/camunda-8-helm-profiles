@@ -7,15 +7,14 @@ region ?= eastus
 clusterName ?= MY_CLUSTER_NAME
 resourceGroup ?= MY_CLUSTER_NAME-rg
 
-# There are a few DNS options for Azure.
-# Option 1 (by default) is to set `dnsLabel`, which will be used like so: MY_DOMAIN_NAME.region.cloudapp.azure.com
-dnsLabel ?= MY_DOMAIN_NAME
-# Option 2 is to use your own dns name (this can be configured using Azure DNS Zones if convenient)
-# To use Option 2 uncomment the `baseDomainName` and `subDomainName`
-# For example, if `baseDomainName` is set to `example.com`, and `subDomainName` is set to `camunda`,
-# then the fqdn will be `camunda.example.com`
-#baseDomainName ?= BASE_DOMAIN_NAME
-#subDomainName ?= SUB_DOMAIN_NAME
+# Configure the fully qualified domain name
+# A fully qualified domain name is built by appending `dnsLabel` together with `baseDomainName`.
+# By default, in Azure, we can use azure provided host names. Or replace baseDomainName with your own domain name
+baseDomainName ?= $(region).cloudapp.azure.com
+# baseDomainName ?= mydomain.com
+
+# Replace `MY_DNS_LABEL`. For example, if you set `dnsLabel` to `camunda`, then the fqdn will be `camunda.mydomain.com`
+dnsLabel ?= MY_DNS_LABEL
 
 machineType ?= Standard_A8_v2
 minSize ?= 1
@@ -27,13 +26,7 @@ certEmail ?= YOUR_EMAIL@camunda.com
 
 root ?= $(shell pwd)/../../../../..
 
-ifdef dnsLabel
-fqdn ?= $(dnsLabel).$(region).cloudapp.azure.com
-endif
-
-ifdef baseDomainName
-fqdn ?= $(subDomainName).$(baseDomainName)
-endif
+fqdn ?= $(dnsLabel).$(baseDomainName)
 # fqdn = $(IP).nip.io
 
 # Camunda components will be installed into the following Kubernetes namespace

@@ -35,12 +35,8 @@ fqdn: ingress-ip-from-service
 	$(eval fqdn ?= $(shell if [ "$(baseDomainName)" == "nip.io" ]; then echo "$(IP).$(baseDomainName)"; else echo "$(dnsLabel).$(baseDomainName)"; fi))
 	@echo "Fully qualified domain name is: $(fqdn)"
 
-camunda-values-nginx-ip.yaml: ingress-ip-from-service
-	if [ -n "$(baseDomainName)" ]; then \
-	  sed "s/YOUR_HOSTNAME/$(subDomainName).$(baseDomainName)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
-	else \
-	  sed "s/YOUR_HOSTNAME/$(IP).nip.io/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
-	fi
+camunda-values-nginx-fqdn.yaml: fqdn
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-fqdn.yaml; \
 
 camunda-values-nginx-hostname.yaml: ingress-hostname-from-service
 	sed "s/YOUR_HOSTNAME/$(IP)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-hostname.yaml

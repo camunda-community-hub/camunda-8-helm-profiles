@@ -19,3 +19,4 @@ cfssl/certs
 keycloak/keycloak-secrets.yaml
 keycloak/keycloak-values.yaml
 **/oauth2-values.yaml
+**/camunda-values-nginx-fqdn.yaml
