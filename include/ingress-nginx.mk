@@ -28,6 +28,13 @@ ingress-hostname-from-service:
 	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.hostname}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
 	@echo "Ingress controller uses hostname: $(IP)"
 
+# If `baseDomainName` is set to `nip.io`, then find ip address from service to create fully qualified domain name
+# Otherwise, just use domain name that was specified in Makefile
+.PHONY: fqdn
+fqdn: ingress-ip-from-service
+	$(eval fqdn ?= $(shell if [ "$(baseDomainName)" == "nip.io" ]; then echo "$(IP).$(baseDomainName)"; else echo "$(dnsLabel).$(baseDomainName)"; fi))
+	@echo "Fully qualified domain name is: $(fqdn)"
+
 camunda-values-nginx-ip.yaml: ingress-ip-from-service
 	if [ -n "$(baseDomainName)" ]; then \
 	  sed "s/YOUR_HOSTNAME/$(subDomainName).$(baseDomainName)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-ip.yaml; \
