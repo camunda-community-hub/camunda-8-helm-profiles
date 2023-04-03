@@ -12,11 +12,11 @@ clusterName ?= dave-camunda-01
 # By default, this is setup to use `nip.io`.
 # To use a custom domain name, replace with a domain name you control, for example:
 # baseDomainName ?= mydomain.com
-baseDomainName ?= nip.io
+baseDomainName ?= upgradingdave.com
 
 # If using a custom domain name, replace `MY_DNS_LABEL` with your custom dns label.
 # For example, if you set `dnsLabel` to `camunda`, then the fqdn will be `camunda.mydomain.com`
-dnsLabel ?= MY_DNS_LABEL
+dnsLabel ?= gke
 
 machineType ?= n1-standard-16
 minSize ?= 1
@@ -91,3 +91,4 @@ include $(root)/metrics/metrics.mk
 include $(root)/benchmark/benchmark.mk
 include $(root)/echo-server/echo.mk
 include $(root)/oauth2-proxy/oauth2.mk
+include $(root)/benchmark/benchmark.mk

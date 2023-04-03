@@ -37,7 +37,7 @@ spec:
               -Dbenchmark.autoDeployProcess=false
               -Dbenchmark.warmupPhaseDurationMillis=3000
               -Dbenchmark.startRateAdjustmentStrategy=backpressure
-              -Dbenchmark.startPiIncreaseFactor=0.4
+              -Dbenchmark.startPiIncreaseFactor=0.1
         resources:
           limits:
             cpu: 1
