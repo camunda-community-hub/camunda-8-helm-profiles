@@ -8,7 +8,7 @@ else
     root ?= $(shell pwd)/../..
 endif
 
-dockerComposeFile ?= $(root)/docker/gateway-with-3-brokers/docker-compose.yaml
+dockerComposeFile ?= $(root)/docker/c8-3broker-core/docker-compose.yaml
 
 .PHONY: all
 all: docker-compose-up

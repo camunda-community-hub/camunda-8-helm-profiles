@@ -4,16 +4,26 @@
 
 # Camunda 8 docker-compose profile
 
-This is a sample docker-compose file that will deploy a Zeebe Gateway + 3 Zeebe Brokers. This is meant for demonstration
-and experimentation. Additional Camunda docker-compose files can be found at [https://github.com/camunda/camunda-platform](https://github.com/camunda/camunda-platform). 
+This is meant for experimentation. Additional Camunda docker-compose files can be found at [https://github.com/camunda/camunda-platform](https://github.com/camunda/camunda-platform).
+
+This is a sample docker-compose file that will deploy the following:
+
+- Zeebe Gateway (service is named zeebe)
+- 3 Zeebe Brokers
 
 # Usage
 
-To use this file, make sure you have [docker](https://docs.docker.com/compose/) installed. Open a terminal, `cd` into
-this directory, and then run `make`
+To use this file, make sure you have [docker](https://docs.docker.com/compose/) installed.
 
-The containers will take a few minutes to start. Use `make status` to check their health as they start up. When 
-the environment is fully ready, each container should report a `healthy` status. 
+By default, this will install the latest stable version of Camunda 8 Platform. Specify a different version by setting `CAMUNDA_PLATFORM_VERSION` variable, for example:
+
+```shell
+export CAMUNDA_PLATFORM_VERSION=8.2.0-alpha5
+```
+
+Open a terminal, `cd` into this directory, and then run `make`
+
+The containers will take a few minutes to start. Use `make status` to check their health as they start up. When the environment is fully ready, each container should report a `healthy` status. 
 
 ![](healthy_containers.png)
 

@@ -1,0 +1,188 @@
+
+services:
+
+  zeebe:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    ports:
+      - 26500:26500
+      - 9600:9600
+    environment:
+      - ZEEBE_STANDALONE_GATEWAY=true
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+    networks:
+      - camunda-platform
+    depends_on:
+      - broker-1
+
+  broker-1:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    environment:
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_BROKER_CLUSTER_NODEID=0
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    volumes:
+      - broker_1:/usr/local/zeebe/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+    networks:
+      - camunda-platform
+
+  broker-2:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    environment:
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_BROKER_CLUSTER_NODEID=1
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    volumes:
+      - broker_2:/usr/local/zeebe/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - broker-1
+    restart: always
+    networks:
+      - camunda-platform
+
+  broker-3:
+    image: camunda/zeebe:${ZEEBE_VERSION:-latest}
+    environment:
+      - ZEEBE_LOG_LEVEL=${ZEEBE_LOG_LEVEL:-debug}
+      - ZEEBE_BROKER_CLUSTER_NODEID=2
+      - ZEEBE_BROKER_CLUSTER_PARTITIONSCOUNT=3
+      - ZEEBE_BROKER_CLUSTER_CLUSTERSIZE=3
+      - ZEEBE_BROKER_CLUSTER_REPLICATIONFACTOR=3
+      - ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS=broker-1:26502,broker-2:25602,broker-3:26502
+    volumes:
+      - broker_3:/usr/local/zeebe/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9600/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      - broker-1
+    restart: always
+    networks:
+      - camunda-platform
+
+  operate: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#operate
+    image: camunda/operate:${CAMUNDA_PLATFORM_VERSION:-latest}
+    container_name: operate
+    ports:
+      - "8081:8080"
+    environment: # https://docs.camunda.io/docs/self-managed/operate-deployment/configuration/
+      - CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS=zeebe:26500
+      - CAMUNDA_OPERATE_ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - camunda-platform
+    depends_on:
+      - zeebe
+      - elasticsearch
+
+  tasklist: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#tasklist
+    image: camunda/tasklist:${CAMUNDA_PLATFORM_VERSION:-latest}
+    container_name: tasklist
+    ports:
+      - "8082:8080"
+    environment: # https://docs.camunda.io/docs/self-managed/tasklist-deployment/configuration/
+      - CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS=zeebe:26500
+      - CAMUNDA_TASKLIST_ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CAMUNDA_TASKLIST_ZEEBEELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - camunda-platform
+    depends_on:
+      - zeebe
+      - elasticsearch
+
+  connectors: # https://docs.camunda.io/docs/components/integration-framework/connectors/out-of-the-box-connectors/available-connectors-overview/
+    image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION:-latest}
+    container_name: connectors
+    ports:
+      - "8085:8080"
+    environment:
+      - ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS=zeebe:26500
+      - ZEEBE_CLIENT_SECURITY_PLAINTEXT=true
+      - CAMUNDA_OPERATE_CLIENT_URL=http://operate:8080
+      - CAMUNDA_OPERATE_CLIENT_USERNAME=demo
+      - CAMUNDA_OPERATE_CLIENT_PASSWORD=demo
+    env_file: connector-secrets.txt
+    networks:
+      - camunda-platform
+    depends_on:
+      - zeebe
+      - operate
+
+  elasticsearch: # https://hub.docker.com/_/elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.17.9}
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      # allow running with low disk space
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+    networks:
+      - camunda-platform
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION:-7.17.9}
+    container_name: kibana
+    ports:
+      - 5601:5601
+    volumes:
+      - kibana:/usr/share/kibana/data
+    networks:
+      - camunda-platform
+    depends_on:
+      - elasticsearch
+    profiles:
+      - kibana
+
+volumes:
+  broker_1: { }
+  broker_2: { }
+  broker_3: { }
+  zeebe:
+  elastic:
+  kibana:
+
+networks:
+  camunda-platform:
+
