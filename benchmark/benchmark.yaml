@@ -33,9 +33,9 @@ spec:
               -Dbenchmark.bpmnProcessId=BenchmarkProcess
               -Dbenchmark.jobType=benchmark-task
               -Dbenchmark.multipleJobTypes=8
-              -Dbenchmark.payloadPath=payload.json
+              -Dbenchmark.payloadPath=file:/payload.json
               -Dbenchmark.autoDeployProcess=false
-              -Dbenchmark.warmupPhaseDurationMillis=300000
+              -Dbenchmark.warmupPhaseDurationMillis=3000
               -Dbenchmark.startRateAdjustmentStrategy=backpressure
               -Dbenchmark.startPiIncreaseFactor=0.4
         resources:

@@ -14,7 +14,6 @@ else
     root ?= $(shell pwd)/..
 endif
 
-
 # This file is created during the make call which runs inside `$(helmProfilesDir)/ingress-aws`
 chartValues ?= "$(root)/benchmark/camunda-values.yaml"
 
@@ -27,7 +26,7 @@ chaos-all: all chaosmesh
 .PHONY: clean
 clean: clean-benchmark clean-camunda
 
-
-include $(root)/benchmark/benchmark.mk
-include $(root)/benchmark/chaosmesh.mk
 include $(root)/include/camunda.mk
+include $(root)/metrics/metrics.mk
+include $(root)/benchmark/benchmark.mk
+

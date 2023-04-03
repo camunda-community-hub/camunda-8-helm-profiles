@@ -75,3 +75,4 @@ include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/metrics/metrics.mk
+include $(root)/benchmark/benchmark.mk

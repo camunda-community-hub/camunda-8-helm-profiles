@@ -51,13 +51,16 @@ rebalance-leaders:
 	kubectl port-forward --namespace camunda $$(kubectl get pod --namespace camunda --selector="app=camunda-platform,app.kubernetes.io/component=zeebe-gateway,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=zeebe-gateway,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') 5433:9600 &
 	sleep 10
 	curl -X POST http://localhost:5433/actuator/rebalance/
-	kill $$(ps | grep 'kubectl' | awk '{print $$1}')
+	kill $$(ps aux | grep '[k]ubectl' | awk '{print $$2}')
 
-.PHONY: clean-camunda
-clean-camunda:
+.PHONY: uninstall-camunda
+uninstall-camunda:
 	-helm --namespace $(namespace) uninstall $(release)
 	-kubectl delete -n $(namespace) pvc -l app.kubernetes.io/instance=$(release)
 	-kubectl delete -n $(namespace) pvc -l app=elasticsearch-master
+
+.PHONY: clean-camunda
+clean-camunda: uninstall-camunda
 	-kubectl delete namespace $(namespace)
 
 .PHONY: zeebe-logs
