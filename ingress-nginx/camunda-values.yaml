@@ -34,6 +34,8 @@ tasklist:
 optimize:
   contextPath: "/optimize"
 
+prometheusServiceMonitor:
+  enabled: true
 
 identity:
   contextPath: "/identity"
