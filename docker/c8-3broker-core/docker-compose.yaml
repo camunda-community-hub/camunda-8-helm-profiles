@@ -203,7 +203,6 @@ volumes:
   broker_1: { }
   broker_2: { }
   broker_3: { }
-  zeebe:
   elastic:
   kibana:
 
