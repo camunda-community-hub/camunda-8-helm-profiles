@@ -107,6 +107,10 @@ await-zeebe:
 port-zeebe:
 	kubectl port-forward svc/$(release)-zeebe-gateway 26500:26500 -n $(namespace)
 
+.PHONY: port-actuator
+port-actuator:
+	kubectl port-forward svc/$(release)-zeebe-gateway 9600:9600 -n $(namespace)
+
 .PHONY: port-identity
 port-identity:
 	kubectl port-forward svc/$(release)-identity 8080:80 -n $(namespace)
@@ -130,4 +134,3 @@ port-optimize:
 .PHONY: pods
 pods:
 	kubectl get pods --namespace $(namespace)
-
