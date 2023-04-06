@@ -91,4 +91,3 @@ include $(root)/metrics/metrics.mk
 include $(root)/benchmark/benchmark.mk
 include $(root)/echo-server/echo.mk
 include $(root)/oauth2-proxy/oauth2.mk
-include $(root)/benchmark/benchmark.mk
