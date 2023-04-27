@@ -18,11 +18,11 @@ create-secret-keycloak: keycloak-secrets.yaml
 	-kubectl apply -f $(root)/keycloak/keycloak-secrets.yaml --namespace $(namespace)
 
 .PHONY: keycloak-values-ip
-keycloak-values-ip: ingress-ip-from-service
+keycloak-values-ip: fqdn
 	sed -e "s|KEYCLOAK_VERSION|$(keycloakVersion)|g;"      \
 	-e "s|KEYCLOAK_NAMESPACE|$(namespace)|g;"      \
 	-e "s|KEYCLOAK_ADMIN_USER|$(keycloakAdminUser)|g;"     \
-	-e "s|KEYCLOAK_HOSTNAME|$(IP).nip.io|g;" \
+	-e "s|KEYCLOAK_HOSTNAME|$(fqdn)|g;" \
 	-e "s|KEYCLOAK_CONTEXT_PATH|$(keycloakContextPath)|g;" \
 	-e "s|//realms|/realms|g;" \
 	 $(root)/keycloak/keycloak-values.tpl.yaml > $(root)/keycloak/keycloak-values.yaml
