@@ -7,8 +7,7 @@
 
 global:
   image:
-    # allways work with the latest versions in development
-    tag: 8.2.0-alpha5
+    tag: 8.2.3
   identity:
     auth:
       # Disable the Identity authentication
