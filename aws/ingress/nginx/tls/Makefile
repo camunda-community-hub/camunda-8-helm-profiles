@@ -6,6 +6,7 @@
 region ?= us-east-1
 zones ?= ['us-east-1a', 'us-east-1b']
 clusterName ?= CLUSTER_NAME
+
 machineType ?= c6i.4xlarge
 # TODO: Currently, auto scaling configuration using these scripts for AWS is not working
 # desiredSize is used as the starting size of the cluster
@@ -20,7 +21,11 @@ certEmail ?= YOUR_EMAIL@camunda.com
 clusterVersion ?= 1.23
 volumeSize ?= 128
 
-root ?= $(shell pwd)/../../../..
+ifeq ($(OS),Windows_NT)
+    root ?= $(CURDIR)/../../../..
+else
+    root ?= $(shell pwd)/../../../..
+endif
 
 # Camunda components will be installed into the following Kubernetes namespace
 namespace ?= camunda
@@ -91,8 +96,8 @@ clean-kube: clean-metrics clean-kube-aws
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(root)/aws/ingress/nginx/tls/camunda-values-nginx-aws.yaml
 
+include $(root)/aws/include/kubernetes-aws.mk
 include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
-include $(root)/aws/include/kubernetes-aws.mk
 include $(root)/metrics/metrics.mk
