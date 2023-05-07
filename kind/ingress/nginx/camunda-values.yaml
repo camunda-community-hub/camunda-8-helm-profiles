@@ -34,6 +34,18 @@ connectors:
   enabled: true
   inbound:
     mode: credentials
+  ingress:
+    enabled: true
+# TODO: not sure why this doesn't seem to work?
+#    path: "/connectors"
+    host: "localhost"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
   env:
     - name: CAMUNDA_OPERATE_CLIENT_USERNAME
       value: demo
@@ -56,9 +68,7 @@ zeebe:
 
 zeebe-gateway:
   ingress:
-    enabled: true
-    className: nginx
-    host: "localhost"
+    enabled: false # NOTE: GRPC is not available via nginx ingress unless tls is enabled. Use port forwarding instead
 
   replicas: 1
 

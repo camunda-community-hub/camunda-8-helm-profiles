@@ -131,6 +131,10 @@ port-tasklist:
 port-optimize:
 	kubectl port-forward svc/$(release)-optimize 8083:80 -n $(namespace)
 
+.PHONY: port-connectors
+port-connectors:
+	kubectl port-forward svc/$(release)-connectors 8084:8080 -n $(namespace)
+
 .PHONY: pods
 pods:
 	kubectl get pods --namespace $(namespace)
