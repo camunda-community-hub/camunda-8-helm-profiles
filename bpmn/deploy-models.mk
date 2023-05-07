@@ -25,3 +25,12 @@ set-simple-sendgrid:
 .PHONY: deploy-simple-sendgrid
 deploy-simple-sendgrid: set-simple-sendgrid deploy-model
 
+# Benchmark Process
+
+.PHONY: set-benchmark-process
+set-benchmark-process:
+	$(eval pathToCamundaProcessBpmnFile := $(root)/bpmn/BenchmarkProcess.bpmn)
+
+.PHONY: deploy-benchmark-process
+deploy-benchmark-process: set-benchmark-process deploy-model
+
