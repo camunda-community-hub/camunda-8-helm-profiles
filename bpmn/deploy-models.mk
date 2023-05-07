@@ -34,3 +34,12 @@ set-benchmark-process:
 .PHONY: deploy-benchmark-process
 deploy-benchmark-process: set-benchmark-process deploy-model
 
+# OpenAI ChatGpt Process
+
+.PHONY: set-simple-openai
+set-simple-openai:
+	$(eval pathToCamundaProcessBpmnFile := $(root)/bpmn/simple_openai.bpmn)
+
+.PHONY: deploy-simple-openai
+deploy-simple-openai: set-simple-openai deploy-model
+
