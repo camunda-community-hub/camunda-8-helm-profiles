@@ -17,8 +17,12 @@ urls:
 
 .PHONY: ingress-nginx-kind
 ingress-nginx-kind:
-	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-	kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+	kubectl apply -f $(root)/kind/include/deploy-ingress.yml
+	kubectl wait --namespace ingress-nginx \
+	  --for=condition=ready pod \
+	  --selector=app.kubernetes.io/component=controller \
+	  --timeout=90s
+#	kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
 
 .PHONY: clean-ingress
 clean-ingress:

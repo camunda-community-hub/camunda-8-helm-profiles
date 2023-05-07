@@ -8,6 +8,10 @@
 global:
   image:
     tag: 8.2.3
+  ingress:
+    enabled: true
+    className: nginx
+    host: "localhost"
   identity:
     auth:
       # Disable the Identity authentication
@@ -19,6 +23,12 @@ identity:
 
 optimize:
   enabled: false
+
+operate:
+  contextPath: "/operate"
+
+tasklist:
+  contextPath: "/tasklist"
 
 connectors:
   enabled: true
@@ -45,6 +55,11 @@ zeebe:
       memory: "2Gi"
 
 zeebe-gateway:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "localhost"
+
   replicas: 1
 
   resources:

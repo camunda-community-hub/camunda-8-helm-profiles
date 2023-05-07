@@ -1,7 +1,11 @@
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 
-root ?= $(shell pwd)/..
+ifeq ($(OS),Windows_NT)
+    root ?= $(CURDIR)/../../..
+else
+    root ?= $(shell pwd)/../../..
+endif
 
 # Camunda components will be installed into the following Kubernetes namespace
 namespace ?= camunda
@@ -10,10 +14,10 @@ release ?= camunda
 # Helm chart coordinates for Camunda
 chart ?= camunda/camunda-platform
 
-chartValues ?= $(root)/kind/camunda-values-kind.yaml
+chartValues ?= $(root)/kind/ingress/nginx/camunda-values-kind.yaml
 
 .PHONY: all
-all: camunda-values-kind.yaml camunda external-urls
+all: ingress-nginx-kind camunda-values-kind.yaml camunda external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -21,7 +25,7 @@ kube: kube-kind
 
 # 1 create camunda-values-kind
 camunda-values-kind.yaml:
-	cp $(root)/development/camunda-values.yaml $(root)/kind/camunda-values-kind.yaml
+	cp $(root)/kind/ingress/nginx/camunda-values.yaml $(root)/kind/ingress/nginx/camunda-values-kind.yaml
 
 # 2 helm install camunda from camunda.mk
 
