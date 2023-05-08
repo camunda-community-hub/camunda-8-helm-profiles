@@ -23,9 +23,11 @@ all: ingress-nginx-kind camunda-values-kind.yaml camunda external-urls
 .PHONY: kube
 kube: kube-kind
 
-# 1 create camunda-values-kind
+#1 install nginx ingress controller
+
+#2 create camunda-values-kind
 camunda-values-kind.yaml:
-	cp $(root)/kind/ingress/nginx/camunda-values.yaml $(chartValues)
+	cp $(root)/development/camunda-values-with-ingress.yaml $(chartValues)
 
 # 2 helm install camunda from camunda.mk
 
