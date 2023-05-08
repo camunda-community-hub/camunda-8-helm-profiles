@@ -9,15 +9,25 @@ resourceGroup ?= dave-camunda-01-rg
 
 # Configure the fully qualified domain name
 # A fully qualified domain name is built by appending `dnsLabel` together with `baseDomainName`.
-# By default, in Azure, we can the `cloudapp.azure.com` base domain.
-baseDomainName ?= $(region).cloudapp.azure.com
+
+# In Azure, we can use the `cloudapp.azure.com` base domain.
+#useAzureDomain ?= true
+#baseDomainName ?= $(region).cloudapp.azure.com
+
 # Another option is to replace baseDomainName with your own domain name
-# baseDomainName ?= mydomain.com
+baseDomainName ?= azure.upgradingdave.com
+
 # Yet another option option is to use `nip.io`
 #baseDomainName ?= nip.io
 
-# Replace `MY_DNS_LABEL`. For example, if you set `dnsLabel` to `camunda`, then the fqdn will be `camunda.mydomain.com`
-dnsLabel ?= MY_DNS_LABEL
+# Replace `MY_DNS_LABEL`. `dnsLabel` will be added in front of `baseDomainName` to produce a fqdn
+dnsLabel ?= dave01
+dnsZoneGroup ?= presales-consulting
+
+ipAddress ?= 52.149.137.147
+
+# clusterIssuer ?= letsencrypt
+clusterIssuer ?= selfsigned-issuer
 
 machineType ?= Standard_A8_v2
 minSize ?= 1
@@ -43,11 +53,11 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-fqdn.yaml
 
 .PHONY: all
-all: cert-manager letsencrypt-prod azure-nginx-dns-tls camunda-values-nginx-fqdn.yaml camunda annotate-ingress-tls external-urls
+all: azure-ingress-nginx dns-create-a-record cert-manager letsencrypt-staging camunda-values-nginx-fqdn.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
-kube: kube-nginx
+kube: kube-nginx metrics
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
@@ -60,6 +70,9 @@ kube: kube-nginx
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 
 # 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
+#  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$DNS_LABEL \
+#  --set controller.service.loadBalancerIP=$STATIC_IP \
+#  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
 
 # 7 Show external URLs
 .PHONY: external-urls
@@ -93,5 +106,6 @@ include $(root)/azure/include/aks.mk
 include $(root)/azure/include/fileshare.mk
 include $(root)/echo-server/echo.mk
 include $(root)/oauth2-proxy/oauth2.mk
+include $(root)/metrics/metrics.mk
 
 
