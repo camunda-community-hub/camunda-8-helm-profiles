@@ -40,7 +40,7 @@ kube: kube-nginx
 
 # 1 create camunda-values-azure
 camunda-values-azure.yaml:
-	cp $(root)/development/camunda-values.yaml $(root)/azure/camunda-values-azure.yaml
+	cp $(root)/development/camunda-values-2.yaml $(root)/azure/camunda-values-azure.yaml
 
 # 2 helm install camunda from camunda.mk
 

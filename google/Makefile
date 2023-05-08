@@ -40,7 +40,7 @@ kube: kube-gke
 
 # 1 create camunda-values-azure
 camunda-values-google.yaml:
-	cp $(root)/development/camunda-values.yaml camunda-values-google.yaml
+	cp $(root)/development/camunda-values-2.yaml camunda-values-google.yaml
 
 # 2 helm install camunda from camunda.mk
 
