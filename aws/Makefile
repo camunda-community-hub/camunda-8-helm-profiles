@@ -5,7 +5,8 @@
 
 region ?= us-east-1
 zones ?= ['us-east-1a', 'us-east-1b']
-clusterName ?= CLUSTER_NAME
+clusterName ?= dave-camunda-01
+clusterVersion ?= 1.25
 
 machineType ?= c6i.4xlarge
 # TODO: Currently, auto scaling configuration using these scripts for AWS is not working
@@ -13,7 +14,6 @@ machineType ?= c6i.4xlarge
 desiredSize ?= 3
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@camunda.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -42,7 +42,7 @@ kube: kube-aws oidc-provider ebs-csi-controller-addon
 
 # 1 create camunda-values-aws
 camunda-values-aws.yaml:
-	cp $(root)/development/camunda-values.yaml $(root)/aws/camunda-values-aws.yaml
+	cp $(root)/development/camunda-values-2.yaml $(root)/aws/camunda-values-aws.yaml
 
 # 2 helm install camunda from camunda.mk
 
@@ -59,4 +59,5 @@ clean: clean-camunda
 
 include $(root)/aws/include/kubernetes-aws.mk
 include $(root)/include/camunda.mk
+include $(root)/bpmn/deploy-models.mk
 include $(root)/connectors/connectors.mk
