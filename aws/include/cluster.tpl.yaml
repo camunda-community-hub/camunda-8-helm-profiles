@@ -4,6 +4,7 @@ kind: ClusterConfig
 metadata:
   name: <YOUR CLUSTER NAME>
   region: <YOUR REGION>
+  version: "<YOUR CLUSTER VERSION>"
 
 managedNodeGroups:
   - name: ng-1

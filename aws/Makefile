@@ -40,16 +40,6 @@ all: camunda-values-aws.yaml camunda external-urls
 .PHONY: kube
 kube: kube-aws oidc-provider ebs-csi-controller-addon
 
-include $(root)/aws/include/kubernetes-aws.mk
-include $(root)/include/camunda.mk
-
-.PHONY: all
-all: camunda-values-kind.yaml camunda external-urls
-
-# 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
-.PHONY: kube
-kube: kube-aws oidc-provider
-
 # 1 create camunda-values-aws
 camunda-values-aws.yaml:
 	cp $(root)/development/camunda-values.yaml $(root)/aws/camunda-values-aws.yaml
@@ -58,10 +48,7 @@ camunda-values-aws.yaml:
 
 # 3 Show external URLs
 .PHONY: external-urls
-external-urls:
-	@echo To access operate: make port-operate, then browse to: http://localhost:8081
-	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
-	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+external-urls: external-urls-no-ingress
 
 .PHONY: clean-kube
 clean-kube: clean-kube-aws
@@ -73,4 +60,3 @@ clean: clean-camunda
 include $(root)/aws/include/kubernetes-aws.mk
 include $(root)/include/camunda.mk
 include $(root)/connectors/connectors.mk
-

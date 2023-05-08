@@ -1,6 +1,6 @@
 
 cluster.yaml:
-	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g;" $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
+	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR CLUSTER VERSION>/$(clusterVersion)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g;" $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
 
 .PHONY: clean-cluster-yaml
 clean-cluster-yaml:
@@ -23,7 +23,7 @@ fetch-id-values:
 .PHONY: create-ebs-csi-controller-role-def
 create-ebs-csi-controller-role-def:fetch-id-values
 # 1. Fetch OIDC Provider id and AccountId, and create the aws-ebs-csi-driver-trust-policy.json file
-	sed "s/<account_id>/$(account_id)/g; s/<region>/$(region)/g; s/<oidc_id>/$(oidc_id)/g;" ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
+	sed "s/<account_id>/$(account_id)/g; s/<region>/$(region)/g; s/<oidc_id>/$(oidc_id)/g;" $(root)/aws/include/ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
 
 .PHONY: create-ebs-csi-role
 create-ebs-csi-role: create-ebs-csi-controller-role-def
