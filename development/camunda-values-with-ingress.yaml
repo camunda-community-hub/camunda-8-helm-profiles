@@ -97,11 +97,3 @@ elasticsearch:
     limits:
       cpu: "1000m"
       memory: "2Gi"
-
-  # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    storageClassName: "standard"
-    resources:
-      requests:
-        storage: 15Gi

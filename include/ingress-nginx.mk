@@ -8,6 +8,11 @@ ingress-nginx:
 	helm search repo ingress-nginx
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait
 
+#	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+#	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+#	  --set controller.service.annotations."cert-manager.io/cluster-issuer"="$(clusterIssuer)" \
+#	  --set controller.config.error-log-level="debug"; \
+
 .PHONY: ingress-nginx-tls
 ingress-nginx-tls:
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -32,14 +37,11 @@ ingress-hostname-from-service:
 # Otherwise, just use domain name that was specified in Makefile
 .PHONY: fqdn
 fqdn: ingress-ip-from-service
-	$(eval fqdn ?= $(shell if [ "$(baseDomainName)" == "nip.io" ]; then echo "$(IP).$(baseDomainName)"; else echo "$(dnsLabel).$(baseDomainName)"; fi))
+	$(eval fqdn ?= $(shell if [ "$(baseDomainName)" == "nip.io" ]; then echo "$(dnsLabel).$(IP).$(baseDomainName)"; else echo "$(dnsLabel).$(baseDomainName)"; fi))
 	@echo "Fully qualified domain name is: $(fqdn)"
 
 camunda-values-nginx-fqdn.yaml: fqdn
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-fqdn.yaml; \
-
-camunda-values-nginx-hostname.yaml: ingress-hostname-from-service
-	sed "s/YOUR_HOSTNAME/$(IP)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-hostname.yaml
 
 .PHONY: clean-ingress
 clean-ingress:
@@ -47,3 +49,12 @@ clean-ingress:
 	-kubectl delete -n ingress-nginx pvc -l app.kubernetes.io/instance=ingress-nginx
 	-kubectl delete namespace ingress-nginx
 
+camunda-values-ingress.yaml: fqdn
+	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress.yaml
+
+.PHONY: external-urls-with-fqdn
+external-urls-with-fqdn: fqdn
+	@echo To access operate: browse to: http://$(fqdn)/operate
+	@echo To access tasklist: browse to: http://$(fqdn)/tasklist
+	@echo To access inbound connectors: browse to: http://$(fqdn)/inbound
+	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
