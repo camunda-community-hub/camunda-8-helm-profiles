@@ -14,7 +14,7 @@ release ?= camunda
 # Helm chart coordinates for Camunda
 chart ?= camunda/camunda-platform
 
-chartValues ?= $(root)/kind/ingress/nginx/camunda-values-kind.yaml
+chartValues ?= camunda-values-kind.yaml
 
 .PHONY: all
 all: ingress-nginx-kind camunda-values-kind.yaml camunda external-urls
@@ -25,7 +25,7 @@ kube: kube-kind
 
 # 1 create camunda-values-kind
 camunda-values-kind.yaml:
-	cp $(root)/kind/ingress/nginx/camunda-values.yaml $(root)/kind/ingress/nginx/camunda-values-kind.yaml
+	cp $(root)/kind/ingress/nginx/camunda-values.yaml $(chartValues)
 
 # 2 helm install camunda from camunda.mk
 
@@ -41,7 +41,7 @@ clean-kube: clean-kube-kind
 
 .PHONY: clean
 clean: clean-camunda
-	rm -f $(root)/kind/ingress/nginx/camunda-values-kind.yaml
+	rm -f $(chartValues)
 
 include $(root)/include/camunda.mk
 include $(root)/bpmn/deploy-models.mk
