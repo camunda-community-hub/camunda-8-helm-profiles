@@ -7,7 +7,7 @@ azure/ingress/nginx/tls/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/dns/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/secure-zeebe-ingress/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/camunda-platform
-google/ingress/nginx/camunda-values-nginx.yaml
+google/ingress/nginx/camunda-values-ingress.yaml
 google/ingress/nginx/tls/camunda-values-nginx.yaml
 google/keycloak/camunda/camunda-values-ext-keycloak.yaml
 google/external-keycloak/keycloak-secrets.yaml

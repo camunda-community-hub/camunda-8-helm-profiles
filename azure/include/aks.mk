@@ -81,7 +81,9 @@ azure-ingress-nginx:
 	  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz \
 	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
 	  --set controller.config.error-log-level="debug" \
-	  --set controller.service.externalTrafficPolicy=Local;
+	  --set controller.service.externalTrafficPolicy=Local \
+	  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel)
+
 
 .PHONY: ingress-annotate-staticip
 ingress-annotate-staticip: ingress-ip-from-service
@@ -92,21 +94,22 @@ annotate-ingress-tls: ingress-remove-issuer
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
 	make get-ingress
 
-.PHONY: azure-nginx-dns-tls
-azure-nginx-dns-tls:
-	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-	helm repo update ingress-nginx
-	helm search repo ingress-nginx
-	if [ -n "$(useAzureDomain)" ]; then \
-	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
-	  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
-	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
-	  --set controller.service.annotations."cert-manager.io/cluster-issuer"="$(clusterIssuer)" \
-	  --set controller.config.error-log-level="debug"; \
-	else \
-	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
-	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
-	  --set controller.service.annotations."cert-manager.io/cluster-issuer"="$(clusterIssuer)" \
-	  --set controller.config.error-log-level="debug"; \
-	fi
+# This didn't work out as I thought. Ok to remove once I test
+#.PHONY: azure-nginx-dns-tls
+#azure-nginx-dns-tls:
+#	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#	helm repo update ingress-nginx
+#	helm search repo ingress-nginx
+#	if [ -n "$(useAzureDomain)" ]; then \
+#	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+#	  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
+#	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+#	  --set controller.service.annotations."cert-manager.io/cluster-issuer"="$(clusterIssuer)" \
+#	  --set controller.config.error-log-level="debug"; \
+#	else \
+#	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
+#	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+#	  --set controller.service.annotations."cert-manager.io/cluster-issuer"="$(clusterIssuer)" \
+#	  --set controller.config.error-log-level="debug"; \
+#	fi
 

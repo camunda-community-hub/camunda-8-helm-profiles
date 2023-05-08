@@ -63,7 +63,7 @@ kube: kube-aks metrics
 
 # 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 
-# 3 azure-nginx-dns-tls create nginx ingress controller with dns and tls
+# 3 azure-ingress-nginx create nginx ingress controller with dns and tls
 
 # 4 create camunda-values-nginx-fqdn.yaml
 
