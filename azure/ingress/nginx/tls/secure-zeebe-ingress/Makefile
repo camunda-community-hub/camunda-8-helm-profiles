@@ -44,7 +44,7 @@ all: cert-manager letsencrypt-staging azure-nginx-dns-tls camunda-values-nginx-t
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
-kube: kube-nginx
+kube: kube-aks
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 

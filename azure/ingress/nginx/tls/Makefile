@@ -57,7 +57,7 @@ all: azure-ingress-nginx dns-create-a-record cert-manager letsencrypt-staging ca
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
-kube: kube-nginx metrics
+kube: kube-aks metrics
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 

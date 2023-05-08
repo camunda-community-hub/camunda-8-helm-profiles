@@ -49,7 +49,7 @@ all: cert-manager letsencrypt-staging ingress-nginx-tls create-namespace-keycloa
 
 # 0 kube from cluster.mk: Create Kubernetes cluster.
 .PHONY: kube
-kube: kube-nginx
+kube: kube-aks
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
