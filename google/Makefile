@@ -9,7 +9,7 @@ project ?= YOUR_GCP_PROJECT
 region ?= YOUR_GCP_REGION
 clusterName ?= YOUR_CLUSTER_NAME
 
-machineType ?= Standard_A8_v2
+machineType ?= n1-standard-16
 minSize ?= 1
 maxSize ?= 6
 
@@ -40,7 +40,7 @@ kube: kube-gke
 
 # 1 create camunda-values-azure
 camunda-values-google.yaml:
-	cp $(root)/development/camunda-values-2.yaml camunda-values-google.yaml
+	cp $(root)/development/camunda-values-2.yaml $(chartValues)
 
 # 2 helm install camunda from camunda.mk
 
