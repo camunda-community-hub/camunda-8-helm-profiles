@@ -27,10 +27,7 @@ camunda-values-kind.yaml:
 
 # 3 Show external URLs
 .PHONY: external-urls
-external-urls:
-	@echo To access operate: make port-operate, then browse to: http://localhost:8081
-	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
-	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+external-urls: external-urls-no-ingress
 
 .PHONY: clean-kube
 clean-kube: clean-kube-kind
@@ -41,4 +38,5 @@ clean: clean-camunda
 
 include $(root)/include/camunda.mk
 include $(root)/connectors/connectors.mk
+include $(root)/bpmn/deploy-models.mk
 include $(root)/kind/include/kubernetes-kind.mk

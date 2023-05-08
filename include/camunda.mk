@@ -138,3 +138,10 @@ port-connectors:
 .PHONY: pods
 pods:
 	kubectl get pods --namespace $(namespace)
+
+.PHONY: external-urls-no-ingress
+external-urls-no-ingress:
+	@echo To access operate: make port-operate, then browse to: http://localhost:8081
+	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
+	@echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
+	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure

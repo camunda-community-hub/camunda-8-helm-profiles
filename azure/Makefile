@@ -57,6 +57,7 @@ clean: clean-camunda
 
 include $(root)/azure/include/aks.mk
 include $(root)/include/camunda.mk
+include $(root)/bpmn/deploy-models.mk
 include $(root)/connectors/connectors.mk
 
 
