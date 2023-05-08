@@ -29,7 +29,11 @@ clientSecret ?= Iy0A5ZikhBz1fVlGC5XT2dtOWwJrSIMC
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 
-root ?= $(shell pwd)/../../../..
+ifeq ($(OS),Windows_NT)
+    root ?= $(CURDIR)/../../../..
+else
+    root ?= $(shell pwd)/../../../..
+endif
 
 # Camunda components will be installed into the following Kubernetes namespace
 namespace ?= camunda
