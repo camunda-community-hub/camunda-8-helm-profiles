@@ -3,10 +3,10 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-#region ?= eastus
-region ?= YOUR_REGION
-clusterName ?= YOUR_CLUSTER_NAME
-resourceGroup ?= YOUR_CLUSTER_NAME-rg
+region ?= eastus
+#region ?= YOUR_REGION
+clusterName ?= dave-camunda-01
+resourceGroup ?= dave-camunda-01-rg
 
 machineType ?= Standard_A8_v2
 minSize ?= 1
@@ -15,9 +15,9 @@ maxSize ?= 6
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 ifeq ($(OS),Windows_NT)
-    root ?= $(CURDIR)/../../../..
+    root ?= $(CURDIR)/..
 else
-    root ?= $(shell pwd)/../../../..
+    root ?= $(shell pwd)/..
 endif
 
 # Camunda components will be installed into the following Kubernetes namespace
