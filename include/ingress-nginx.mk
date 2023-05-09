@@ -40,8 +40,8 @@ fqdn: ingress-ip-from-service
 	$(eval fqdn ?= $(shell if [ "$(baseDomainName)" == "nip.io" ]; then echo "$(dnsLabel).$(IP).$(baseDomainName)"; else echo "$(dnsLabel).$(baseDomainName)"; fi))
 	@echo "Fully qualified domain name is: $(fqdn)"
 
-camunda-values-nginx-fqdn.yaml: fqdn
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-fqdn.yaml; \
+camunda-values-nginx-all.yaml: fqdn
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-all.yaml; \
 
 .PHONY: clean-ingress
 clean-ingress:
@@ -58,3 +58,13 @@ external-urls-with-fqdn: fqdn
 	@echo To access tasklist: browse to: http://$(fqdn)/tasklist
 	@echo To access inbound connectors: browse to: http://$(fqdn)/inbound
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+
+.PHONY: external-urls-all
+external-urls-all: fqdn
+	@echo Keycloak: https://$(fqdn)/auth
+	@echo Identity: https://$(fqdn)/identity
+	@echo Operate: https://$(fqdn)/operate
+	@echo Tasklist: https://$(fqdn)/tasklist
+	@echo Optimize: https://$(fqdn)/optimize
+	@echo Connectors: https://$(fqdn)/inbound
+	@echo Zeebe GRPC: zbctl status --address $(fqdn):443
