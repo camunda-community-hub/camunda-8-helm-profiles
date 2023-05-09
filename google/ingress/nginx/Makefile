@@ -19,7 +19,7 @@ dnsLabel ?= YOUR_DNS_LABEL
 
 # By default, we'll use nip.io (See more at [https://nip.io](http://nip.io) )
 # The fully qualified domain name will look something like <dnsLabel>.<ip address>.nip.io
-baseDomainName ?= YOUR_BASE_DOMAIN
+baseDomainName ?= nip.io
 
 # Another option is to replace baseDomainName with your own domain name
 # In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
@@ -53,7 +53,7 @@ kube: kube-gke
 
 # 1 install nginx ingress controller
 
-# 1 create camunda-values
+# 1 create camunda-values-ingress.yaml
 
 # 2 helm install camunda from camunda.mk
 
