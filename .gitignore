@@ -18,6 +18,7 @@ aws/ebs-csi-driver-trust-policy.json
 aws/ingress/nginx/tls/cluster.yaml
 aws/ingress/nginx/camunda-values-ingress.yaml
 aws/ingress/nginx/tls/camunda-values-nginx-aws.yaml
+aws/ingress/nginx/tls/camunda-values-ingress-tls-aws.yaml
 kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 kind/camunda-values-kind.yaml
 kind/ingress/nginx/camunda-values-kind.yaml

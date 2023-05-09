@@ -115,3 +115,6 @@ fqdn-aws: ingress-aws-ip-from-service
 
 camunda-values-ingress-aws.yaml: fqdn-aws
 	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress-aws.yaml
+
+camunda-values-nginx-tls-aws.yaml: fqdn-aws
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml; \

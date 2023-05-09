@@ -4,9 +4,9 @@
 # Otherwise, these values will be used to create a new Cluster
 
 #region ?= us-east-1
-region ?= YOUR_REGION
+region ?= YOUR_AWS_REGION
 zones ?= ['us-east-1a', 'us-east-1b']
-clusterName ?= YOUR_CLUSTER_NAME
+clusterName ?= CLUSTER_NAME
 clusterVersion ?= 1.25
 
 machineType ?= c6i.4xlarge
