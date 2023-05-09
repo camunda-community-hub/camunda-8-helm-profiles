@@ -16,6 +16,7 @@ aws/cluster.yaml
 aws/camunda-values-aws.yaml
 aws/ebs-csi-driver-trust-policy.json
 aws/ingress/nginx/tls/cluster.yaml
+aws/ingress/nginx/camunda-values-ingress.yaml
 aws/ingress/nginx/tls/camunda-values-nginx-aws.yaml
 kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 kind/camunda-values-kind.yaml
@@ -25,5 +26,4 @@ cfssl/certs
 keycloak/keycloak-secrets.yaml
 keycloak/keycloak-values.yaml
 **/oauth2-values.yaml
-**/camunda-values-nginx-fqdn.yaml
 
