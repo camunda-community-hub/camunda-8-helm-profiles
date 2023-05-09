@@ -139,6 +139,14 @@ port-connectors:
 pods:
 	kubectl get pods --namespace $(namespace)
 
+.PHONY: show-ingress
+show-ingress:
+	kubectl get ingress --namespace $(namespace)
+
+.PHONY: desc-camunda-ingress
+desc-camunda-ingress:
+	kubectl describe ingress camunda-camunda-platform --namespace $(namespace)
+
 .PHONY: external-urls-no-ingress
 external-urls-no-ingress:
 	@echo To access operate: make port-operate, then browse to: http://localhost:8081
