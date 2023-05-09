@@ -4,9 +4,9 @@
 # Otherwise, these values will be used to create a new Cluster
 
 region ?= eastus
-#region ?= YOUR_REGION
-clusterName ?= dave-camunda-01
-resourceGroup ?= dave-camunda-01-rg
+region ?= YOUR_REGION
+clusterName ?= YOUR_CLUSTER_NAME
+resourceGroup ?= YOUR_CLUSTER_NAME-rg
 
 machineType ?= Standard_A8_v2
 minSize ?= 1
