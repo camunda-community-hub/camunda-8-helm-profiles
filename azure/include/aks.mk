@@ -39,8 +39,8 @@ kube-agic:
 	az aks get-credentials --resource-group $(resourceGroup) --name $(clusterName)
 	kubectl apply -f $(root)/azure/include/ssd-storageclass.yaml
 
-.PHONY: clean-kube
-clean-kube: use-kube
+.PHONY: clean-kube-aks
+clean-kube-aks: use-kube
 	az aks delete -y -g $(resourceGroup) -n $(clusterName)
 	az group delete -y --resource-group $(resourceGroup)
 

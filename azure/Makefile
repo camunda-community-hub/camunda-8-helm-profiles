@@ -47,8 +47,6 @@ camunda-values-azure.yaml:
 .PHONY: external-urls
 external-urls: external-urls-no-ingress
 
-### <--- End of setup --->
-
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
 clean: clean-camunda

@@ -65,11 +65,11 @@ kube: kube-aks
 
 # 7 helm install keycloak using `keycloak-values.yaml`
 
+.PHONY: clean-kube
+clean-kube: clean-keycloak clean-kube-aks
+
 .PHONY: clean
 clean: clean-keycloak
-
-.PHONY: clean-kube
-clean-kube: clean-kube
 
 include $(root)/keycloak/keycloak.mk
 include $(root)/include/cert-manager.mk

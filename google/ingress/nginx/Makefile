@@ -53,15 +53,16 @@ kube: kube-gke
 
 # 1 install nginx ingress controller
 
-# 1 create camunda-values-ingress.yaml
+# 2 create camunda-values-ingress.yaml
 
-# 2 helm install camunda from camunda.mk
+# 3 helm install camunda from camunda.mk
 
-# 3 Show external URLs
+# 4 Show external URLs
 .PHONY: external-urls
 external-urls: external-urls-with-fqdn
 
-### <--- End of setup --->
+.PHONY: clean-kube
+clean-kube: clean-kube-gke
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
