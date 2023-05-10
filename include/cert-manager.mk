@@ -47,3 +47,11 @@ cacerts-staging:
 	-kubectl create secret generic "cacerts-staging" \
 	--namespace=$(namespace) \
 	--from-file=cacerts_staging=$(root)/include/cacerts_staging
+
+.PHONY: get-cert-requests
+get-cert-requests:
+	-kubectl get certificaterequests --namespace $(namespace)
+
+.PHONY: get-cert-orders
+get-cert-orders:
+	-kubectl get orders --namespace $(namespace)
