@@ -9,11 +9,13 @@ global:
     enabled: true
     className: nginx
     host: "dnslabel.location.cloudapp.azure.com"
+#    annotations:
+#      cert-manager.io/cluster-issuer: "letsencrypt"
     tls:
       enabled: true
       secretName: "tls-secret"
   image:
-      tag: 8.1.2
+      tag: 8.2.3
       # tag: latest
       # pullPolicy: Always
   identity:
@@ -40,17 +42,6 @@ identity:
   fullURL: "https://dnslabel.location.cloudapp.azure.com/identity"
   
   keycloak:
-  #  ingress:
-  #    enabled: true
-  #    ingressClassName: nginx
-  #    hostname: "dnslabel.location.cloudapp.azure.com"
-  #    path: "/keycloak"
-  #    tls: true
-  #    extraHosts: []
-  #    extraTls:
-  #    - hosts:
-  #      - dnslabel.location.cloudapp.azure.com
-  #      secretName: "tls-secret"
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
@@ -84,6 +75,14 @@ zeebe:
     limits:
       cpu: "512m"
       memory: "2Gi"
+  spec:
+    template:
+      spec:
+        securityContext:
+          runAsUser: 1000
+        containers:
+          securityContext:
+            runAsUser: 1000
   
 elasticsearch:
   enabled: true
@@ -99,11 +98,4 @@ elasticsearch:
     limits:
       cpu: "1000m"
       memory: "2Gi"
-  # Request smaller persistent volumes.
-  # volumeClaimTemplate:
-  #   accessModes: [ "ReadWriteOnce" ]
-  #   storageClassName: "standard"
-  #   resources:
-  #     requests:
-  #       storage: 50Gi
   

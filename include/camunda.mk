@@ -131,6 +131,25 @@ port-tasklist:
 port-optimize:
 	kubectl port-forward svc/$(release)-optimize 8083:80 -n $(namespace)
 
+.PHONY: port-connectors
+port-connectors:
+	kubectl port-forward svc/$(release)-connectors 8084:8080 -n $(namespace)
+
 .PHONY: pods
 pods:
 	kubectl get pods --namespace $(namespace)
+
+.PHONY: show-ingress
+show-ingress:
+	kubectl get ingress --namespace $(namespace)
+
+.PHONY: desc-camunda-ingress
+desc-camunda-ingress:
+	kubectl describe ingress camunda-camunda-platform --namespace $(namespace)
+
+.PHONY: external-urls-no-ingress
+external-urls-no-ingress:
+	@echo To access operate: make port-operate, then browse to: http://localhost:8081
+	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
+	@echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
+	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure

@@ -18,7 +18,7 @@ endif
 chartValues ?= "$(root)/benchmark/camunda-values.yaml"
 
 .PHONY: all
-all: camunda await-zeebe deploy-models rebalance-leaders benchmark
+all: camunda await-zeebe deploy-benchmark-process rebalance-leaders benchmark
 
 .PHONY: chaos-all
 chaos-all: all chaosmesh
@@ -29,4 +29,4 @@ clean: clean-benchmark clean-camunda
 include $(root)/include/camunda.mk
 include $(root)/metrics/metrics.mk
 include $(root)/benchmark/benchmark.mk
-
+include $(root)/bpmn/deploy-models.mk

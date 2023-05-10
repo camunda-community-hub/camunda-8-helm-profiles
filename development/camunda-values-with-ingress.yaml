@@ -8,6 +8,10 @@
 global:
   image:
     tag: 8.2.3
+  ingress:
+    enabled: true
+    className: nginx
+    host: "localhost"
   identity:
     auth:
       # Disable the Identity authentication
@@ -20,10 +24,21 @@ identity:
 optimize:
   enabled: false
 
+operate:
+  contextPath: "/operate"
+
+tasklist:
+  contextPath: "/tasklist"
+
 connectors:
   enabled: true
   inbound:
     mode: credentials
+  ingress:
+    enabled: true
+# TODO: not sure why this doesn't seem to work?
+#    path: "/connectors"
+    host: "localhost"
   resources:
     requests:
       cpu: "100m"
@@ -52,6 +67,9 @@ zeebe:
       memory: "2Gi"
 
 zeebe-gateway:
+  ingress:
+    enabled: false # NOTE: GRPC is not available via nginx ingress unless tls is enabled. Use port forwarding instead
+
   replicas: 1
 
   resources:
@@ -79,11 +97,3 @@ elasticsearch:
     limits:
       cpu: "1000m"
       memory: "2Gi"
-
-  # Request smaller persistent volumes.
-  volumeClaimTemplate:
-    accessModes: [ "ReadWriteOnce" ]
-    storageClassName: "standard"
-    resources:
-      requests:
-        storage: 15Gi

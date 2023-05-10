@@ -8,11 +8,11 @@ spec:
       containers:
       - name: zbctl-deploy
         image: camunda/zeebe
-        command: ["zbctl", "--host", "camunda-zeebe-gateway", "--insecure", "deploy", "/models/BenchmarkProcess.bpmn"]
+        command: ["zbctl", "--host", "camunda-zeebe-gateway", "--insecure", "deploy", "/models/CamundaProcess.bpmn"]
         volumeMounts:
         - name: models
-          mountPath: /models/BenchmarkProcess.bpmn
-          subPath: BenchmarkProcess.bpmn
+          mountPath: /models/CamundaProcess.bpmn
+          subPath: CamundaProcess.bpmn
           readOnly: true
       volumes:
       - name: models

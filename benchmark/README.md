@@ -29,7 +29,7 @@ Here are the high level steps of running benchmarks:
 
 ### 1. Create Sample Process Diagram
 
-The [BenchmarkProcess.bpmn](BenchmarkProcess.bpmn) file is the process diagram that will be used for the benchmark. By default, this is a simple process with 8 service tasks in sequence. Feel free to replace with your own process diagram.
+The [BenchmarkProcess.bpmn](../bpmn/BenchmarkProcess.bpmn) file is the process diagram that will be used for the benchmark. By default, this is a simple process with 8 service tasks in sequence. Feel free to replace with your own process diagram.
 
 ### 2. Configure sample payload
 
@@ -47,7 +47,7 @@ The Benchmark tool has 2 main responsibilities: a) to simulate workers and b) to
 
 #### a. Simulate Zeebe Client Workers
 
-Notice that the [BenchmarkProcess.bpmn](BenchmarkProcess.bpmn) contains 8 service tasks. These service tasks are configured with types `camunda-task-1`, `camunda-task-2`, etc , `camunda-task-8`.  
+Notice that the [BenchmarkProcess.bpmn](../bpmn/BenchmarkProcess.bpmn) contains 8 service tasks. These service tasks are configured with types `camunda-task-1`, `camunda-task-2`, etc , `camunda-task-8`.  
 
 When you start the Benchmark tool, it will dynamically generate a Zeebe Client Worker for each of these service tasks. For example, the configuration parameter named `benchmark.multipleJobTypes` defines the number of workers to simulate. By default this is set to `8` to match the 8 service tasks in the diagram. 
 
@@ -67,7 +67,7 @@ This command: `make camunda await-zeebe` will install Camunda Components into yo
 
 ### 5. Deploy process diagram to Camunda Engine
 
-This command: `make deploy-models` will deploy the process diagram that has been staged in [BenchmarkProcess.bpmn](BenchmarkProcess.bpmn)
+This command: `make deploy-models` will deploy the process diagram that has been staged in [BenchmarkProcess.bpmn](../bpmn/BenchmarkProcess.bpmn)
 
 ### 6. Run the Benchmark
 

@@ -12,8 +12,7 @@ global:
       enabled: true
       secretName: "tls-secret"
   image:
-    # tag: 8.1.2
-    tag: latest
+    tag: 8.2.3
     # pullPolicy: Always
   identity:
     auth:
@@ -34,6 +33,7 @@ global:
         adminUser: "admin"
         existingSecret: "camunda-keycloak"
         existingSecretKey: "admin-password"
+      realm: "/realms/camunda-platform-dev"
 
 operate:
   contextPath: "/operate"

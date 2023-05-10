@@ -1,6 +1,6 @@
 
 cluster.yaml:
-	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g;" $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
+	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR CLUSTER VERSION>/$(clusterVersion)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g;" $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
 
 .PHONY: clean-cluster-yaml
 clean-cluster-yaml:
@@ -23,7 +23,7 @@ fetch-id-values:
 .PHONY: create-ebs-csi-controller-role-def
 create-ebs-csi-controller-role-def:fetch-id-values
 # 1. Fetch OIDC Provider id and AccountId, and create the aws-ebs-csi-driver-trust-policy.json file
-	sed "s/<account_id>/$(account_id)/g; s/<region>/$(region)/g; s/<oidc_id>/$(oidc_id)/g;" ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
+	sed "s/<account_id>/$(account_id)/g; s/<region>/$(region)/g; s/<oidc_id>/$(oidc_id)/g;" $(root)/aws/include/ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
 
 .PHONY: create-ebs-csi-role
 create-ebs-csi-role: create-ebs-csi-controller-role-def
@@ -93,3 +93,28 @@ use-kube:
 .PHONY: urls
 urls:
 	@echo "Cluster: https://$(region).console.aws.amazon.com/eks/home?region=$(region)#/clusters/$(clusterName)"
+
+.PHONY: await-elb
+await-elb:
+	$(root)/aws/ingress/nginx/tls/aws-ingress.sh
+
+.PHONY: ingress-aws-ip-from-service
+ingress-aws-ip-from-service: await-elb
+	$(eval ELB_ID := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.hostname}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1 | cut -d'.' -f 1 | cut -d'-' -f 1))
+	@echo "AWS ELB id: $(ELB_ID)"
+	$(eval IP_TMP := $(shell aws ec2 describe-network-interfaces --filters Name=description,Values="ELB ${ELB_ID}" --query 'NetworkInterfaces[0].PrivateIpAddresses[*].Association.PublicIp' --output text))
+	#$(eval IP := $(shell echo ${IP_TMP} | sed 's/\./-/g'))
+	$(eval IP := $(shell echo ${IP_TMP} ))
+	#@echo "AWS ELB IP: ec2-$(IP).compute-1.amazonaws.com"
+	@echo "AWS ELB IP: $(IP)"
+
+.PHONY: fqdn-aws
+fqdn-aws: ingress-aws-ip-from-service
+	$(eval fqdn ?= $(shell if [ "$(baseDomainName)" == "nip.io" ]; then echo "$(dnsLabel).$(IP).$(baseDomainName)"; else echo "$(dnsLabel).$(baseDomainName)"; fi))
+	@echo "Fully qualified domain name is: $(fqdn)"
+
+camunda-values-ingress-aws.yaml: fqdn-aws
+	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress-aws.yaml
+
+camunda-values-nginx-tls-aws.yaml: fqdn-aws
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml; \

@@ -59,8 +59,9 @@ kube: kube-gke metrics
 # 4 create secrets.yaml with k8s secret that contains Keycloak Admin and Management passwords
 
 # 5 create camunda-values-ext-keycloak.yaml with external ip from ingress controller's Loadbalancer and keycloak params
-camunda-values-ext-keycloak-ip.yaml: ingress-ip-from-service
-	sed -e "s|YOUR_HOSTNAME|$(IP).nip.io|g;" -e "s|KEYCLOAK_PROTOCOL|$(keycloakProtocol)|g;" \
+camunda-values-ext-keycloak-ip.yaml: fqdn
+	sed -e "s|YOUR_HOSTNAME|$(fqdn)|g;" \
+	-e "s|KEYCLOAK_PROTOCOL|$(keycloakProtocol)|g;" \
 	-e "s|KEYCLOAK_HOSTNAME|$(keycloakHostname)|g;" \
 	-e "s|KEYCLOAK_PORT|$(keycloakPort)|g;" \
 	-e "s|KEYCLOAK_CONTEXT_PATH|$(keycloakContextPath)|g;" \

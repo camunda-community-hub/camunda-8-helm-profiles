@@ -2,36 +2,36 @@
 # This file deliberately contains only the values that differ from the defaults.
 # For changes and documentation, use your favorite diff tool to compare it with:
 # https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+# See options: https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/README.md
 
 global:
   ingress:
     enabled: true
     className: nginx
-    host: "YOUR_HOSTNAME"
+    host: "dnslabel.location.cloudapp.azure.com"
+#    annotations:
+#      cert-manager.io/cluster-issuer: "letsencrypt"
     tls:
       enabled: true
       secretName: "tls-secret"
   image:
-    tag: 8.2.3
-    # tag: latest
-    # pullPolicy: Always
+      tag: 8.2.0-alpha5
+      # tag: latest
+      # pullPolicy: Always
   identity:
     auth:
-      # Disable the Identity authentication
-      # it will fall back to basic-auth: demo/demo as default user
-      enabled: false
-    #auth:
-    #  publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
-    #  operate:
-    #    redirectUrl: "https://YOUR_HOSTNAME/operate"
-    #  tasklist:
-    #    redirectUrl: "https://YOUR_HOSTNAME/tasklist"
-    #  optimize:
-    #    redirectUrl: "https://YOUR_HOSTNAME/optimize"
+      enabled: true
+      publicIssuerUrl: "https://dnslabel.location.cloudapp.azure.com/auth/realms/camunda-platform"
+      operate:
+        redirectUrl: "https://dnslabel.location.cloudapp.azure.com/operate"
+      tasklist:
+        redirectUrl: "https://dnslabel.location.cloudapp.azure.com/tasklist"
+      optimize:
+        redirectUrl: "https://dnslabel.location.cloudapp.azure.com/optimize"
 
 operate:
   contextPath: "/operate"
-
+      
 tasklist:
   contextPath: "/tasklist"
 
@@ -39,34 +39,27 @@ optimize:
   contextPath: "/optimize"
 
 identity:
-  enabled: false
-#identity:
-#  contextPath: "/identity"
-#  fullURL: "https://YOUR_HOSTNAME/identity"
-
+  contextPath: "/identity"
+  fullURL: "https://dnslabel.location.cloudapp.azure.com/identity"
+  
   keycloak:
-    #  ingress:
-    #    enabled: true
-    #    ingressClassName: nginx
-    #    hostname: "dnslabel.location.cloudapp.azure.com"
-    #    path: "/keycloak"
-    #    tls: true
-    #    extraHosts: []
-    #    extraTls:
-    #    - hosts:
-    #      - dnslabel.location.cloudapp.azure.com
-    #      secretName: "tls-secret"
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
-        value: "https://YOUR_HOSTNAME/auth"
+        value: "https://dnslabel.location.cloudapp.azure.com/auth"
 
 zeebe-gateway:
   ingress:
-    enabled: true
+    enabled: false
+    # path: "/zeebe"
     className: nginx
-    host: "YOUR_HOSTNAME"
+    host: "dnslabel.location.cloudapp.azure.com"
+#    annotations:
+#      cert-manager.io/cluster-issuer: "letsencrypt"
+#    tls:
+#      enabled: true
+#      secretName: "tls-secret"
   replicas: 1
   resources:
     requests:
@@ -74,7 +67,7 @@ zeebe-gateway:
       cpu: "250m"
     limits:
       memory: "2048Mi"
-      cpu: "1000m"
+      cpu: "1000m"   
 
 zeebe:
   clusterSize: 1
@@ -90,6 +83,7 @@ zeebe:
       cpu: "512m"
       memory: "2Gi"
 
+
 elasticsearch:
   enabled: true
   imageTag: 7.17.3
@@ -104,9 +98,4 @@ elasticsearch:
     limits:
       cpu: "1000m"
       memory: "2Gi"
-
-
-
-
-
-
+  

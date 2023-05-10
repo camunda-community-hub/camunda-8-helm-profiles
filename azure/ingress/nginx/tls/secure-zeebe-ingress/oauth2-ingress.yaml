@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oauth2-proxy
+  namespace: ingress-nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: dnslabel.location.cloudapp.azure.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: oauth2-proxy
+            port:
+              number: 80
+        path: /oauth2
+        pathType: Prefix
+  tls:
+  - hosts:
+    - dnslabel.location.cloudapp.azure.com
+    secretName: tls-secret

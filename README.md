@@ -105,8 +105,31 @@ Or, as another example, you might manually edit the `ingress-nginx/camunda-value
 helm install test-core camunda/camunda-platform --values ingress-nginx/camunda-values.yaml
 ```
 
+## Domain Names
 
-## Networking with nip.io
+Use the `make fqdn` target defined inside the [ingress-nginx.mk](include/ingress-nginx.mk) is used to set the fully
+qualified domain name for your specific environment. 
+
+The `fqdn` variable can be controlled by setting `dnsLabel` and `baseDomainName` in your Makefile. 
+
+To use a domain name that you own, simply set `dnsLabel` and `baseDomainName` to match. For example, if you own a domain named `mydomain.com` and you want to serve your Camunda environment at `camunda.mydomain.com`, then set the variables like so: 
+
+```shell
+baseDomainName := mydomain.com
+dnsLabel := camunda
+```
+
+### Networking with nip.io
+
+If you haven't yet provisioned your own domain name, it can be convenient to use a free service called [nip.io](https://nip.io). To use this service, set `baseDomainName` like this: 
+
+```shell
+baseDomainName := nip.io
+```
+
+In this case, `dnsLabel` will be ignored. The `make fqdn` target inside the [ingress-nginx.mk](include/ingress-nginx.mk) will attempt to find the ip address of your Load Balancer. The final `fqdn` will look like this: `<ip-address-of-load-balancer>.nip.io`. 
+
+Here is more information about how this works: 
 
 There are 2 techniques to setup networking for a Camunda 8 Environment. 
 
@@ -128,12 +151,11 @@ mydomain.com/tasklist
 mydomain.com/optimize
 ```
 
-Kubernetes Networking is, of course, a very complicated topic! There are many ways to configure Ingress and networks. And to make things worse, each cloud provider has a slightly different flavor of load
-balancers and network configuration options.
+Kubernetes Networking is, of course, a very complicated topic! There are many ways to configure Ingress and networks. And to make things worse, each cloud provider has a slightly different flavor of load balancers and network configuration options.
 
 For a variety of reasons, it's often convenient (and sometimes required) to access services via dns names rather than IP addresses.
 
-Provisioning a custom domain name can be time-consuming and complicated, especially for demonstrations or prototypes. 
+Provisioning a custom domain name can be inconvenient, especially for demonstrations or prototypes. 
 
 Here's a technique using a public service called [nip.io](https://nip.io) that might be useful. [nip.io](https://nip.io) makes it possible to quickly and easily translate ip addresses into domain names.
 
@@ -148,8 +170,9 @@ http://operate.54.210.85.151.nip.io
 http://tasklist.54.210.85.151.nip.io
 ```
 
-Several of the profiles in this project use [nip.io](https://nip.io) for convenience. You're always welcome (and encouraged!) to substitute your own domain name. To do so, you will need to make some manual configuration changes to the `camunda-values.yaml` files. 
+To use `nip.io`, set `baseDomainName` equal to `nip.io` inside your Makefile. 
 
+Otherwise, you're always welcome (and encouraged!) to provide your own domain name. To do so, simply set `baseDomainName` and `dnsLabel` to match your own domain name. 
 
 ## Keycloak Admin User and Password
 
