@@ -3,36 +3,32 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-region ?= eastus
-clusterName ?= dave-camunda-01
-resourceGroup ?= dave-camunda-01-rg
-
-# Configure the fully qualified domain name
-# A fully qualified domain name is built by appending `dnsLabel` together with `baseDomainName`.
-
-# In Azure, we can use the `cloudapp.azure.com` base domain.
-#useAzureDomain ?= true
-#baseDomainName ?= $(region).cloudapp.azure.com
-
-# Another option is to replace baseDomainName with your own domain name
-baseDomainName ?= azure.upgradingdave.com
-
-# Yet another option option is to use `nip.io`
-#baseDomainName ?= nip.io
-
-# Replace `MY_DNS_LABEL`. `dnsLabel` will be added in front of `baseDomainName` to produce a fqdn
-dnsLabel ?= dave01
-dnsZoneGroup ?= presales-consulting
-
-ipAddress ?= 52.149.137.147
-
-# clusterIssuer ?= letsencrypt
-clusterIssuer ?= selfsigned-issuer
+#region ?= eastus
+region ?= YOUR_REGION
+clusterName ?= YOUR_CLUSTER_NAME
+resourceGroup ?= YOUR_CLUSTER_NAME-rg
 
 machineType ?= Standard_A8_v2
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= david.paroulek@camunda.com
+certEmail ?= YOUR_EMAIL@camunda.com
+
+# Configure the fully qualified domain name
+# The dnsLabel is the first part of the domain address. It will be used no matter what baseDomain you configure below
+dnsLabel ?= YOUR_DNS_LABEL
+
+# In Azure, we can use the `cloudapp.azure.com` base domain.
+# In this case, the fully qualified domain name will look like <dnsLabel>.<region>.cloudapp.azure.com
+baseDomainName ?= $(region).cloudapp.azure.com
+
+# Another option is to use nip.io (See more at [https://nip.io](http://nip.io) )
+# The fully qualified domain name will look something like <dnsLabel>.<ip address>.nip.io
+# baseDomainName ?= nip.io
+
+# Another option is to replace baseDomainName with your own domain name
+# In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
+# baseDomainName ?= YOUR_CUSTOM_DOMAIN_NAME
+
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -69,23 +65,13 @@ kube: kube-aks metrics
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 
-# 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
-#  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$DNS_LABEL \
-#  --set controller.service.loadBalancerIP=$STATIC_IP \
-#  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz
+# 6 annotate-ingress-tls from cert-manager.mk
 
 # 7 Show external URLs
 .PHONY: external-urls
-external-urls: fqdn
-	@echo IP address of Load balancer: $(IP)
-	@echo https://$(fqdn)/auth
-	@echo https://$(fqdn)/identity
-	@echo https://$(fqdn)/operate
-	@echo https://$(fqdn)/tasklist
-	@echo https://$(fqdn)/optimize
-	@echo zbctl status --address $(fqdn):443
+external-urls: external-urls-all
 
-# 8 public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
+# Optional: public-zeebe-ingress : add an ingress for GRPC communication to zeebe-gateway
 .PHONY: public-zeebe-ingress
 public-zeebe-ingress: fqdn
 	cat $(root)/azure/include/public-zeebe-ingress.yaml | sed -E "s/MY_HOSTNAME/$(fqdn)/g;" | kubectl create -n $(namespace) -f -
@@ -99,13 +85,15 @@ public-zeebe-ingress: fqdn
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
 
+include $(root)/azure/include/aks.mk
 include $(root)/include/camunda.mk
+include $(root)/bpmn/deploy-models.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
-include $(root)/azure/include/aks.mk
+include $(root)/metrics/metrics.mk
 include $(root)/azure/include/fileshare.mk
 include $(root)/echo-server/echo.mk
 include $(root)/oauth2-proxy/oauth2.mk
-include $(root)/metrics/metrics.mk
+
 
 

@@ -49,7 +49,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-all.yaml
 
 .PHONY: all
-all: cert-manager letsencrypt-prod ingress-nginx camunda-values-nginx-all.yaml camunda annotate-ingress-tls external-urls
+all: ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-all.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -61,7 +61,7 @@ kube: kube-gke metrics
 
 # 3 create nginx ingress controller with dns and tls
 
-# 4 create camunda-values-nginx.yaml with external ip from ingress controller's Loadbalancer
+# 4 create camunda-values-all.yaml
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 
@@ -69,14 +69,7 @@ kube: kube-gke metrics
 
 # 7 Show external URLs
 .PHONY: external-urls
-external-urls: fqdn
-	@echo IP address of Load balancer: $(IP)
-	@echo https://$(fqdn)/auth
-	@echo https://$(fqdn)/identity
-	@echo https://$(fqdn)/operate
-	@echo https://$(fqdn)/tasklist
-	@echo https://$(fqdn)/optimize
-	@echo zbctl status --address $(fqdn):443
+external-urls: external-urls-all
 
 # Getting url for grafana is vendor specific
 .PHONY: url-grafana
@@ -90,11 +83,11 @@ clean-kube: clean-metrics clean-kube-gke
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
 
+include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
+include $(root)/bpmn/deploy-models.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
-include $(root)/google/include/kubernetes-gke.mk
 include $(root)/metrics/metrics.mk
-include $(root)/benchmark/benchmark.mk
 include $(root)/echo-server/echo.mk
 include $(root)/oauth2-proxy/oauth2.mk

@@ -19,7 +19,7 @@ certEmail ?= YOUR_EMAIL@camunda.com
 
 # Configure the fully qualified domain name
 # The dnsLabel is the first part of the domain address. It will be used no matter what baseDomain you configure below
-dnsLabel ?= aws
+dnsLabel ?= YOUR_DNS_LABEL
 
 # By default, we'll use nip.io (See more at [https://nip.io](http://nip.io) )
 # The fully qualified domain name will look something like <dnsLabel>.<ip address>.nip.io
