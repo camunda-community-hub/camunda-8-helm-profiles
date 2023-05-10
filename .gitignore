@@ -8,6 +8,7 @@ azure/ingress/nginx/tls/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/dns/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/secure-zeebe-ingress/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/camunda-platform
+azure/ingress/nginx/tls/camunda-values-nginx-all.yaml
 google/ingress/nginx/camunda-values-ingress.yaml
 google/ingress/nginx/tls/camunda-values-nginx.yaml
 google/ingress/nginx/tls/camunda-values-nginx-all.yaml

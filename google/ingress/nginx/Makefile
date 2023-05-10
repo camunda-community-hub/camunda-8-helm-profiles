@@ -66,7 +66,7 @@ clean-kube: clean-kube-gke
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
-clean: clean-camunda
+clean: clean-camunda clean-ingress
 	rm -f $(chartValues)
 
 include $(root)/google/include/kubernetes-gke.mk

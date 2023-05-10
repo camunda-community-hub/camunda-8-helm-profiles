@@ -84,15 +84,10 @@ azure-ingress-nginx:
 	  --set controller.service.externalTrafficPolicy=Local \
 	  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel)
 
-
 .PHONY: ingress-annotate-staticip
 ingress-annotate-staticip: ingress-ip-from-service
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform controller.service.loadBalancerIP=$(IP)
 
-.PHONY: annotate-ingress-tls
-annotate-ingress-tls: ingress-remove-issuer
-	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
-	make get-ingress
 
 # This didn't work out as I thought. Ok to remove once I test
 #.PHONY: azure-nginx-dns-tls

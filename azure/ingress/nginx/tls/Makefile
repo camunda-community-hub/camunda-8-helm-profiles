@@ -49,7 +49,8 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-all.yaml
 
 .PHONY: all
-all: azure-ingress-nginx dns-create-a-record cert-manager letsencrypt-staging camunda-values-nginx-all.yaml camunda annotate-ingress-tls external-urls
+#all: azure-ingress-nginx dns-create-a-record cert-manager letsencrypt-staging camunda-values-nginx-all.yaml camunda annotate-ingress-tls external-urls
+all: azure-ingress-nginx cert-manager letsencrypt-staging camunda-values-nginx-all.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -84,6 +85,9 @@ public-zeebe-ingress: fqdn
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
+
+.PHONY: clean-kube
+clean-kube: clean-metrics clean-kube-aks
 
 include $(root)/azure/include/aks.mk
 include $(root)/include/camunda.mk
