@@ -12,7 +12,7 @@ global:
       enabled: true
       secretName: "tls-secret"
   image:
-    tag: 8.3.0-alpha1
+    tag: 8.1.7
     # pullPolicy: Always
   identity:
     auth:
@@ -33,21 +33,21 @@ tasklist:
 optimize:
   contextPath: "/optimize"
 
-connectors:
-  enabled: true
-  inbound:
-    mode: credentials
-  ingress:
-    enabled: true
-    host: YOUR_HOSTNAME
-    tls:
-      enabled: true
-      secretName: tls-secret
-  env:
-    - name: CAMUNDA_OPERATE_CLIENT_USERNAME
-      value: demo
-    - name: CAMUNDA_OPERATE_CLIENT_PASSWORD
-      value: demo
+#connectors:
+#  enabled: true
+#  inbound:
+#    mode: credentials
+#  ingress:
+#    enabled: true
+#    host: YOUR_HOSTNAME
+#    tls:
+#      enabled: true
+#      secretName: tls-secret
+#  env:
+#    - name: CAMUNDA_OPERATE_CLIENT_USERNAME
+#      value: demo
+#    - name: CAMUNDA_OPERATE_CLIENT_PASSWORD
+#      value: demo
 
 prometheusServiceMonitor:
   enabled: true

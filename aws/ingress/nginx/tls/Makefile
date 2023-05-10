@@ -86,6 +86,7 @@ clean: clean-camunda clean-ingress clean-cert-manager
 
 include $(root)/aws/include/kubernetes-aws.mk
 include $(root)/include/camunda.mk
+include $(root)/bpmn/deploy-models.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
 include $(root)/metrics/metrics.mk
