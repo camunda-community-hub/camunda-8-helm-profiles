@@ -18,6 +18,18 @@ Step 2: Setup command line tools for GCP:
 
        gcloud components install gke-gcloud-auth-plugin
 
-6. Go into one of the profiles in the `google` folder and use the `Makefile` to create a GKE cluster
+4. Check installation
+       gcloud components list
+       gcloud components list | grep gke-gcloud-auth-plugin
+
+5. Go into one of the profiles in the `google` folder and use the `Makefile` to create a GKE cluster
+
+    ```
+    make login  # how to ensure you are logged into Google Cloud
+    make kube   # establish kubernetes cluster on Google Cloud
+    make all    # deploy Camunda 8
+    
+    make clean  # remove Camunda 8 + (cluster is not deleted)
+    ```
 
 e.g. `cd` into the `ingress/nginx/tls` directory and see the [README.md](./ingress/nginx/tls/README.md) for more.
