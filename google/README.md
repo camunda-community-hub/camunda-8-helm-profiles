@@ -25,11 +25,13 @@ Step 2: Setup command line tools for GCP:
 5. Go into one of the profiles in the `google` folder and use the `Makefile` to create a GKE cluster
 
     ```
-    make login  # how to ensure you are logged into Google Cloud
-    make kube   # establish kubernetes cluster on Google Cloud
-    make all    # deploy Camunda 8
-    
-    make clean  # remove Camunda 8 + (cluster is not deleted)
+    make login       # ensure you are logged into Google Cloud
+    make kube        # establish kubernetes cluster on Google Cloud
+    make all         # deploy Camunda 8
+    # .. have a lot of fun..
+   
+    make clean       # remove Camunda 8, but "kube" is not deleted
+    make clean-kube  # remove kube (save money)
     ```
 
 e.g. `cd` into the `ingress/nginx/tls` directory and see the [README.md](./ingress/nginx/tls/README.md) for more.
