@@ -6,6 +6,14 @@ If you don't have a Kubernetes Cluster yet, see the main [README](../README.md) 
 
 # Usage
 
+Here's a spreadsheet useful for tracking Performance Benchmarks: 
+
+https://docs.google.com/spreadsheets/d/1YZFp5uDd4783qTr7fvQIyXzoz8o01GLadurXLXU9sMc/edit
+
+Here's a webinar about Camunda 8 Performance: 
+
+https://page.camunda.com/wb-zeebe-performance-engine
+
 ## Prometheus and Grafana
 
 Although not technically required, it's extremely useful to have Grafana and Prometheus setup in the Cluster that you want to benchmark. Everything needed to install and configure Prometheus and Grafana can be found inside the [metrics folder](../metrics). Change directory to that folder, and follow the steps outlined inside [metrics/README.md](../metrics/README.md). After following those steps, you should be able to sign into your Grafana dashboard.  
