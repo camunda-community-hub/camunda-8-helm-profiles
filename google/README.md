@@ -1,6 +1,6 @@
 # Helm Profiles for Camunda 8 on Google Cloud Platform (GCP)
 
-Create a Camunda 8 self-managed Kubernetes Cluster in 3 Steps:
+Create a Camunda 8 self-managed Kubernetes Cluster using the following steps: 
 
 Step 1: Setup some [global prerequisites](../README.md#prerequisites)
 
@@ -19,15 +19,19 @@ Step 2: Setup command line tools for GCP:
        gcloud components install gke-gcloud-auth-plugin
 
 4. Check installation
+
        gcloud components list
        gcloud components list | grep gke-gcloud-auth-plugin
 
 5. Go into one of the profiles in the `google` folder and use the `Makefile` to create a GKE cluster
 
     ```
+    # Edit the files inside `config` director with values specific to your installation
+    
     make login       # ensure you are logged into Google Cloud
     make kube        # establish kubernetes cluster on Google Cloud
     make all         # deploy Camunda 8
+    
     # .. have a lot of fun..
    
     make clean       # remove Camunda 8, but "kube" is not deleted

@@ -1,3 +1,4 @@
+# Edit the files inside the `config` directory to configure your own local properties
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -7,8 +8,8 @@ else
     root ?= $(shell pwd)/..
 endif
 
-# Please configure your own local properties
-include $(root)/google/configuration/properties-local.mk
+# Edit the following to configure your own local properties
+include $(root)/google/config/properties.mk
 
 # Helm release name
 release ?= camunda
@@ -21,13 +22,7 @@ chartValues ?= camunda-values-google.yaml
 .PHONY: all
 all: camunda-values-google.yaml camunda external-urls
 
-.PHONY: login
-login:
-	gcloud auth login
-
-
-
-# 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
+# 0 Create Kubernetes cluster. (No application gateway required)
 .PHONY: kube
 kube: kube-gke
 

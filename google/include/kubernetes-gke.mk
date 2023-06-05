@@ -7,6 +7,10 @@ clean-files:
 	rm -f .disks
 	rm -f camunda-values.yaml
 
+.PHONY: login
+login:
+	gcloud auth login
+
 # TODO maybe make initial cluster size bigger so that `helm install` doesn't have to wait for the autoscaler to spin up nodes
 .PHONY: kube-gke
 kube-gke:
