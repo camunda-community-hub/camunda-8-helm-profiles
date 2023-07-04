@@ -40,3 +40,12 @@ include $(root)/include/camunda.mk
 include $(root)/connectors/connectors.mk
 include $(root)/bpmn/deploy-models.mk
 include $(root)/kind/include/kubernetes-kind.mk
+
+# override update target because fewer credentials are needed for core setup
+.PHONY: update
+update:
+	helm repo update camunda
+	helm search repo $(chart)
+	CONNECTORS_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-connectors-auth-credentials" -o jsonpath="{.data.connectors-secret}" | base64 -d) \
+	helm upgrade --namespace $(namespace) $(release) $(chart) -f $(chartValues) \
+	  --set connectors.inbound.auth.existingSecret=$CONNECTORS_SECRET
