@@ -40,8 +40,8 @@ use-kube:
 
 .PHONY: urls
 urls:
-	@echo "Cluser: https://console.cloud.google.com/kubernetes/clusters/details/$(REGION)/$(CLUSTER_NAME)/details?project=$(PROJECT)"
-	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload/overview?project=$(PROJECT)&pageState=(%22savedViews%22:(%22i%22:%221cd686805f0e43189d3b33934863017b%22,%22c%22:%5B%22gke%2F$(REGION)%2F$(CLUSTER_NAME)%22%5D,%22n%22:%5B%5D))"
+	@echo "Cluster: https://console.cloud.google.com/kubernetes/clusters/details/$(region)/$(clusterName)/details?project=$(project)"
+	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload/overview?project=$(project)&pageState=(%22savedViews%22:(%22i%22:%221cd686805f0e43189d3b33934863017b%22,%22c%22:%5B%22gke%2F$(region)%2F$(clusterName)%22%5D,%22n%22:%5B%5D))"
 
 # List pvcs associated with the
 .PHONY: disks
