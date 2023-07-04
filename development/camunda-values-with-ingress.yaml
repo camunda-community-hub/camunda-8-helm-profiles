@@ -7,7 +7,7 @@
 
 global:
   image:
-    tag: 8.2.3
+    tag: latest
   ingress:
     enabled: true
     className: nginx

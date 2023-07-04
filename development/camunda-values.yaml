@@ -7,7 +7,7 @@
 
 global:
   image:
-    tag: 8.2.3
+    tag: latest
   identity:
     auth:
       # Disable the Identity authentication
