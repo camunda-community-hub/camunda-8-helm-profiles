@@ -18,10 +18,11 @@ kube-gke:
 	  --enable-ip-alias \
 	  --machine-type=$(machineType) \
 	  --disk-type "pd-ssd" \
-	  --preemptible \
+	  --spot \
 	  --maintenance-window=4:00 \
 	  --release-channel=regular \
 	  --cluster-version=latest
+	gcloud container clusters list
 	kubectl apply -f $(root)/google/include/ssd-storageclass-gke.yaml
 	gcloud config set project $(project)
 	gcloud container clusters get-credentials $(clusterName) --region $(region)
@@ -32,6 +33,7 @@ clean-kube: use-kube
 #	-kubectl delete pvc --all
 	@echo "Please check the console if all PVCs have been deleted: https://console.cloud.google.com/compute/disks?authuser=0&project=$(project)&supportedpurview=project"
 	gcloud container clusters delete $(clusterName) --region $(region) --async --quiet
+	gcloud container clusters list
 
 .PHONY: use-kube
 use-kube:
@@ -41,9 +43,9 @@ use-kube:
 .PHONY: urls
 urls:
 	@echo "Cluster: https://console.cloud.google.com/kubernetes/clusters/details/$(region)/$(clusterName)/details?project=$(project)"
-	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload/overview?project=$(project)&pageState=(%22savedViews%22:(%22i%22:%221cd686805f0e43189d3b33934863017b%22,%22c%22:%5B%22gke%2F$(region)%2F$(clusterName)%22%5D,%22n%22:%5B%5D))"
+	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload_/gcloud/$(region)/$(clusterName)?project=$(project)"
 
-# List pvcs associated with the
+# List pvcs associated with the cluster
 .PHONY: disks
 disks:
 	gcloud compute disks list --filter="zone ~ $(region) AND users ~ $(clusterName) AND name ~ pvc"
