@@ -26,4 +26,4 @@ port-prometheus:
 
 .PHONY: open-grafana
 open-grafana:
-	xdg-open http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath={..ip})/d/I4lo7_EZk/zeebe?var-namespace=$(namespace) &
+	xdg-open http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath={..ip})/d/zeebe-dashboard/zeebe?var-namespace=$(namespace) &

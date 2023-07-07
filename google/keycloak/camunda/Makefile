@@ -85,7 +85,7 @@ external-urls: ingress-ip-from-service
 # Getting url for grafana is vendor specific
 .PHONY: url-grafana
 url-grafana:
-	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/I4lo7_EZk/zeebe?var-namespace=$(namespace)"
+	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
 
 .PHONY: clean-kube
 clean-kube: clean-metrics clean-kube-gke
