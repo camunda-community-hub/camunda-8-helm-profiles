@@ -6,8 +6,8 @@
 #project ?= camunda-researchanddevelopment
 project ?= camunda-researchanddevelopment
 #region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
-region ?= europe-west1-b
-clusterName ?= cdame-region-2
+region ?= europe-west4-b
+clusterName ?= cdame-region-0
 
 machineType ?= n2-standard-8
 minSize ?= 1
@@ -26,7 +26,7 @@ namespace ?= camunda
 # Helm release name
 release ?= camunda
 # Helm chart coordinates for Camunda
-chart ?= camunda/camunda-platform
+chart ?= $(root)/../camunda-platform-helm-multi-region/charts/camunda-platform
 
 chartValues ?= camunda-values.yaml
 
