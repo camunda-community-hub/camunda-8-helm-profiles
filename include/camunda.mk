@@ -110,6 +110,10 @@ watch-zeebe:
 await-zeebe:
 	kubectl rollout status --watch statefulset/$(release)-zeebe --timeout=900s -n $(namespace)
 
+.PHONY: zbctl-status
+zbctl-status:
+	kubectl exec svc/$(release)-zeebe-gateway -n $(namespace) -- zbctl status --insecure
+
 .PHONY: port-zeebe
 port-zeebe:
 	kubectl port-forward svc/$(release)-zeebe-gateway 26500:26500 -n $(namespace)
