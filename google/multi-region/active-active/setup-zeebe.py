@@ -23,8 +23,8 @@ from time import sleep
 #     'us-west1-b': 'gke_cockroach-alex_us-west1-b_my-cluster',
 # }
 contexts = {
-    'europe-west4-b': 'cdame-region-0',
-    'europe-west1-b': 'cdame-region-1',
+    'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
+    'europe-west1-b': 'gke_camunda-researchanddevelopment_europe-west1-b_cdame-region-1',
 }
 
 # Fill in the `regions` map with the zones and corresponding regions of your
@@ -98,7 +98,7 @@ except OSError:
 #
 # Also create a load balancer to each cluster's DNS pods.
 for zone, context in contexts.items():
-    check_call(['kubectl', 'create', 'namespace', zone, '--context', context])
+    #check_call(['kubectl', 'create', 'namespace', zone, '--context', context])
     # check_call(['kubectl', 'create', 'secret', 'generic', 'cockroachdb.client.root', '--from-file', certs_dir, '--context', context])
     # check_call(['kubectl', 'create', 'secret', 'generic', 'cockroachdb.client.root', '--namespace', zone, '--from-file', certs_dir, '--context', context])
     # check_call([cockroach_path, 'cert', 'create-node', '--certs-dir', certs_dir, '--ca-key', ca_key_dir+'/ca.key', 'localhost', '127.0.0.1', 'cockroachdb-public', 'cockroachdb-public.default', 'cockroachdb-public.'+zone, 'cockroachdb-public.%s.svc.cluster.local' % (zone), '*.cockroachdb', '*.cockroachdb.'+zone, '*.cockroachdb.%s.svc.cluster.local' % (zone)])
@@ -114,7 +114,7 @@ dns_ips = dict()
 for zone, context in contexts.items():
     external_ip = ''
     while True:
-        external_ip = check_output(['kubectl', 'get', 'svc', 'kube-dns-lb', '--namespace', 'kube-system', '--context', context, '--template', '{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}'])
+        external_ip = check_output(['kubectl', 'get', 'svc', 'kube-dns-lb', '--namespace', 'kube-system', '--context', context, '--template', '{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}']).decode("UTF-8")
         if external_ip:
             break
         print('Waiting for DNS load balancer IP in %s...' % (zone))
@@ -132,6 +132,7 @@ for zone, context in contexts.items():
         if z == zone:
             continue
         remote_dns_ips[z+'.svc.cluster.local'] = [ip]
+    print(remote_dns_ips)
     config_filename = '%s/dns-configmap-%s.yaml' % (generated_files_dir, zone)
     with open(config_filename, 'w') as f:
         f.write("""\
