@@ -22,7 +22,7 @@ else
 endif
 
 # Camunda components will be installed into the following Kubernetes namespace
-namespace ?= region1
+namespace ?= $(region)
 # Helm release name
 release ?= camunda
 # Helm chart coordinates for Camunda
