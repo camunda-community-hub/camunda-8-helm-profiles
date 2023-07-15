@@ -31,7 +31,7 @@ chart ?= $(root)/../camunda-platform-helm-multi-region/charts/camunda-platform
 chartValues ?= camunda-values.yaml
 
 .PHONY: all
-all: camunda external-urls
+all: use-kube camunda external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -54,11 +54,9 @@ fail-over-region1:
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
-clean: clean-camunda
+clean: use-kube clean-camunda
 
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
 include $(root)/bpmn/deploy-models.mk
 include $(root)/connectors/connectors.mk
-
-
