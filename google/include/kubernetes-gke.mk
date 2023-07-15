@@ -29,7 +29,7 @@ kube-gke:
 
 
 .PHONY: clean-kube-gke
-clean-kube: use-kube
+clean-kube-gke: use-kube
 #	-kubectl delete pvc --all
 	@echo "Please check the console if all PVCs have been deleted: https://console.cloud.google.com/compute/disks?authuser=0&project=$(project)&supportedpurview=project"
 	gcloud container clusters delete $(clusterName) --region $(region) --async --quiet
