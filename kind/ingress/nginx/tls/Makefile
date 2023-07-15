@@ -51,12 +51,12 @@ external-urls:
 #	@echo https://127.0.0.1.nip.io/optimize
 	@echo zbctl status --address 127.0.0.1.nip.io:443
 
-.PHONY: clean-kube
-clean-kube: clean-kube-kind
-
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
+
+.PHONY: clean-kube
+clean-kube: clean-kube-kind
 
 include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk

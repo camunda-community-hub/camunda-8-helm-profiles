@@ -87,12 +87,12 @@ external-urls: ingress-ip-from-service
 url-grafana:
 	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
 
-.PHONY: clean-kube
-clean-kube: clean-metrics clean-kube-gke
-
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
+
+.PHONY: clean-kube
+clean-kube: clean-metrics clean-kube-gke
 
 include $(root)/include/camunda.mk
 include $(root)/include/ingress-nginx.mk

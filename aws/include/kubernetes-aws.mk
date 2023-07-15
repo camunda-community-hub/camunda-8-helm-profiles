@@ -83,7 +83,7 @@ delete-iam-role: detach-role-policy-mapping
 	rm ebs-csi-driver-trust-policy.json
 
 .PHONY: clean-kube-aws
-clean-kube-aws: clean-cluster-yaml delete-iam-role use-kube
+clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
 	eksctl delete cluster --name $(clusterName) --region $(region)
 
 .PHONY: use-kube

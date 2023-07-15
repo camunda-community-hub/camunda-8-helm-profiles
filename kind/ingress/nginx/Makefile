@@ -38,12 +38,12 @@ external-urls:
 	@echo To access tasklist, browse to: http://localhost/tasklist
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
 
-.PHONY: clean-kube
-clean-kube: clean-kube-kind
-
 .PHONY: clean
 clean: clean-camunda
 	rm -f $(chartValues)
+
+.PHONY: clean-kube
+clean-kube: clean-kube-kind
 
 include $(root)/include/camunda.mk
 include $(root)/bpmn/deploy-models.mk

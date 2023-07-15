@@ -52,12 +52,12 @@ camunda-values-aws.yaml:
 .PHONY: external-urls
 external-urls: external-urls-no-ingress
 
-.PHONY: clean-kube
-clean-kube: clean-kube-aws
-
 .PHONY: clean
 clean: clean-camunda
 	rm -f $(chartValues)
+
+.PHONY: clean-kube
+clean-kube: clean-kube-aws
 
 include $(root)/aws/include/kubernetes-aws.mk
 include $(root)/include/camunda.mk

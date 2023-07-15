@@ -64,12 +64,12 @@ kube: kube-aws oidc-provider
 .PHONY: external-urls
 external-urls: external-urls-with-fqdn
 
-.PHONY: clean-kube
-clean-kube: clean-kube-aws
-
 .PHONY: clean
 clean: clean-camunda clean-ingress
 	rm -f $(chartValues)
+
+.PHONY: clean-kube
+clean-kube: clean-kube-aws
 
 include $(root)/aws/include/kubernetes-aws.mk
 include $(root)/include/camunda.mk

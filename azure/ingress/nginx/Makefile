@@ -63,13 +63,13 @@ kube: kube-aks
 .PHONY: external-urls
 external-urls: external-urls-with-fqdn
 
-.PHONY: clean-kube
-clean-kube: clean-kube-aks
-
 # Remove Camunda from cluster
 .PHONY: clean
 clean: clean-camunda
 	rm -f $(chartValues)
+
+.PHONY: clean-kube
+clean-kube: clean-kube-aks
 
 include $(root)/azure/include/aks.mk
 include $(root)/include/camunda.mk

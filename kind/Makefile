@@ -29,12 +29,12 @@ camunda-values-kind.yaml:
 .PHONY: external-urls
 external-urls: external-urls-no-ingress
 
-.PHONY: clean-kube
-clean-kube: clean-kube-kind
-
 .PHONY: clean
 clean: clean-camunda
 	rm -f $(chartValues)
+
+.PHONY: clean-kube
+clean-kube: clean-kube-kind
 
 include $(root)/include/camunda.mk
 include $(root)/connectors/connectors.mk

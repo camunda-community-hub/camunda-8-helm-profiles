@@ -61,8 +61,12 @@ chaos-experiment:
 url-grafana:
 	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
 
-.PHONY: clean-kube
-clean-kube: clean-metrics clean-chaos-mesh clean-kube-gke
+.PHONY: clean
+clean: clean-benchmark clean-chaos-experiment clean-camunda
+
+.PHONY: clean-chaos-experiment
+clean-chaos-experiment:
+	-kubectl delete -f chaos-network-brokers.yaml -n default
 
 .PHONY: clean-chaos-mesh
 clean-chaos-mesh:
@@ -70,12 +74,8 @@ clean-chaos-mesh:
 	-rm -f chaos-mesh-values.yaml
 	-helm --namespace default uninstall chaos-mesh
 
-.PHONY: clean
-clean: clean-benchmark clean-chaos-experiment clean-camunda
-
-.PHONY: clean-chaos-experiment
-clean-chaos-experiment:
-	-kubectl delete -f chaos-network-brokers.yaml -n default
+.PHONY: clean-kube
+clean-kube: clean-metrics clean-chaos-mesh clean-kube-gke
 
 include $(root)/include/camunda.mk
 include $(root)/benchmark/benchmark.mk
