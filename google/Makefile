@@ -55,6 +55,9 @@ external-urls: external-urls-no-ingress
 clean: clean-camunda
 	rm -f $(chartValues)
 
+.PHONY: clean-kube
+clean-kube: clean-kube-gke
+
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
 include $(root)/bpmn/deploy-models.mk
