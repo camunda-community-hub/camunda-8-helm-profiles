@@ -45,12 +45,30 @@ external-urls: external-urls-no-ingress
 
 ### <--- End of setup --->
 
+#: Create temporary brokers that impersonate half of the ones lost in region 1
 fail-over-region1:
-	-kubectl create namespace $(region)-failover
-	-kubectl config set-context --current --namespace=$(region)-failover
-	helm install --namespace $(region)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
+	-kubectl create namespace $(namespace)-failover
+	-kubectl config set-context --current --namespace=$(namespace)-failover
+	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
 	  --set global.installationType=failOver \
 	  --set global.regionId=1 \
+	  --set elasticsearch.enable=false
+# TODO connect to existing elastic in current region
+# TODO importers
+
+fail-back: use-kube
+	helm install --namespace $(region) $(release) $(chart) -f $(chartValues)  --skip-crds \
+	  --set global.installationType=failBack
+
+# TODO what if something is running
+# require clean-camunda but without deleting PVCs or with because its dirty
+fail-back-with-cluster-running:
+	kubectl delete pod camunda-zeebe-0 -n $(namespace)
+	kubectl delete pod camunda-zeebe-2 -n $(namespace)
+
+fail-back-to-normal: use-kube update
+	kubectl delete pod camunda-zeebe-0 -n $(namespace)
+	kubectl delete pod camunda-zeebe-2 -n $(namespace)
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
@@ -58,6 +76,12 @@ clean: use-kube clean-camunda
 
 .PHONY: clean-kube
 clean-kube: clean-kube-gke
+
+#: Delete temporary brokers that impersonated half of the ones lost in region 1
+clean-fail-over-region1: use-kube
+	-helm --namespace $(namespace)-failover uninstall $(release)
+	-kubectl delete -n $(namespace)-failover pvc -l app.kubernetes.io/instance=$(release)
+	-kubectl create namespace $(namespace)-failover
 
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
