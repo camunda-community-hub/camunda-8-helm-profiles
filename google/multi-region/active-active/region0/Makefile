@@ -37,7 +37,6 @@ all: camunda external-urls
 .PHONY: kube
 kube: kube-gke
 
-
 # 2 helm install camunda from camunda.mk
 
 # 3 Show external URLs
@@ -45,6 +44,13 @@ kube: kube-gke
 external-urls: external-urls-no-ingress
 
 ### <--- End of setup --->
+
+fail-over-region1:
+	-kubectl create namespace $(region)-failover
+	-kubectl config set-context --current --namespace=$(region)-failover
+	helm install --namespace $(region)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
+	  --set global.installationType=failOver \
+	  --set global.regionId=1 \
 
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean

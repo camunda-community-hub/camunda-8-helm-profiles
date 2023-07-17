@@ -46,6 +46,13 @@ external-urls: external-urls-no-ingress
 
 ### <--- End of setup --->
 
+fail-over-region0:
+	-kubectl create namespace $(region)-failover
+	-kubectl config set-context --current --namespace=$(region)-failover
+	helm install --namespace $(region)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
+	  --set global.installationType=failOver \
+	  --set global.regionId=0 \
+
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
 clean: clean-camunda

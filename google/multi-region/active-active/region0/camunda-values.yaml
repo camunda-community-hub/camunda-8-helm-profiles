@@ -42,9 +42,19 @@ connectors:
       value: demo
 
 zeebe:
-  clusterSize: 4
-  partitionCount: 1
+  clusterSize: 8
+  partitionCount: 8
   replicationFactor: 4
+  env:
+    - name: ZEEBE_BROKER_DATA_SNAPSHOTPERIOD
+      value: "5m"
+    - name: ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK
+      value: "0.85"
+    - name: ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK
+      value: "0.87"
+    - name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
+      value: "camunda-zeebe-0.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-2.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-3.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.europe-west1-b.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.europe-west1-b.svc.cluster.local:26502, camunda-zeebe-2.camunda-zeebe.europe-west1-b.svc.cluster.local:26502, camunda-zeebe-3.camunda-zeebe.europe-west1-b.svc.cluster.local:26502"
+  
   pvcSize: 1Gi
 
   resources:

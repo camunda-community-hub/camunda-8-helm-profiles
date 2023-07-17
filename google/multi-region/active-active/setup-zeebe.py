@@ -98,7 +98,7 @@ except OSError:
 #
 # Also create a load balancer to each cluster's DNS pods.
 for zone, context in contexts.items():
-    check_call(['kubectl', 'create', 'namespace', zone, '--context', context])
+    #check_call(['kubectl', 'create', 'namespace', zone, '--context', context])
     # check_call(['kubectl', 'create', 'secret', 'generic', 'cockroachdb.client.root', '--from-file', certs_dir, '--context', context])
     # check_call(['kubectl', 'create', 'secret', 'generic', 'cockroachdb.client.root', '--namespace', zone, '--from-file', certs_dir, '--context', context])
     # check_call([cockroach_path, 'cert', 'create-node', '--certs-dir', certs_dir, '--ca-key', ca_key_dir+'/ca.key', 'localhost', '127.0.0.1', 'cockroachdb-public', 'cockroachdb-public.default', 'cockroachdb-public.'+zone, 'cockroachdb-public.%s.svc.cluster.local' % (zone), '*.cockroachdb', '*.cockroachdb.'+zone, '*.cockroachdb.%s.svc.cluster.local' % (zone)])
@@ -132,6 +132,7 @@ for zone, context in contexts.items():
         if z == zone:
             continue
         remote_dns_ips[z+'.svc.cluster.local'] = [ip]
+        remote_dns_ips[z+'-failover.svc.cluster.local'] = [ip]
     print(remote_dns_ips)
     config_filename = '%s/dns-configmap-%s.yaml' % (generated_files_dir, zone)
     with open(config_filename, 'w') as f:
