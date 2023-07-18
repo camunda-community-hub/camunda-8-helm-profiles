@@ -80,7 +80,7 @@ clean-kube: clean-kube-gke
 clean-fail-over-region1: use-kube
 	-helm --namespace $(namespace)-failover uninstall $(release)
 	-kubectl delete -n $(namespace)-failover pvc -l app.kubernetes.io/instance=$(release)
-	-kubectl create namespace $(namespace)-failover
+	-kubectl delete namespace $(namespace)-failover
 
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
