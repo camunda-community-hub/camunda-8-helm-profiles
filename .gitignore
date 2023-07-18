@@ -33,5 +33,6 @@ keycloak/keycloak-values.yaml
 **/operate-configmap-webapp.yaml
 **/operate-deployment-importer-archiver.yaml
 **/operate-deployment-webapp.yaml
+**/operate-service-webapp.yaml
 
 
