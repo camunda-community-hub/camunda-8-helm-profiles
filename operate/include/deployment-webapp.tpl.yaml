@@ -10,7 +10,7 @@ metadata:
   annotations:
     {}
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
   selector:
@@ -93,3 +93,17 @@ spec:
         configMap:
           name: operate-configmap-webapp
           defaultMode: 484
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app.kubernetes.io/app"
+                    operator: In
+                    values:
+                      - operate
+                  - key: "app.kubernetes.io/tier"
+                    operator: In
+                    values:
+                      - webapp
+              topologyKey: "kubernetes.io/hostname"

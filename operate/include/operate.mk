@@ -16,8 +16,14 @@ operate-deployment-webapp.yaml: fqdn
 operate-service-webapp.yaml:
 	cp $(root)/operate/include/service-webapp.tpl.yaml ./operate-service-webapp.yaml;
 
+operate-camunda-ingress.yaml:
+	cp $(root)/operate/include/camunda-ingress.tpl.yaml ./operate-camunda-ingress.yaml;
+
+operate-operate-ingress.yaml:
+	cp $(root)/operate/include/operate-ingress.tpl.yaml ./operate-operate-ingress.yaml;
+
 .PHONY: operate-yaml-files
-operate-yaml-files: operate-configmap-importer-archiver.yaml operate-configmap-webapp.yaml operate-deployment-importer-archiver.yaml operate-deployment-webapp.yaml operate-service-webapp.yaml #operate-service-importer-archiver.yaml
+operate-yaml-files: operate-configmap-importer-archiver.yaml operate-configmap-webapp.yaml operate-deployment-importer-archiver.yaml operate-deployment-webapp.yaml operate-camunda-ingress.yaml operate-operate-ingress.yaml operate-service-webapp.yaml #operate-service-importer-archiver.yaml
 
 .PHONY: clean-operate-yaml-files
 operate-clean-yaml-files:
@@ -27,6 +33,8 @@ operate-clean-yaml-files:
 	rm ./operate-deployment-webapp.yaml;
 #	rm ./operate-service-importer-archiver.yaml;
 	rm ./operate-service-webapp.yaml;
+	rm ./operate-camunda-ingress.yaml;
+	rm ./operate-operate-ingress.yaml;
 
 .PHONY: operate-delete
 operate-delete:
@@ -41,6 +49,8 @@ operate-install: operate-yaml-files
 	kubectl apply -f ./operate-deployment-webapp.yaml
 #	kubectl apply -f ./operate-service-importer-archiver.yaml
 	kubectl apply -f ./operate-service-webapp.yaml
+	kubectl apply -f ./operate-camunda-ingress.yaml
+	kubectl apply -f ./operate-operate-ingress.yaml
 
 .PHONY: operate-clean
 operate-clean: operate-clean-yaml-files
