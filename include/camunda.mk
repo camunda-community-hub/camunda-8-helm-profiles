@@ -4,7 +4,7 @@ camunda: namespace
 	helm repo add camunda https://helm.camunda.io
 	helm repo update camunda
 	helm search repo $(chart)
-	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds --version 8.2.3
+	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
 # List Helm Chart versions + Camunda Platform versions
 .PHONY: versions
