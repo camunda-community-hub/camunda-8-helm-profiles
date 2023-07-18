@@ -45,7 +45,7 @@ external-urls: external-urls-no-ingress
 
 ### <--- End of setup --->
 
-#: Create temporary brokers that impersonate half of the ones lost in region 1
+#: Create temporary brokers that impersonate half of the ones lost in region 1 to backfill and restore quorum
 fail-over-region1:
 	-kubectl create namespace $(namespace)-failover
 	-kubectl config set-context --current --namespace=$(namespace)-failover
