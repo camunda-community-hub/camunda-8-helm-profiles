@@ -70,8 +70,7 @@ fail-back-to-normal: use-kube update
 	kubectl delete pod camunda-zeebe-0 -n $(namespace)
 	kubectl delete pod camunda-zeebe-2 -n $(namespace)
 
-# Remove nginx ingress and Camunda from cluster
-.PHONY: clean
+#: Remove Camunda from cluster
 clean: use-kube clean-camunda
 
 .PHONY: clean-kube
@@ -87,3 +86,7 @@ include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
 include $(root)/bpmn/deploy-models.mk
 include $(root)/connectors/connectors.mk
+
+.PHONY: elastic-nodes
+elastic-nodes:
+	kubectl exec elasticsearch-region0-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
