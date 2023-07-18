@@ -29,4 +29,9 @@ cfssl/certs
 keycloak/keycloak-secrets.yaml
 keycloak/keycloak-values.yaml
 **/oauth2-values.yaml
+**/operate-configmap-importer-archiver.yaml
+**/operate-configmap-webapp.yaml
+**/operate-deployment-importer-archiver.yaml
+**/operate-deployment-webapp.yaml
+
 

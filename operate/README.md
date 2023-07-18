@@ -7,13 +7,14 @@ The Camunda 8 Operate webapp [consists of 3 modules](https://docs.camunda.io/doc
 
 This directory provides scripts that demonstrate how to horizontally scale Operate so that 1 instance of the importer/archiver, and 2 instances of the webapp are running. 
 
+These scripts are not intended to be used in Production, they are for reference only. Feel free to copy and customize for your environment and your specific requirements. 
+
 ## Overview
 
-Here's a high level description of how you can use the files in this directory to scale Operate
-
 1. Use the [Camunda 8 Helm Charts](https://github.com/camunda/camunda-platform-helm) to install a full environment (including Operate)
-2. Run the make target named `remove-operate` to remove the existing configmap and deployment installed by the Camunda 8 Helm Charts
-3. Run the make target named `scale-operate` to use kubectl to apply the `deployment-*.yaml` and `configmap-*.yaml` files found in this directory
+2. Run the [make target](./include/operate.mk) `make operate-delete` to remove the existing configmap and deployment installed by the Camunda 8 Helm Charts
+3. Edit the [yaml files](./include) and update them to be relevant for your existing kubernetes cluster and Camunda environment
+4. Run the [make target](./include/operate.mk) `make operate-install` to use kubectl to apply the `deployment-*.yaml` and `configmap-*.yaml` files found in this directory
 
 ## Configuration Defaults
 
