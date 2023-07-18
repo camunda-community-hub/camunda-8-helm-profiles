@@ -82,11 +82,16 @@ zeebe-gateway:
 elasticsearch:
   enabled: true
 #  imageTag: 7.17.3
-  replicas: 1
-  minimumMasterNodes: 1
+  replicas: 2
+  masterService: "elasticsearch-region1"
   # Allow no backup for single node setups
   clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-
+  nodeGroup: region1
+  extraEnvs:
+    - name: discovery.seed_hosts
+      value: "elasticsearch-region0-headless.europe-west4-b.svc.cluster.local, elasticsearch-region1-headless.europe-west1-b.svc.cluster.local"
+    - name: cluster.initial_master_nodes
+      value: ""
   resources:
     requests:
       cpu: "100m"
