@@ -68,3 +68,4 @@ external-urls-all: fqdn
 	@echo Optimize: https://$(fqdn)/optimize
 	@echo Connectors: https://$(fqdn)/inbound
 	@echo Zeebe GRPC: zbctl status --address $(fqdn):443
+	@echo Auth URL: https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token
