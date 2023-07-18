@@ -25,13 +25,18 @@ template:
 .PHONY: keycloak-password
 keycloak-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode))
-	@echo KeyCloak Admin password: $(kcPassword)	
+	@echo KeyCloak Admin password: $(kcPassword)
 
 .PHONY: config-keycloak
 config-keycloak: keycloak-password
 	kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=keycloak --timeout=600s
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/camunda-platform -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
+
+.PHONY: zeebe-password
+zeebe-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 --decode))
+	@echo Zeebe Identity password: $(kcPassword)
 
 .PHONY: update
 update:
