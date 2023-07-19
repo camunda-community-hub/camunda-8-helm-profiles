@@ -89,8 +89,6 @@ elasticsearch:
   extraEnvs:
     - name: discovery.seed_hosts
       value: "elasticsearch-region0-headless.europe-west4-b.svc.cluster.local, elasticsearch-region1-headless.europe-west1-b.svc.cluster.local"
-    - name: cluster.initial_master_nodes
-      value: ""
 
   resources:
     requests:
