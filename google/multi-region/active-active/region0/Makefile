@@ -52,7 +52,10 @@ fail-over-region1:
 	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
 	  --set global.installationType=failOver \
 	  --set global.regionId=1 \
-	  --set elasticsearch.enable=false
+	  --set elasticsearch.enabled=false \
+	  --set operate.enabled=false \
+	  --set tasklist.enabled=false \
+	  --set zeebe-gateway.enabled=false
 # TODO connect to existing elastic in current region
 # TODO importers
 

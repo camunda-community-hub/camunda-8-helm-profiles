@@ -17,7 +17,8 @@ global:
       # Disable the Identity authentication
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
-  elasticsearch.url: http://elasticsearch-region1:9200
+  elasticsearch:
+    host: elasticsearch-region1
 
 operate:
   env:

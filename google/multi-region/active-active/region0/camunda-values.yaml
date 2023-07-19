@@ -17,20 +17,8 @@ global:
       # Disable the Identity authentication
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
-  elasticsearch.url: http://elasticsearch-region0:9200
-
-operate:
-  env:
-    - name: CAMUNDA_OPERATE_ELASTICSEARCH_URL
-      value: "http://elasticsearch-region0:9200"
-    - name: CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL
-      value: "http://elasticsearch-region0:9200"
-tasklist:
-  env:
-    - name: CAMUNDA_TASKLIST_ELASTICSEARCH_URL
-      value: "http://elasticsearch-region0:9200"
-    - name: CAMUNDA_TASKLIST_ZEEBEELASTICSEARCH_URL
-      value: "http://elasticsearch-region0:9200"
+  elasticsearch:
+    host: elasticsearch-region0
 
 identity:
   enabled: false
@@ -103,6 +91,8 @@ elasticsearch:
   extraEnvs:
     - name: discovery.seed_hosts
       value: "elasticsearch-region0-headless.europe-west4-b.svc.cluster.local, elasticsearch-region1-headless.europe-west1-b.svc.cluster.local"
+    - name: cluster.initial_master_nodes
+      value: ""
 
   resources:
     requests:
