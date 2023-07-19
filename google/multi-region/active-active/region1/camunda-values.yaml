@@ -6,7 +6,6 @@
 # This is a very small cluster useful for running locally and for development
 
 global:
-
   # number of regions that support the zeebe platform (2 for minimal multi-region setup)
   regions: 2
   # id of the region should start at 0 for easy computation. With 2 regions, you would have region 0 and 1.
@@ -18,6 +17,20 @@ global:
       # Disable the Identity authentication
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
+  elasticsearch.url: http://elasticsearch-region1:9200
+
+operate:
+  env:
+    - name: CAMUNDA_OPERATE_ELASTICSEARCH_URL
+      value: "http://elasticsearch-region1:9200"
+    - name: CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL
+      value: "http://elasticsearch-region1:9200"
+tasklist:
+  env:
+    - name: CAMUNDA_TASKLIST_ELASTICSEARCH_URL
+      value: "http://elasticsearch-region1:9200"
+    - name: CAMUNDA_TASKLIST_ZEEBEELASTICSEARCH_URL
+      value: "http://elasticsearch-region1:9200"
 
 identity:
   enabled: false
