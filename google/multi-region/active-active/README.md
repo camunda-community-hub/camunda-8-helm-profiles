@@ -4,26 +4,65 @@
 
 ### Initial Setup
 
-#### Region 0
+#### Kubernetes Clusters
 
-Edit [region0/Makefile](region0/Makefile) and adjust `project`, `region`, and `clusterName`.
+Edit [region0/Makefile](region0/Makefile) and [region1/Makefile](region1/Makefile)
+and adjust `project`, `region`, and `clusterName`.
 We recommend to include `region-0` into the `clusterName`
 to abstract away from physical region names like `europe-west1-b`.
+The physical region name will however be used as a Kubernetes namespace.
 
-Edit [region0/camunda-values.yaml](region0/camunda-values.yaml)
-
-```
+```sh
+cd region0
 make kube
+cd ../region1
+make kube
+cd ..
+```
+
+Edit the Python script [setup-zeebe.py](./setup-zeebe.py)
+and adjust the lists of `contexts` and `regions`.
+To get the names of your kubectl "contexts" for each of your clusters, run:
+
+```sh
+kubectl config get-contexts
+```
+
+Then run that script to adjust the DNS configuration of both Kubernetes clusters
+so that they can resolve each others service names.
+
+```sh
+./setup-zeebe.py
+```
+
+#### Installing Camunda
+
+Edit [region0/camunda-values.yaml](region0/camunda-values.yaml) and adjust
+``
+
+```sh
+cd region0
+make
+cd ../region1
 make
 ```
 
 #### Verification
+
+##### Zeebe
+
 You can check the status of the Zeebe cluster using:
+
 ```sh
 make zbctl-status
 ```
-The output should look something like this (Note how brokers alternate between two regions `europe-west4-b` and `europe-west1-b` ):
-```
+
+The output should look something like this
+(Note how brokers alternate between two Kubernetes namespaces
+`europe-west4-b` and `europe-west1-b` that represent the physical regions,
+in which they are hosted.):
+
+```sh
 Cluster size: 8
 Partitions count: 8
 Replication factor: 4
@@ -79,7 +118,10 @@ Brokers:
     Partition 8 : Follower, Healthy
 ```
 
+##### Elasticsearch
+
 You can check the status of the Elasticsearch cluster using:
+
 ```sh
 make elastic-nodes
 ```
