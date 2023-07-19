@@ -20,7 +20,7 @@ namespace:
 .PHONY: template
 template:
 	helm template $(release) $(chart) -f $(chartValues) --skip-crds --output-dir .
-	@echo "To apply the templates use: kubectl apply -f camunda-platform/templates/ -n $(namespace)"
+	@echo "To apply the templates use: kubectl apply -f camunda-platform --recursive -n $(namespace)"
 
 .PHONY: keycloak-password
 keycloak-password:
