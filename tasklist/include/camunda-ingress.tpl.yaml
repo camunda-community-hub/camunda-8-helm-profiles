@@ -33,13 +33,13 @@ spec:
                   number: 80
             path: /identity
             pathType: Prefix
-#          - backend:
-#              service:
-#                name: camunda-operate
-#                port:
-#                  number: 80
-#            path: /operate
-#            pathType: Prefix
+          - backend:
+              service:
+                name: camunda-operate
+                port:
+                  number: 80
+            path: /operate
+            pathType: Prefix
           - backend:
               service:
                 name: camunda-optimize
@@ -47,13 +47,13 @@ spec:
                   number: 80
             path: /optimize
             pathType: Prefix
-          - backend:
-              service:
-                name: camunda-tasklist
-                port:
-                  number: 80
-            path: /tasklist
-            pathType: Prefix
+#          - backend:
+#              service:
+#                name: camunda-tasklist
+#                port:
+#                  number: 80
+#            path: /tasklist
+#            pathType: Prefix
   tls:
     - hosts:
         - gke.upgradingdave.com

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasklist-importer-archiver
+  labels:
+    app.kubernetes.io/app: tasklist-importer-archiver
+    app.kubernetes.io/component: tasklist-importer-archiver
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    name: metrics
+  selector:
+    app.kubernetes.io/component: tasklist-importer-archiver
