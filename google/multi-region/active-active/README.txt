@@ -1,8 +1,13 @@
+# Multi-Region Active-Active Setup for Camunda 8
 
-make templates to get the templates in the region folder
-Reduce the number of replicas in the zeebe statefullset to half.
-Make namespace
-kubectl apply -f camunda-platform --recursive -n camunda
+## Special Case: Dual-Region Active-Active
 
-check status from the web console : 
-gcloud container clusters get-credentials cdame-region-1 --zone europe-west4-b --project camunda-researchanddevelopment  && kubectl exec camunda-zeebe-gateway-6d766454c8-jnrxz --namespace camunda -c zeebe-gateway -- zbctl status --insecure
+You can check the status of the Zeebe cluster using:
+```sh
+make zbctl-status
+```
+
+You can check the status of the Elasticsearch cluster using:
+```sh
+make elastic-nodes
+```
