@@ -38,7 +38,7 @@ so that they can resolve each others service names.
 #### Installing Camunda
 
 Edit [region0/camunda-values.yaml](region0/camunda-values.yaml) and adjust
-``
+`ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS` and `elasticsearch.discovery.seed_hosts`
 
 ```sh
 cd region0
