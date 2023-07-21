@@ -93,3 +93,11 @@ include $(root)/connectors/connectors.mk
 .PHONY: elastic-nodes
 elastic-nodes:
 	kubectl exec elasticsearch-region0-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
+
+.PHONY: elastic-replicas2
+elastic-replicas2:
+	kubectl exec elasticsearch-region0-0 -n $(namespace) -c elasticsearch -- curl -X PUT http://localhost:9200/_settings -d '{"index.number_of_replicas": 2}' -H 'Content-Type: application/json'
+
+.PHONY: elastic-replicas3
+elastic-replicas3:
+	kubectl exec elasticsearch-region0-0 -n $(namespace) -c elasticsearch -- curl -X PUT http://localhost:9200/_settings -d '{"index.number_of_replicas": 3}' -H 'Content-Type: application/json'

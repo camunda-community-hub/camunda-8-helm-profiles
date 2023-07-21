@@ -120,6 +120,11 @@ Brokers:
 
 ##### Elasticsearch
 
+Multiple options exist for Elasticsearch.
+1st option (DSICARDED): Run a stretched ES cluster on both region. This approach is not supported by ES : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
+2nd option : Running to instances of ES in region0 and 1. Having 2 exporters that target the 2 ES clusters. In case of disaster, restoring ES state would require a backup of remaining region and restore on disastered region of ES.
+3rd option : Run a single instance of ES in region0 and replicate it with Cross Cluster Replication to region1. In case of loosing region0, we would need to activate region1. To avoid changing ES endpoints, a LB would be necessary
+
 You can check the status of the Elasticsearch cluster using:
 
 ```sh

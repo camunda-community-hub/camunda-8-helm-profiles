@@ -17,8 +17,6 @@ global:
       # Disable the Identity authentication
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
-  elasticsearch:
-    host: elasticsearch-region0
 
 identity:
   enabled: false
@@ -56,7 +54,12 @@ zeebe:
       value: "0.87"
     - name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
       value: "camunda-zeebe-0.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-2.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-3.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.europe-west1-b.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.europe-west1-b.svc.cluster.local:26502, camunda-zeebe-2.camunda-zeebe.europe-west1-b.svc.cluster.local:26502, camunda-zeebe-3.camunda-zeebe.europe-west1-b.svc.cluster.local:26502"
-  
+    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_CLASSNAME
+      value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
+    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL
+      value: "http://elasticsearch-master.europe-west1-b.svc.cluster.local:9200"
+    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_BULK_SIZE
+      value: "1"
   pvcSize: 1Gi
 
   resources:
@@ -83,16 +86,9 @@ zeebe-gateway:
 elasticsearch:
   enabled: true
 #  imageTag: 7.17.3
-  replicas: 2
-  masterService: "elasticsearch-region0"
+  replicas: 1
   # Allow no backup for single node setups
   clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-  nodeGroup: region0
-  extraEnvs:
-    - name: discovery.seed_hosts
-      value: "elasticsearch-region0-headless.europe-west4-b.svc.cluster.local, elasticsearch-region1-headless.europe-west1-b.svc.cluster.local"
-    - name: cluster.initial_master_nodes
-      value: ""
 
   resources:
     requests:
