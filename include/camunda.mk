@@ -59,11 +59,15 @@ update:
 	  --set connectors.inbound.auth.existingSecret=$CONNECTORS_SECRET
 
 .PHONY: rebalance-leaders
-rebalance-leaders:
-	kubectl port-forward --namespace camunda $$(kubectl get pod --namespace camunda --selector="app=camunda-platform,app.kubernetes.io/component=zeebe-gateway,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=zeebe-gateway,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') 5433:9600 &
+rebalance-leaders: # TODO make this a k8s job
+	kubectl port-forward svc/$(release)-zeebe-gateway 9600:9600 -n $(namespace) &
 	sleep 10
-	curl -X POST http://localhost:5433/actuator/rebalance/
-	kill $$(ps aux | grep '[k]ubectl' | awk '{print $$2}')
+	curl -X POST http://localhost:9600/actuator/rebalance
+	kill $$(ps aux | grep '[k]ubectl' | awk '{print $$2}') 
+
+.PHONY: curl-rebalance # can be used together with `make port-actuator`
+curl-rebalance:
+	curl -X POST http://localhost:9600/actuator/rebalance
 
 .PHONY: uninstall-camunda
 uninstall-camunda:
