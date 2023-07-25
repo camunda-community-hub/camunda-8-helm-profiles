@@ -35,10 +35,17 @@ so that they can resolve each others service names.
 ./setup-zeebe.py
 ```
 
+#### Enabling Firewall rules
+To allow communication between the zeebe nodes and from the zeebe nodes to the Elasticsearch, we need to authorize the traffic.
+The rule should have the correct :
+- Target tags : can be retrieved from VM Instance => Network tags
+- IP ranges : can be retrieved from cluster detailed => Cluster Pod IPv4 range (default)
+- Protocols and ports : tcp:26502 and tcp:9200
+
 #### Installing Camunda
 
 Edit [region0/camunda-values.yaml](region0/camunda-values.yaml) and adjust
-`ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS` and `elasticsearch.discovery.seed_hosts`
+`ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS`
 
 ```sh
 cd region0
@@ -118,15 +125,90 @@ Brokers:
     Partition 8 : Follower, Healthy
 ```
 
+
+##### Operate
+
+Operate has a defect for now and if the zeebe brokers negociation takes too long, Operate will look "healthy" but will not start the importer. You may need to delete the operate pod to force its recreation once the zeebe cluster is healthy.
+
+
 ##### Elasticsearch
 
-Multiple options exist for Elasticsearch.
-1st option (DSICARDED): Run a stretched ES cluster on both region. This approach is not supported by ES : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
-2nd option : Running to instances of ES in region0 and 1. Having 2 exporters that target the 2 ES clusters. In case of disaster, restoring ES state would require a backup of remaining region and restore on disastered region of ES.
-3rd option : Run a single instance of ES in region0 and replicate it with Cross Cluster Replication to region1. In case of loosing region0, we would need to activate region1. To avoid changing ES endpoints, a LB would be necessary
+Elastic doesn't support a dual active active setup. You would need a tie breaker in a 3rd region : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
+Cross Cluster Replication is an Active-Passive setup that doesn't fit the current requirement.
+
+So the current approach would be to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters. Start the failOver.
+Once the failback is started, resume the exporters.
 
 You can check the status of the Elasticsearch cluster using:
 
 ```sh
 make elastic-nodes
 ```
+
+### Disaster
+
+In case of disaster, the procedure would be to :
+- pause exporters
+- start temporary nodes that will restore the quorum in the surviving region
+- restore missing nodes in the disastered region
+- resume exporters
+- clean the temporary nodes from the surviving region
+- restore the initial setup
+
+##### pause exporters
+
+TODO: write a makefile target to pause exporters in the surviving region
+
+
+##### start temporary nodes (failOver)
+
+In the surviving region, use the "make fail-over-regionX" to create the temporary nodes with the partitions to restore the qorum.
+If region0 survived, the command would be
+
+```sh
+cd region0
+make fail-over-region1
+```
+
+If region1 survived, the command would be
+
+```sh
+cd region1
+make fail-over-region0
+```
+
+##### restore missing nodes in the disastered region (failBack)
+
+Once you're able to restore the disaster region, you don't want to restart all nodes. Else you will end-up with some brokerIds duplicated (from the failOver). So instead, you want to restart only missing brokerIds.
+```sh
+cd region0
+make fail-back
+```
+
+> :information_source: This will indeed create all the brokers. But half of them (the ones in the failOver) will not be started (start script is altered in the configmap)
+
+##### resume exporters
+
+You now have 2 active regions again and you may want to resume the exporters. 
+TODO: write a makefile target to resume exporters in the surviving region
+TODO : before resuming, it would be required to snapshot the surviving Elastic and restore it in the disastered region. Describe the procedure
+
+##### clean the temporary nodes (prepare transition to initial state)
+
+You can safely delete the temporary nodes from surviving region as the quorum is garantied by the restored brokers in the disastered region.
+
+```sh
+cd region0
+make clean-fail-over-region1
+```
+
+##### restore the initial setup (back to normal)
+
+You now want to recreate the missing brokers in the disastered region.
+
+```sh
+cd region1
+make fail-back-to-normal
+```
+
+> :information_source: This will change the startup script in the configmap and delete the considered pods (to force recreation). The pod deletion should be changed depending on your initial setup.
