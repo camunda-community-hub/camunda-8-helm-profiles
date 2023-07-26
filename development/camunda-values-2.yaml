@@ -42,7 +42,8 @@ zeebe:
   partitionCount: 1
   replicationFactor: 1
   pvcSize: 1Gi
-
+  affinity:
+    podAntiAffinity: null
   resources:
     requests:
       cpu: "100m"
