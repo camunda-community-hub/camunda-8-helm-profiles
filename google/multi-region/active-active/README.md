@@ -1,5 +1,7 @@
 # Multi-Region Active-Active Setup for Camunda 8
 
+Note: This Helm profile uses a [slightly-modified version of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/pull/806).
+
 ## Special Case: Dual-Region Active-Active
 
 ### Initial Setup
