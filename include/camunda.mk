@@ -187,3 +187,12 @@ external-urls-no-ingress:
 	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
 	@echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+
+.PHONY: image-pull-secret
+image-pull-secret: namespace
+	kubectl create secret docker-registry camunda-docker-registry \
+	  --docker-server=$(camundaDockerRegistryUrl) \
+	  --docker-username=$(camundaDockerRegistryUsername) \
+	  --docker-password=$(camundaDockerRegistryPassword) \
+	  --docker-email=$(camundaDockerRegistryEmail) \
+	  --namespace $(namespace)
