@@ -4,6 +4,8 @@ Note: This Helm profile uses a [slightly-modified version of Camunda's Helm char
 
 ## Special Case: Dual-Region Active-Active
 
+We are basing our dual-region active-active setup on standard Kubernetes features that are cloud-provider-independent. The heavy-lifting of the setup is done by kubectl and Helm. Python and Make are just used for scripting combinations of kubectl and Helm. These scripts could be easily ported to Infrastructure as Code languages. You can run `make --dry-run` on any of the Makefile targets mentioned below to see which kubectl and Helm commands are used.
+
 ### Initial Setup
 
 #### Kubernetes Clusters
