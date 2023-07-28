@@ -103,7 +103,7 @@ curl-rebalance:
 .PHONY: pause-exporters
 pause-exporters:
 	kubectl exec $$(kubectl get pod --namespace $(namespace) --selector="app=camunda-platform,app.kubernetes.io/component=zeebe-gateway,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=zeebe-gateway,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') --namespace $(namespace) -c zeebe-gateway -- curl -i localhost:9600/actuator/exporting/pause -XPOST
-	
+
 .PHONY: resume-exporters
 resume-exporters:
 	kubectl exec $$(kubectl get pod --namespace $(namespace) --selector="app=camunda-platform,app.kubernetes.io/component=zeebe-gateway,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=zeebe-gateway,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') --namespace $(namespace) -c zeebe-gateway -- curl -i localhost:9600/actuator/exporting/resume -XPOST

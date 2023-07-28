@@ -92,12 +92,12 @@ include $(root)/connectors/connectors.mk
 
 .PHONY: elastic-nodes
 elastic-nodes:
-	kubectl exec elasticsearch-region1-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
 
-.PHONY: elastic-replicas2
-elastic-replicas2:
-	kubectl exec elasticsearch-region1-0 -n $(namespace) -c elasticsearch -- curl -X PUT http://localhost:9200/_settings -d '{"index.number_of_replicas": 2}' -H 'Content-Type: application/json'
+.PHONY: prepare-elastic-backup-key
+prepare-elastic-backup-key:
+	kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
 
-.PHONY: elastic-replicas3
-elastic-replicas3:
-	kubectl exec elasticsearch-region1-0 -n $(namespace) -c elasticsearch -- curl -X PUT http://localhost:9200/_settings -d '{"index.number_of_replicas": 3}' -H 'Content-Type: application/json'
+.PHONY: prepare-elastic-backup-repo
+prepare-elastic-backup-repo:
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "cdame-elasticsearch-backup", "base_path": "backups"}}'

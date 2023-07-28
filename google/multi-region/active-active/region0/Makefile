@@ -31,7 +31,7 @@ chart ?= $(root)/../camunda-platform-helm-multi-region/charts/camunda-platform
 chartValues ?= camunda-values.yaml
 
 .PHONY: all
-all: use-kube camunda external-urls
+all: use-kube namespace prepare-elastic-backup-key camunda external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -92,12 +92,17 @@ include $(root)/connectors/connectors.mk
 
 .PHONY: elastic-nodes
 elastic-nodes:
-	kubectl exec elasticsearch-region0-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
 
-.PHONY: elastic-replicas2
-elastic-replicas2:
-	kubectl exec elasticsearch-region0-0 -n $(namespace) -c elasticsearch -- curl -X PUT http://localhost:9200/_settings -d '{"index.number_of_replicas": 2}' -H 'Content-Type: application/json'
+.PHONY: prepare-elastic-backup-key
+prepare-elastic-backup-key:
+	kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
 
-.PHONY: elastic-replicas3
-elastic-replicas3:
-	kubectl exec elasticsearch-region0-0 -n $(namespace) -c elasticsearch -- curl -X PUT http://localhost:9200/_settings -d '{"index.number_of_replicas": 3}' -H 'Content-Type: application/json'
+.PHONY: prepare-elastic-backup-repo
+prepare-elastic-backup-repo:
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "cdame-elasticsearch-backup", "base_path": "backups"}}'
+	
+#not working yet
+.PHONY: operate-snapshot
+operate-snapshot:
+	kubectl exec $$(kubectl get pod --namespace $(namespace) --selector="app=camunda-platform,app.kubernetes.io/component=operate,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=operate,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') --namespace $(namespace) -c operate -- curl -i http://localhost:8080/actuator/backups  -XPOST  -H 'Content-Type: application/json'  -d'{"backupId": 1}'

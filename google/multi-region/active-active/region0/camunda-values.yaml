@@ -18,6 +18,15 @@ global:
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
 
+operate:
+  env:
+    - name: CAMUNDA_OPERATE_BACKUP_REPOSITORYNAME
+      value: "camunda_backup"
+tasklist:
+  env:
+    - name: CAMUNDA_TASKLIST_BACKUP_REPOSITORYNAME
+      value: "camunda_backup"
+      
 identity:
   enabled: false
 
@@ -89,6 +98,44 @@ elasticsearch:
   enabled: true
 #  imageTag: 7.17.3
   replicas: 1
+  
+  extraInitContainers:
+    - name: install-gcs-plugin
+      image: elasticsearch:7.17.10
+      securityContext:
+        privileged: true
+      command:
+        - sh
+      args:
+        - -c
+        - |
+          ./bin/elasticsearch-plugin install --batch repository-gcs
+          ./bin/elasticsearch-keystore add-file -f gcs.client.default.credentials_file ./key/gcs_backup_key.json
+          cp -a ./config/elasticsearch.keystore /tmp/keystore
+      volumeMounts:
+        - name: plugins
+          mountPath: /usr/share/elasticsearch/plugins
+        - name: gcs-backup-key
+          mountPath: /usr/share/elasticsearch/key
+        - name: keystore
+          mountPath: /tmp/keystore
+  extraVolumes:
+    - name: plugins
+      emptyDir: {}
+    - name: keystore
+      emptyDir: {}
+    - name: gcs-backup-key
+      secret:
+        secretName: gcs-backup-key
+  extraVolumeMounts:
+    - name: plugins
+      mountPath: /usr/share/elasticsearch/plugins
+      readOnly: false
+    - mountPath: /usr/share/elasticsearch/key
+      name: gcs-backup-key
+    - name: keystore
+      mountPath: /usr/share/elasticsearch/config/elasticsearch.keystore
+      subPath: elasticsearch.keystore
   # Allow no backup for single node setups
   clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
 
