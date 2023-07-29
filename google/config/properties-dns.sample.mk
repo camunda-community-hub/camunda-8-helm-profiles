@@ -1,7 +1,7 @@
 # Configure the fully qualified domain name
 # The dnsLabel is the first part of the domain address. It will be used no matter what baseDomain you configure below
 # Sample value:
-#dnsLabel ?= gke-camunda
+# dnsLabel ?= your_dns_label
 
 ifndef dnsLabel
 $(error 'dnsLabel' is mandatory. To fix, edit file: $(root)/google/config/properties-dns.mk )
@@ -13,4 +13,4 @@ baseDomainName ?= nip.io
 
 # Another option is to replace baseDomainName with your own domain name
 # In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
-# baseDomainName ?= YOUR_CUSTOM_DOMAIN_NAME
+# baseDomainName ?= your_base_domain_name
