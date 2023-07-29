@@ -38,6 +38,11 @@ zeebe-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 --decode))
 	@echo Zeebe Identity password: $(kcPassword)
 
+.PHONY: connectors-password
+connectors-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-connectors-identity-secret" -o jsonpath="{.data.connectors-secret}" | base64 --decode))
+	@echo Connectors Identity password: $(kcPassword)
+
 .PHONY: update
 update:
 	helm repo update camunda
