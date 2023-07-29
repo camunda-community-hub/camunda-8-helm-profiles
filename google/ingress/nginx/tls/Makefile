@@ -71,6 +71,11 @@ kube: kube-gke metrics
 .PHONY: external-urls
 external-urls: external-urls-all
 
+# Test zeebe gateway
+.PHONY: zeebe-status
+zeebe-status: fqdn zeebe-password
+	zbctl status --address $(fqdn):443 --clientId zeebe --clientSecret $(kcPassword) --authzUrl https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token
+
 # Getting url for grafana is vendor specific
 .PHONY: url-grafana
 url-grafana:
