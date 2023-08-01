@@ -61,7 +61,7 @@ fail-over-region0:
 
 fail-back: use-kube namespace prepare-elastic-backup-key
 	helm install --namespace $(region) $(release) $(chart) -f $(chartValues)  --skip-crds \
-	  --set global.installationType=failBack
+	  --set global.installationType=failBack \
 	  --set operate.enabled=false \
 	  --set tasklist.enabled=false
 

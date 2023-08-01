@@ -158,9 +158,9 @@ io.grpc.StatusRuntimeException: RESOURCE_EXHAUSTED: Expected to execute the comm
 the procedure would be to :
 * start temporary nodes that will restore the quorum in the surviving region
 * restore disaster region
-	* take snapshots in the surviving region
     * restore missing nodes in the disastered region (wihtout operate and tasklist)
 	* pause exporters
+	* take Operate/Tasklist snapshots in the surviving region
 	* restore snapshots in the disastered region
 	* resume exporters
 * clean the temporary nodes from the surviving region
@@ -188,6 +188,8 @@ cd region1
 make fail-over-region0
 ```
 
+> :information_source: As a result, we have a working zeebe engine but the exporters are stucked because one ES target is not yet available.
+
 ##### restore missing nodes in the disastered region (failBack)
 
 Once you're able to restore the disaster region, you don't want to restart all nodes. Else you will end-up with some brokerIds duplicated (from the failOver). So instead, you want to restart only missing brokerIds.
@@ -196,13 +198,51 @@ cd region0
 make fail-back
 ```
 
-> :information_source: This will indeed create all the brokers. But half of them (the ones in the failOver) will not be started (start script is altered in the configmap)
+> :information_source: This will indeed create all the brokers. But half of them (the ones in the failOver) will not be started (start script is altered in the configmap). Operate and tasklist are not restarted on purpose to avoid touching ES indices.
+
+##### pause exporters
+
+You now have 2 active regions again and we want to have 2 consistent ES clusters. We will pause exporters, take snapshots in the surviving region, restore them into the restored region and resume exporters.
+```sh
+cd region0
+make pause-exporters
+```
+
+##### Take Operate/Tasklist snapshots
+
+A preriquisite is that ES is configured to take/restore snapshots (skip if that was already done) :
+```sh
+cd region0
+make prepare-elastic-backup-repo
+```
+
+We have paused exporters. We can safely take our applications snapshots. 
+```sh
+cd region0
+make operate-snapshot
+```
+
+##### Restore Operate/Tasklist snapshots in the lost region
+
+A preriquisite is that ES is configured to take/restore snapshots (skip if that was already done) :
+```sh
+cd region1
+make prepare-elastic-backup-repo
+```
+
+We can restore our applications snapshots
+```sh
+cd region1
+make restore-operate-snapshot
+```
 
 ##### resume exporters
 
-You now have 2 active regions again and you may want to resume the exporters. 
-TODO: write a makefile target to resume exporters in the surviving region
-TODO : before resuming, it would be required to snapshot the surviving Elastic and restore it in the disastered region. Describe the procedure
+We now have our 2 regions with our 2 ES in the same state and we can resume exporters
+```sh
+cd region0
+make resume-exporters
+```
 
 ##### clean the temporary nodes (prepare transition to initial state)
 
@@ -223,3 +263,12 @@ make fail-back-to-normal
 ```
 
 > :information_source: This will change the startup script in the configmap and delete the considered pods (to force recreation). The pod deletion should be changed depending on your initial setup.
+
+
+#### Some extra work before the magic appears :
+
+You need to [create Google Cloud Storage Bucket](https://console.cloud.google.com/storage/create-bucket). We named ours cdame-elasticsearch-backup. We created a regional one.
+
+You need to [set up a service account](https://console.cloud.google.com/iam-admin/serviceaccounts/create) that will be used by Elasticsearch to Backup. You should grant it the "Storage Admin" role to allow it to access the bucket.
+
+Download the JSON API key and save it in each region as gcs_backup_key.json
