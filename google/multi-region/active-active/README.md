@@ -151,13 +151,20 @@ make elastic-nodes
 
 ### Disaster
 
-In case of disaster, the procedure would be to :
-- pause exporters
-- start temporary nodes that will restore the quorum in the surviving region
-- restore missing nodes in the disastered region
-- resume exporters
-- clean the temporary nodes from the surviving region
-- restore the initial setup
+In case of disaster, loosing a region, attempting to start a process instance would lead to an exception :
+
+io.grpc.StatusRuntimeException: RESOURCE_EXHAUSTED: Expected to execute the command on one of the partitions, but all failed; there are no more partitions available to retry. Please try again. If the error persists contact your zeebe operator
+
+the procedure would be to :
+* start temporary nodes that will restore the quorum in the surviving region
+* restore disaster region
+	* take snapshots in the surviving region
+    * restore missing nodes in the disastered region (wihtout operate and tasklist)
+	* pause exporters
+	* restore snapshots in the disastered region
+	* resume exporters
+* clean the temporary nodes from the surviving region
+* restore the initial setup
 
 ##### pause exporters
 

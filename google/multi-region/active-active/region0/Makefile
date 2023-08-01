@@ -62,6 +62,8 @@ fail-over-region1:
 fail-back: use-kube
 	helm install --namespace $(region) $(release) $(chart) -f $(chartValues)  --skip-crds \
 	  --set global.installationType=failBack
+	  --set operate.enabled=false \
+	  --set tasklist.enabled=false
 
 # TODO what if something is running
 # require clean-camunda but without deleting PVCs or with because its dirty
@@ -102,7 +104,15 @@ prepare-elastic-backup-key:
 prepare-elastic-backup-repo:
 	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "cdame-elasticsearch-backup", "base_path": "backups"}}'
 	
-#not working yet
 .PHONY: operate-snapshot
 operate-snapshot:
-	kubectl exec $$(kubectl get pod --namespace $(namespace) --selector="app=camunda-platform,app.kubernetes.io/component=operate,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=operate,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') --namespace $(namespace) -c operate -- curl -i http://localhost:8080/actuator/backups  -XPOST  -H 'Content-Type: application/json'  -d'{"backupId": 1}'
+	kubectl exec $$(kubectl get pod --namespace $(namespace) --selector="app=camunda-platform,app.kubernetes.io/component=operate,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=operate,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') --namespace $(namespace) -c operate -- curl -i http://localhost:8080/actuator/backups  -XPOST  -H 'Content-Type: application/json'  -d'{"backupId": 3}'
+
+.PHONY: restore-operate-snapshot
+restore-operate-snapshot:
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_1_of_6/_restore?wait_for_completion=true
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_2_of_6/_restore?wait_for_completion=true
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_3_of_6/_restore?wait_for_completion=true
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_4_of_6/_restore?wait_for_completion=true
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_5_of_6/_restore?wait_for_completion=true
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_6_of_6/_restore?wait_for_completion=true
