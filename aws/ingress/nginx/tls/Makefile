@@ -50,11 +50,9 @@ chartValues ?= camunda-values-ingress-tls-aws.yaml
 .PHONY: all
 all: ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-tls-aws.yaml camunda annotate-ingress-tls external-urls
 
-# 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
-# BEWARE!!! Need to carefully run this manually: `make ebs-csi-controller-addon`
-# and remember to run `make metrics` after
+# 0 kube from aks.mk: Create Kubernetes cluster.
 .PHONY: kube
-kube: kube-aws oidc-provider
+kube: kube-aws install-ebs-csi-controller-addon oidc-provider metrics
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
 
