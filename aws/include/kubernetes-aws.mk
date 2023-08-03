@@ -10,6 +10,14 @@ clean-cluster-yaml:
 oidc-provider:
 	eksctl utils associate-iam-oidc-provider --cluster $(clusterName) --approve --region $(region)
 
+.PHONY: install-ebs-csi-controller-addon
+install-ebs-csi-controller-addon:
+ifeq "1.23" "$(word 1, $(sort 1.23 $(clusterVersion)))"
+	@echo "need to install ebs-csi-controller-addon";
+	make ebs-csi-controller-addon
+endif
+
+
 #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
 .PHONY: ebs-csi-controller-addon
 ebs-csi-controller-addon: ebs-csi-attach-role-policy create-ebs-csi-addon annotate-ebs-csi-sa restart-ebs-csi-controller
@@ -30,7 +38,9 @@ create-ebs-csi-role: create-ebs-csi-controller-role-def
 # 2. Create the IAM Role - to be run only once, the script will throw error if the role exists already
 	aws iam create-role \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) \
-	  --assume-role-policy-document file://"ebs-csi-driver-trust-policy.json"
+	  --assume-role-policy-document file://"ebs-csi-driver-trust-policy.json";
+	@echo "waiting 20 seconds to create the required role";
+	@sleep 20;
 
 .PHONY: ebs-csi-attach-role-policy
 ebs-csi-attach-role-policy: create-ebs-csi-role
@@ -43,7 +53,9 @@ ebs-csi-attach-role-policy: create-ebs-csi-role
 create-ebs-csi-addon: fetch-id-values
 # 4. Add the aws-ebs-csi-driver addon to the cluster
 	aws eks create-addon --cluster-name $(clusterName) --addon-name aws-ebs-csi-driver \
-	  --service-account-role-arn arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
+	  --service-account-role-arn arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName);
+	@echo "waiting 20 seconds to create the aws-ebs-csi-driver addon";
+	@sleep 20;
 
 .PHONY: annotate-ebs-csi-sa
 annotate-ebs-csi-sa: fetch-id-values
