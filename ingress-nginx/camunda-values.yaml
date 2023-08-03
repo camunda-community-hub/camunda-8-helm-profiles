@@ -58,13 +58,6 @@ webModeler:
   restapi:
     mail:
       fromAddress: YOUR_EMAIL
-  ingress:
-    enabled: true
-    webapp:
-      host: YOUR_HOSTNAME
-      tls:
-        enabled: true
-        secretName: tls-secret
     websockets:
       host: YOUR_HOSTNAME
       tls:
