@@ -43,5 +43,8 @@ keycloak/keycloak-values.yaml
 **/tasklist-service-webapp.yaml
 **/tasklist-tasklist-ingress.yaml
 **/tasklist-camunda-ingress.yaml
-google/config/*.mk
+google/config/properties.mk
+google/config/properties-dns.mk
+aws/config/properties.mk
+aws/config/properties-dns.mk
 
