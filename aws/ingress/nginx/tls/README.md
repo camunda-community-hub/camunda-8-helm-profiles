@@ -40,15 +40,9 @@ certEmail ?= YOUR_EMAIL@camunda.com
 > :information_source: **Note** Currently autoscaling for AWS is not working yet. For now, desiredSize is used to set
 > the starting size of the cluster
 
-If you need to create a new EKS Cluster, run `make kube`
+If you need to create a new EKS Cluster, run `make kube`. Note that the [EBS CSI Driver Addon](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) will be automatically configured for Kubernetes versions >= 1.23 
 
-> :information_source: **Warning** Persistent volumes will fail on AWS EKS version 1.23 unless the [EBS CSI Driver Addon](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) is installed and configured correctly
-
-If you need the EBS CSI Driver Addon, run the following: 
-
-```shell
-make ebs-csi-controller-addon
-```
+> :information_source: **Warning** Persistent volumes will fail on AWS EKS versions >=1.23 unless the [EBS CSI Driver Addon](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) is installed and configured correctly
 
 Once you have a EKS Cluster, run `make` to do the following:
 

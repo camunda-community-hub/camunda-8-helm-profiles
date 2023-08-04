@@ -17,7 +17,6 @@ ifeq "1.23" "$(word 1, $(sort 1.23 $(clusterVersion)))"
 	make ebs-csi-controller-addon
 endif
 
-
 #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
 .PHONY: ebs-csi-controller-addon
 ebs-csi-controller-addon: ebs-csi-attach-role-policy create-ebs-csi-addon annotate-ebs-csi-sa restart-ebs-csi-controller
@@ -77,6 +76,9 @@ kube-aws: cluster.yaml
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
 	kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
+.PHONY: kube
+kube: kube-aws install-ebs-csi-controller-addon oidc-provider metrics
 
 .PHONY: kube-upgrade
 kube-upgrade:

@@ -36,11 +36,7 @@ chartValues ?= camunda-values-aws.yaml
 .PHONY: all
 all: camunda-values-aws.yaml camunda external-urls
 
-# 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
-# BEWARE!!! Need to carefully run this manually: `make ebs-csi-controller-addon`
-.PHONY: kube
-kube: kube-aws oidc-provider
-
+# 0 kube from kubernetes-aws.mk: Create Kubernetes cluster
 
 # 1 create camunda-values-aws
 camunda-values-aws.yaml:
