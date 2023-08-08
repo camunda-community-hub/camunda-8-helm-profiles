@@ -43,6 +43,11 @@ connectors-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-connectors-identity-secret" -o jsonpath="{.data.connectors-secret}" | base64 --decode))
 	@echo Connectors Identity password: $(kcPassword)
 
+.PHONY: tasklist-password
+tasklist-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode))
+	@echo Tasklist Identity password: $(kcPassword)
+
 .PHONY: update
 update:
 	helm repo update camunda
