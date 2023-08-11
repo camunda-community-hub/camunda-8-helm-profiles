@@ -221,3 +221,28 @@ image-pull-secret: namespace
 	  --docker-password=$(camundaDockerRegistryPassword) \
 	  --docker-email=$(camundaDockerRegistryEmail) \
 	  --namespace $(namespace)
+
+# fqdn is generated using dnsLabel and baseDomainName
+.PHONY: all-values
+all-values: fqdn
+	sed -e "s/METRICS_ENABLED/$(metricsEnabled)/g" \
+	    -e "s/VERSION/$(version)/g" \
+	    -e "s/INGRESS_ENABLED/$(ingressEnabled)/g" \
+	    -e "s/FQDN/$(fqdn)/g" \
+	    -e "s/AUTH_ENABLED/$(authEnabled)/g" \
+	    -e "s/URL_SCHEME/$(urlScheme)/g" \
+	    -e "s/CLUSTER_SIZE/$(clusterSize)/g" \
+	    -e "s/PARTITION_COUNT/$(partitionCount)/g" \
+	    -e "s/REPLICATION_FACTOR/$(replicationFactor)/g" \
+	    -e "s/OPERATE_ENABLED/$(operateEnabled)/g" \
+	    -e "s/OPERATE_CONTEXT_PATH/$(operateContextPath)/g" \
+	    -e "s/TASKLIST_ENABLED/$(tasklistEnabled)/g" \
+	    -e "s/TASKLIST_CONTEXT_PATH/$(tasklistContextPath)/g" \
+	    -e "s/OPTIMIZE_ENABLED/$(optimizeEnabled)/g" \
+	    -e "s/OPTIMIZE_CONTEXT_PATH/$(optimizeContextPath)/g" \
+	    -e "s/CONNECTORS_ENABLED/$(connectorsEnabled)/g" \
+	    -e "s/CONNECTORS_CONTEXT_PATH/$(connectorsContextPath)/g" \
+	    -e "s/MODELER_ENABLED/$(modelerEnabled)/g" \
+	    -e "s/MODELER_CONTEXT_PATH/$(modelerContextPath)/g" \
+	    -e "s/EMAIL_ADDRESS/$(emailAddress)/g;" \
+	     $(root)/include/values.yaml > ./camunda-values-nginx-all.yaml
