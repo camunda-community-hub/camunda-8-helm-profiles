@@ -48,6 +48,17 @@ tasklist-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode))
 	@echo Tasklist Identity password: $(kcPassword)
 
+.PHONY: postgresql-password
+postgresql-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode))
+	@echo Postgresql password: $(kcPassword)
+
+# Connect to keycloak postgresql db
+#export PGUSER="postgres"
+#export PGPASSWORD="$(kubectl get secret --namespace camunda "camunda-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode)"
+#echo ${PGPASSWORD}
+#psql -p 5433 -h localhost
+
 .PHONY: update
 update:
 	helm repo update camunda
@@ -178,6 +189,10 @@ port-optimize:
 .PHONY: port-connectors
 port-connectors:
 	kubectl port-forward svc/$(release)-connectors 8084:8080 -n $(namespace)
+
+.PHONY: port-postgresql
+port-postgresql:
+	kubectl port-forward svc/$(release)-postgresql 5433:5432 -n $(namespace)
 
 .PHONY: pods
 pods:
