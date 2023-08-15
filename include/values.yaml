@@ -59,7 +59,7 @@ global:
     # Ingress.tls configuration for tls on the ingress resource https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: false
+      enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
       secretName: camunda-platform
 
@@ -121,14 +121,14 @@ global:
       # Identity.auth.publicIssuerUrl defines the token issuer (Keycloak) URL, where the services can request JWT tokens.
       # Should be publicly accessible, per default we assume a port-forward to Keycloak (18080) is created before login.
       # Can be overwritten if ingress is in use and an external IP is available.
-      publicIssuerUrl: "URL_SCHEME://YOUR_HOSTNAME/auth/realms/camunda-platform"
+      publicIssuerUrl: "URL_SCHEME://FQDN/auth/realms/camunda-platform"
 
       # Identity.auth.connectors configuration to configure Connectors authentication specifics on global level, which can be accessed by other sub-charts
       connectors:
         # Identity.auth.connectors.existingSecret can be used to use an own existing secret. If not set a random secret is generated.
         # The existing secret should contain an `connectors-secret` field, which will be used as secret for the Identity-Connectors communication.
         existingSecret: ""
-        redirectUrl: "URL_SCHEME://YOUR_HOSTNAMECONNECTORS_CONTEXT_PATH"
+        redirectUrl: "URL_SCHEME://FQDNCONNECTORS_CONTEXT_PATH"
 
       # Identity.auth.operate configuration to configure Operate authentication specifics on global level, which can be accessed by other sub-charts
       operate:
@@ -138,7 +138,7 @@ global:
         # Identity.auth.operate.redirectUrl defines the redirect URL, which is used by Keycloak to access Operate.
         # Should be publicly accessible, the default value works if a port-forward to Operate is created to 8081.
         # Can be overwritten if ingress is in use and an external IP is available.
-        redirectUrl: "URL_SCHEME://YOUR_HOSTNAMEOPERATE_CONTEXT_PATH"
+        redirectUrl: "URL_SCHEME://FQDNOPERATE_CONTEXT_PATH"
 
       # Identity.auth.tasklist configuration to configure Tasklist authentication specifics on global level, which can be accessed by other sub-charts
       tasklist:
@@ -148,7 +148,7 @@ global:
         # Identity.auth.tasklist.redirectUrl defines the root (or redirect) URL, which is used by Keycloak to access Tasklist.
         # Should be publicly accessible, the default value works if a port-forward to Tasklist is created to 8082.
         # Can be overwritten if ingress is in use and an external IP is available.
-        redirectUrl: "URL_SCHEME://YOUR_HOSTNAMETASKLIST_CONTEXT_PATH"
+        redirectUrl: "URL_SCHEME://FQDNTASKLIST_CONTEXT_PATH"
 
       # Identity.auth.optimize configuration to configure Optimize authentication specifics on global level, which can be accessed by other sub-charts
       optimize:
@@ -158,14 +158,14 @@ global:
         # Identity.auth.optimize.redirectUrl defines the root (or redirect) URL, which is used by Keycloak to access Optimize.
         # Should be publicly accessible, the default value works if a port-forward to Optimize is created to 8083.
         # Can be overwritten if ingress is in use and an external IP is available.
-        redirectUrl: "URL_SCHEME://YOUR_HOSTNAMEOPTIMIZE_CONTEXT_PATH"
+        redirectUrl: "URL_SCHEME://FQDNOPTIMIZE_CONTEXT_PATH"
 
       # Identity.auth.webModeler configuration to configure Web Modeler authentication specifics on global level, which can be accessed by other sub-charts
       webModeler:
         # Identity.auth.webModeler.redirectUrl defines the root URL which is used by Keycloak to access Web Modeler.
         # Should be publicly accessible, the default value works if a port-forward to Web Modeler is created to 8084.
         # Can be overwritten if ingress is in use and an external IP is available.
-        redirectUrl: "URL_SCHEME://YOUR_HOSTNAMEMODELER_CONTEXT_PATH"
+        redirectUrl: "URL_SCHEME://FQDNMODELER_CONTEXT_PATH"
 
       # Identity.auth.zeebe configuration to configure Zeebe authentication specifics on global level, which can be accessed by other sub-charts
       zeebe:
@@ -586,7 +586,7 @@ zeebe-gateway:
   # Ingress configuration to configure the ingress resource
   ingress:
     # Ingress.enabled if true, an ingress resource is deployed with the Zeebe gateway deployment. Only useful if an ingress controller is available, like nginx.
-    enabled: false
+    enabled: INGRESS_ENABLED
     # Ingress.className defines the class or configuration of ingress which should be used by the controller
     className: nginx
     # Ingress.annotations defines the ingress related annotations, consumed mostly by the ingress controller
@@ -598,11 +598,11 @@ zeebe-gateway:
     path: /
     # Ingress.host can be used to define the host of the ingress rule. https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
     # If not specified the rules applies to all inbound http traffic, if specified the rule applies to that host.
-    host: ""
+    host: "FQDN"
     # Ingress.tls configuration for tls on the ingress resource https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: false
+      enabled: TSL_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
       secretName: camunda-platform-zeebe-gateway
 
@@ -698,7 +698,7 @@ operate:
     # Ingress.tls configuration for tls on the ingress resource https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: false
+      enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
       secretName: camunda-platform-operate
 
@@ -928,7 +928,7 @@ tasklist:
     host:
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: false
+      enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
       secretName: camunda-platform-tasklist
 
@@ -1091,7 +1091,7 @@ optimize:
     # Ingress.tls configuration for tls on the ingress resource https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: false
+      enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
       secretName: camunda-platform-optimize
 
@@ -1330,7 +1330,7 @@ identity:
     # Ingress.tls configuration for tls on the ingress resource https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: false
+      enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
       secretName: camunda-platform-identity
 
@@ -1439,7 +1439,7 @@ webModeler:
     registry: registry.camunda.cloud
     # Image.tag can be used to set the Docker image tag for the Web Modeler images (overwrites global.image.tag)
     # renovate: datasource=docker depName=camunda/web-modeler lookupName=registry.camunda.cloud/web-modeler-ee/modeler-restapi
-    tag: 8.2.5
+    tag:
     # Image.pullSecrets can be used to configure image pull secrets, see https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
     # Note: A secret will be required, if the Web Modeler images are pulled directly from Camunda's private registry.
     #
@@ -1447,7 +1447,8 @@ webModeler:
     #
     # pullSecrets:
     #   - name: registry-secret
-    pullSecrets: []
+    pullSecrets:
+      - name: camunda-docker-registry
 
   # ContextPath can be used to make Web Modeler available on a custom sub-path. This is mainly used to run the Camunda Platform web applications under a single domain.
   # Note: The WebSocket application will be exposed on the configured path suffixed with "-ws", e.g. "/modeler-ws"
@@ -1725,7 +1726,7 @@ webModeler:
     # Websockets.publicHost can be used to define the host on which the WebSockets server can be reached from the Web Modeler client in the browser.
     # The default value assumes that a port-forwarding to the websockets service has been created.
     # Note: The host will only be used if the Ingress resource for Web Modeler is disabled.
-    publicHost: localhost
+    publicHost: FQDN
     # Websockets.publicPort can be used to define the port number on which the WebSockets server can be reached from the Web Modeler client in the browser.
     # The default value assumes that a port-forwarding to the websockets service on port 8085 has been created.
     # Note: The port will only be used if the Ingress resource for Web Modeler is disabled.
@@ -1847,7 +1848,7 @@ webModeler:
       # Ingress.webapp.tls configuration for TLS on the ingress resource, see https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
       tls:
         # Ingress.webapp.tls.enabled if true, TLS will be configured on the ingress resource
-        enabled: false
+        enabled: TLS_ENABLED
         # Ingress.webapp.tls.secretName defines the secret name which contains the TLS private key and certificate
         secretName: camunda-platform-webmodeler-webapp
     # Ingress.websockets configuration of the websockets ingress
@@ -1858,7 +1859,7 @@ webModeler:
       # Ingress.websockets.tls configuration for TLS on the ingress resource, see https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
       tls:
         # Ingress.websockets.tls.enabled if true, TLS will be configured on the ingress resource
-        enabled: false
+        enabled: TLS_ENABLED
         # Ingress.websockets.tls.secretName defines the secret name which contains the TLS private key and certificate
         secretName: camunda-platform-webmodeler-websockets
 
@@ -2041,7 +2042,7 @@ connectors:
     # Ingress.tls configuration for tls on the ingress resource https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: false
+      enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
       secretName: camunda-platform-connectors
 
@@ -2068,7 +2069,10 @@ elasticsearch:
     - name: "xpack.security.enabled"
       value: "false"
 
-  replicas: 2
+  replicas: 1
+
+  # Allow no backup for single node setups
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
 
   persistence:
     labels:

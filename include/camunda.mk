@@ -235,14 +235,15 @@ all-values: fqdn
 	    -e "s/PARTITION_COUNT/$(partitionCount)/g" \
 	    -e "s/REPLICATION_FACTOR/$(replicationFactor)/g" \
 	    -e "s/OPERATE_ENABLED/$(operateEnabled)/g" \
-	    -e "s/OPERATE_CONTEXT_PATH/$(operateContextPath)/g" \
+	    -e "s#OPERATE_CONTEXT_PATH#$(operateContextPath)#g" \
 	    -e "s/TASKLIST_ENABLED/$(tasklistEnabled)/g" \
-	    -e "s/TASKLIST_CONTEXT_PATH/$(tasklistContextPath)/g" \
+	    -e "s#TASKLIST_CONTEXT_PATH#$(tasklistContextPath)#g" \
 	    -e "s/OPTIMIZE_ENABLED/$(optimizeEnabled)/g" \
-	    -e "s/OPTIMIZE_CONTEXT_PATH/$(optimizeContextPath)/g" \
+	    -e "s#OPTIMIZE_CONTEXT_PATH#$(optimizeContextPath)#g" \
 	    -e "s/CONNECTORS_ENABLED/$(connectorsEnabled)/g" \
-	    -e "s/CONNECTORS_CONTEXT_PATH/$(connectorsContextPath)/g" \
+	    -e "s#CONNECTORS_CONTEXT_PATH#$(connectorsContextPath)#g" \
 	    -e "s/MODELER_ENABLED/$(modelerEnabled)/g" \
-	    -e "s/MODELER_CONTEXT_PATH/$(modelerContextPath)/g" \
+	    -e "s#MODELER_CONTEXT_PATH#$(modelerContextPath)#g" \
 	    -e "s/EMAIL_ADDRESS/$(emailAddress)/g;" \
+	    -e "s/TLS_ENABLED/$(tlsEnabled)/g;" \
 	     $(root)/include/values.yaml > ./camunda-values-nginx-all.yaml
