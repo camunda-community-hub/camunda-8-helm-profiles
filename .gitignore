@@ -9,11 +9,6 @@ azure/ingress/nginx/tls/dns/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/secure-zeebe-ingress/camunda-values-nginx-tls.yaml
 azure/ingress/nginx/tls/camunda-platform
 azure/ingress/nginx/tls/camunda-values-nginx-all.yaml
-google/ingress/nginx/camunda-values-ingress.yaml
-google/ingress/nginx/tls/camunda-values-nginx.yaml
-google/ingress/nginx/tls/camunda-values-nginx-all.yaml
-google/keycloak/camunda/camunda-values-ext-keycloak.yaml
-google/external-keycloak/keycloak-secrets.yaml
 aws/cluster.yaml
 aws/camunda-values-aws.yaml
 **/ebs-csi-driver-trust-policy.json
@@ -43,8 +38,6 @@ keycloak/keycloak-values.yaml
 **/tasklist-service-webapp.yaml
 **/tasklist-tasklist-ingress.yaml
 **/tasklist-camunda-ingress.yaml
-google/config/properties.mk
-google/config/properties-dns.mk
 aws/config/properties.mk
 aws/config/properties-dns.mk
-
+**/.DS_Store
