@@ -72,3 +72,17 @@ urls:
 .PHONY: disks
 disks:
 	gcloud compute disks list --filter="zone ~ $(region) AND users ~ $(clusterName) AND name ~ pvc"
+
+.PHONY: create-clound-dns
+create-cloud-dns: fqdn
+	gcloud dns record-sets create $(fqdn) \
+	  --rrdatas=$(IP) \
+	  --ttl=30 \
+	  --type=A \
+	  --zone=$(dnsManagedZone)
+
+.PHONY: delete-cloud-dns
+delete-cloud-dns: fqdn
+	gcloud dns record-sets delete $(fqdn) \
+	  --type=A \
+	  --zone=$(dnsManagedZone)

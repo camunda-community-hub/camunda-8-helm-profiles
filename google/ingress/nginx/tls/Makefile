@@ -82,7 +82,7 @@ url-grafana:
 	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
 
 .PHONY: clean
-clean: clean-camunda clean-ingress clean-cert-manager
+clean: clean-camunda clean-ingress clean-cert-manager delete-cloud-dns
 	rm -f $(chartValues)
 
 .PHONY: clean-kube

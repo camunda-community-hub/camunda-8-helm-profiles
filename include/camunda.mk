@@ -59,6 +59,11 @@ postgresql-password:
 #echo ${PGPASSWORD}
 #psql -p 5433 -h localhost
 
+.PHONY: docker-registry-password
+docker-registry-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "camunda-docker-registry" --output="jsonpath={.data.\\.dockerconfigjson}" | base64 --decode))
+	@echo Docker Registry Config Json: $(kcPassword)
+
 .PHONY: update
 update:
 	helm repo update camunda
@@ -216,8 +221,8 @@ external-urls-no-ingress:
 .PHONY: image-pull-secret
 image-pull-secret: namespace
 	kubectl create secret docker-registry camunda-docker-registry \
-	  --docker-server=$(camundaDockerRegistryUrl) \
-	  --docker-username=$(camundaDockerRegistryUsername) \
-	  --docker-password=$(camundaDockerRegistryPassword) \
-	  --docker-email=$(camundaDockerRegistryEmail) \
+	  --docker-server="$(camundaDockerRegistryUrl)" \
+	  --docker-username="$(camundaDockerRegistryUsername)" \
+	  --docker-password="$(camundaDockerRegistryPassword)" \
+	  --docker-email="$(camundaDockerRegistryEmail)" \
 	  --namespace $(namespace)
