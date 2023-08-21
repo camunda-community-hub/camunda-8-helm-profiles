@@ -61,7 +61,7 @@ global:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
       enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
-      secretName: camunda-platform
+      secretName: tls-secret
 
   # Elasticsearch configuration which is shared between the sub charts
   elasticsearch:
@@ -602,9 +602,9 @@ zeebe-gateway:
     # Ingress.tls configuration for tls on the ingress resource https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
     tls:
       # Ingress.tls.enabled if true, then tls is configured on the ingress resource. If enabled the Ingress.host need to be defined.
-      enabled: TSL_ENABLED
+      enabled: TLS_ENABLED
       # Ingress.tls.secretName defines the secret name which contains the TLS private key and certificate
-      secretName: camunda-platform-zeebe-gateway
+      secretName: tls-secret
 
 # Operate configuration for the Operate sub chart.
 operate:
@@ -1867,7 +1867,7 @@ webModeler:
 postgresql:
   # Postgresql.enabled if true, a PostgreSQL database will be deployed as part of the Helm release by using the dependency chart
   # Note: if set to false, a connection to an external database must be configured instead (see WebModeler.restapi.externalDatabase)
-  enabled: false
+  enabled: MODELER_ENABLED
   # Postgresql.nameOverride defines the name of the Postgres resources (names will be prefixed with the release name), see https://github.com/bitnami/charts/tree/main/bitnami/postgresql#common-parameters
   # Note: Must be different from the default value "postgresql" which is already used for Keycloak's database
   nameOverride: postgresql-web-modeler
