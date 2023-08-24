@@ -140,7 +140,7 @@ Operate has a defect for now and if the zeebe brokers negotiation takes too long
 Elastic doesn't support a dual active active setup. You would need a tie breaker in a 3rd region : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
 Cross Cluster Replication is an Active-Passive setup that doesn't fit the current requirement.
 
-So the current approach would be to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters to the failed region, & then start the failOver.
+So the current approach would be to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters & then start the failOver.
 Once the failback is started, resume the exporters.
 
 You can check the status of the Elasticsearch cluster using:
