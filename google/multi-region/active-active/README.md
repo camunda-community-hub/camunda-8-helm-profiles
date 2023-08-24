@@ -132,7 +132,7 @@ Brokers:
 
 ##### Operate
 
-Operate has a defect for now and if the zeebe brokers negociation takes too long, Operate will look "healthy" but will not start the importer. You may need to delete the operate pod to force its recreation once the zeebe cluster is healthy.
+Operate has a defect for now and if the zeebe brokers negotiation takes too long, Operate will look "healthy" but will not start the importer. You may need to delete the operate pod to force its recreation once the zeebe cluster is healthy.
 
 
 ##### Elasticsearch
@@ -140,7 +140,7 @@ Operate has a defect for now and if the zeebe brokers negociation takes too long
 Elastic doesn't support a dual active active setup. You would need a tie breaker in a 3rd region : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
 Cross Cluster Replication is an Active-Passive setup that doesn't fit the current requirement.
 
-So the current approach would be to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters. Start the failOver.
+So the current approach would be to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters to the failed region, & then start the failOver.
 Once the failback is started, resume the exporters.
 
 You can check the status of the Elasticsearch cluster using:
@@ -151,7 +151,7 @@ make elastic-nodes
 
 ### Disaster
 
-In case of disaster, loosing a region, attempting to start a process instance would lead to an exception :
+In case of disaster, if a region is lost, attempting to start a process instance would lead to an exception :
 
 io.grpc.StatusRuntimeException: RESOURCE_EXHAUSTED: Expected to execute the command on one of the partitions, but all failed; there are no more partitions available to retry. Please try again. If the error persists contact your zeebe operator
 
