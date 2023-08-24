@@ -9,15 +9,15 @@ global:
     enabled: true
     className: nginx
     host: "dnslabel.location.cloudapp.azure.com"
-#    annotations:
-#      cert-manager.io/cluster-issuer: "letsencrypt"
+    #    annotations:
+    #      cert-manager.io/cluster-issuer: "letsencrypt"
     tls:
       enabled: true
       secretName: "tls-secret"
   image:
-      #tag: 8.2.3
-       tag: latest
-      # pullPolicy: Always
+    #tag: 8.2.3
+    tag: latest
+    # pullPolicy: Always
   identity:
     auth:
       publicIssuerUrl: "https://dnslabel.location.cloudapp.azure.com/auth/realms/camunda-platform"
@@ -239,20 +239,20 @@ optimize:
     allowPrivilegeEscalation: false
     runAsNonRoot: true
     runAsUser: 1000
-    extraVolumes:
-      - name: tmp
-        emptyDir: { }
-      - name: camunda
-        emptyDir: { }
-    extraVolumeMounts:
-      - mountPath: /tmp
-        name: tmp
-      - mountPath: /camunda
-        name: camunda
-    serviceAccount:
-      # ServiceAccount.name can be used to set the name of the broker service account
-      name: "camundapoc-optimize-svcacc"
-    automountServiceAccountToken: false
+  extraVolumes:
+    - name: tmp
+      emptyDir: { }
+    - name: camunda
+      emptyDir: { }
+  extraVolumeMounts:
+    - mountPath: /tmp
+      name: tmp
+    - mountPath: /camunda
+      name: camunda
+  serviceAccount:
+    # ServiceAccount.name can be used to set the name of the broker service account
+    name: "camundapoc-optimize-svcacc"
+  automountServiceAccountToken: false
 
 tasklist:
   contextPath: "/tasklist"
@@ -300,4 +300,3 @@ zeebe-gateway:
     # ServiceAccount.name can be used to set the name of the broker service account
     name: "camundapoc-zeebegateway-svcacc"
   automountServiceAccountToken: false
-
