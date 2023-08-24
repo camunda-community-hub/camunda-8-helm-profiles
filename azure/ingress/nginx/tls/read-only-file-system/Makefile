@@ -56,9 +56,9 @@ all: azure-ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-azur
 .PHONY: kube
 kube: kube-aks metrics
 
-# 1 cert-manager from cert-manager.mk: create certificate manager for tls
-# 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
-# 3 azure-ingress-nginx create nginx ingress controller with dns and tls
+# 1 azure-ingress-nginx create nginx ingress controller with dns and tls
+# 2 cert-manager from cert-manager.mk: create certificate manager for tls
+# 3 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
 # 4 create camunda-values-nginx-azure-sec.yaml
 .PHONY: camunda-values-nginx-azure-sec.yaml
 camunda-values-nginx-azure-sec.yaml: fqdn
