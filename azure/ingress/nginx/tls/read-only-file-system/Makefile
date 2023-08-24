@@ -50,28 +50,22 @@ chartValues ?= camunda-values-nginx-azure-sec.yaml
 
 .PHONY: all
 #all: azure-ingress-nginx dns-create-a-record cert-manager letsencrypt-staging camunda-values-nginx-azure-sec.yaml camunda annotate-ingress-tls external-urls
-all: azure-ingress-nginx cert-manager letsencrypt-prod
-#camunda-values-nginx-azure-sec.yaml camunda annotate-ingress-tls external-urls
+all: azure-ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-azure-sec.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
 kube: kube-aks metrics
 
 # 1 cert-manager from cert-manager.mk: create certificate manager for tls
-
 # 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
-
 # 3 azure-ingress-nginx create nginx ingress controller with dns and tls
-
 # 4 create camunda-values-nginx-azure-sec.yaml
 .PHONY: camunda-values-nginx-azure-sec.yaml
 camunda-values-nginx-azure-sec.yaml: fqdn
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" camunda-values.yaml > ./camunda-values-nginx-azure-sec.yaml; \
+	sed "s/dnslabel.location.cloudapp.azure.com/$(fqdn)/g;" camunda-values.yaml > ./camunda-values-nginx-azure-sec.yaml; \
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
-
 # 6 annotate-ingress-tls from cert-manager.mk
-
 # 7 Show external URLs
 .PHONY: external-urls
 external-urls: external-urls-all

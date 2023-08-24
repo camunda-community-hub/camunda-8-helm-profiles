@@ -78,8 +78,8 @@ elasticsearch:
   enabled: true
   imageTag: 7.17.3
   replicas: 1
-  sysctlInitContainer:
-    enabled: false
+#  sysctlInitContainer:
+#    enabled: false
   minimumMasterNodes: 1
   # Allow no backup for single node setups
   clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
@@ -90,43 +90,43 @@ elasticsearch:
     limits:
       cpu: "1000m"
       memory: "2Gi"
-  securityContext:
-    privileged: false
-    readOnlyRootFilesystem: true
-    allowPrivilegeEscalation: false
-    runAsNonRoot: true
-    runAsUser: 1000
-  extraVolumes:
-    - name: tmp
-      emptyDir:
-        sizeLimit: 500Mi
-    - name: logs
-      emptyDir:
-        sizeLimit: 500Mi
-    - name: config
-      emptyDir:
-        sizeLimit: 500Mi
-  extraVolumeMounts:
-    - mountPath: /tmp
-      name: tmp
-    - mountPath: /usr/share/elasticsearch/logs
-      name: logs
-    - mountPath: /usr/share/elasticsearch/config
-      name: config
-  extraInitContainers:
-    - name: copy-configs
-      image:  "docker.artifactory.dhl.com/elasticsearch:7.17.10"
-      imagePullPolicy: "Always"
-      command: ["sh", "-c", "cp -ar /usr/share/elasticsearch/config/* /config"]
-      securityContext:
-        privileged: false
-        readOnlyRootFilesystem: true
-        allowPrivilegeEscalation: false
-        runAsNonRoot: true
-        runAsUser: 1000
-      volumeMounts:
-        - name: config
-          mountPath: /config
+#  securityContext:
+#    privileged: false
+#    readOnlyRootFilesystem: true
+#    allowPrivilegeEscalation: false
+#    runAsNonRoot: true
+#    runAsUser: 1000
+#  extraVolumes:
+#    - name: tmp
+#      emptyDir:
+#        sizeLimit: 500Mi
+#    - name: logs
+#      emptyDir:
+#        sizeLimit: 500Mi
+#    - name: config
+#      emptyDir:
+#        sizeLimit: 500Mi
+#  extraVolumeMounts:
+#    - mountPath: /tmp
+#      name: tmp
+#    - mountPath: /usr/share/elasticsearch/logs
+#      name: logs
+#    - mountPath: /usr/share/elasticsearch/config
+#      name: config
+#  extraInitContainers:
+#    - name: copy-configs
+#      image:  "docker.artifactory.dhl.com/elasticsearch:7.17.10"
+#      imagePullPolicy: "Always"
+#      command: ["sh", "-c", "cp -ar /usr/share/elasticsearch/config/* /config"]
+#      securityContext:
+#        privileged: false
+#        readOnlyRootFilesystem: true
+#        allowPrivilegeEscalation: false
+#        runAsNonRoot: true
+#        runAsUser: 1000
+#      volumeMounts:
+#        - name: config
+#          mountPath: /config
 
 identity:
   contextPath: "/identity"
