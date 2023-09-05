@@ -58,12 +58,17 @@ update:
 	  --set identity.keycloak.postgresql.auth.password=$$POSTGRESQL_SECRET \
 	  --set connectors.inbound.auth.existingSecret=$CONNECTORS_SECRET
 
-rebalance-leader-job.yaml:
-	sed "s/RELEASE_NAME/$(release)/g;" $(root)/include/rebalance-leader-job.tpl.yaml > reblance-leader-job.yaml
+.PHONY: rebalance-leaders-create
+rebalance-leaders-create:
+	cat $(root)/include/rebalance-leader-job.tpl.yaml | sed -E "s/RELEASE_NAME/$(release)/g" | kubectl apply -n $(namespace) -f -
+	-kubectl wait --for=condition=complete job/leader-balancer --timeout=20s       -n $(namespace)
+
+.PHONY: rebalance-leaders-delete
+rebalance-leaders-delete:
+	cat $(root)/include/rebalance-leader-job.tpl.yaml | sed -E "s/RELEASE_NAME/$(release)/g" | kubectl delete -n $(namespace) -f -
 
 .PHONY: rebalance-leaders
-rebalance-leaders:
-	cat $(root)/include/rebalance-leader-job.tpl.yaml | sed -E "s/RELEASE_NAME/$(release)/g" | kubectl apply -n $(namespace) -f -
+rebalance-leaders: rebalance-leaders-create rebalance-leaders-delete
 
 .PHONY: curl-rebalance # can be used together with `make port-actuator`
 curl-rebalance:
