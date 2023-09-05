@@ -58,11 +58,6 @@ webModeler:
   restapi:
     mail:
       fromAddress: YOUR_EMAIL
-    websockets:
-      host: YOUR_HOSTNAME
-      tls:
-        enabled: true
-        secretName: tls-secret
 
 postgresql:
   enabled: true
