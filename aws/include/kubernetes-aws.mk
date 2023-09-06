@@ -131,4 +131,7 @@ camunda-values-ingress-aws.yaml: fqdn-aws
 	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress-aws.yaml
 
 camunda-values-nginx-tls-aws.yaml: fqdn-aws
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml; \
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml;
+
+camunda-values-istio-aws.yaml:
+	sed "s/YOUR_HOSTNAME/$(dnsLabel).$(baseDomainName)/g;" $(root)/istio/camunda-values.yaml > ./camunda-values-aws.yaml
