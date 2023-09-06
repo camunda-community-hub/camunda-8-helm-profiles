@@ -1,0 +1,236 @@
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: camunda-tasklist-vs
+spec:
+  gateways:
+    - camunda-tasklist-ingress
+  hosts:
+    - HOSTNAME
+  http:
+    - match:
+        - port: 443
+      route:
+        - destination:
+            host: zeebe-tasklist
+            port:
+              number: 80
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: camunda-tasklist-ingress
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+      hosts:
+        - HOSTNAME
+    - port:
+        number: 443
+        name: https-443
+        protocol: HTTPS
+      hosts:
+        - tasklist.dev.jlscode.com
+      tls:
+        credentialName: jlscode-dev
+        mode: SIMPLE
+
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: camunda-optimize-vs
+spec:
+  gateways:
+    - camunda-optimize-ingress
+  hosts:
+    - optimize.dev.jlscode.com
+  http:
+    - match:
+        - port: 443
+      route:
+        - destination:
+            host: cpt-optimize
+            port:
+              number: 80
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: camunda-optimize-ingress
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+      hosts:
+        - optimize.dev.jlscode.com
+    - port:
+        number: 443
+        name: https-443
+        protocol: HTTPS
+      hosts:
+        - optimize.dev.jlscode.com
+      tls:
+        credentialName: jlscode-dev
+        mode: SIMPLE
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: camunda-operate-ingress
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+      hosts:
+        - operate.dev.jlscode.com
+    - port:
+        number: 443
+        name: https-443
+        protocol: HTTPS
+      hosts:
+        - operate.dev.jlscode.com
+      tls:
+        credentialName: jlscode-dev
+        mode: SIMPLE
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: camunda-operate-vs
+spec:
+  gateways:
+    - camunda-operate-ingress
+  hosts:
+    - operate.dev.jlscode.com
+  http:
+    - match:
+        - port: 443
+      route:
+        - destination:
+            host: cpt-operate
+            port:
+              number: 80
+
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: camunda-keycloak-ingress
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+      hosts:
+        - keycloak.dev.jlscode.com
+    - port:
+        number: 443
+        name: https-443
+        protocol: HTTPS
+      hosts:
+        - keycloak.dev.jlscode.com
+      tls:
+        credentialName: jlscode-dev
+        mode: SIMPLE
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: camunda-keycloak-vs
+spec:
+  gateways:
+    - camunda-keycloak-ingress
+  hosts:
+    - keycloak.dev.jlscode.com
+  http:
+    - match:
+        - port: 443
+      route:
+        - destination:
+            host: cpt-keycloak
+            port:
+              number: 80
+          headers:
+            request:
+              set:
+                x-forwarded-proto: https
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: camunda-identity-ingress
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+      hosts:
+        - identity.dev.jlscode.com
+    - port:
+        number: 443
+        name: https-443
+        protocol: HTTPS
+      hosts:
+        - identity.dev.jlscode.com
+      tls:
+        credentialName: jlscode-dev
+        mode: SIMPLE
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: camunda-identity-vs
+spec:
+  gateways:
+    - camunda-identity-ingress
+  hosts:
+    - identity.dev.jlscode.com
+  http:
+    - match:
+        - port: 443
+      route:
+        - destination:
+            host: cpt-identity
+            port:
+              number: 80

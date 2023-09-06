@@ -1,0 +1,46 @@
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: camunda-tasklist-vs
+spec:
+  gateways:
+    - camunda-tasklist-ingress
+  hosts:
+    - HOSTNAME
+  http:
+    - match:
+        - port: 443
+      route:
+        - destination:
+            host: zeebe-tasklist
+            port:
+              number: 80
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: camunda-tasklist-ingress
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+      hosts:
+        - HOSTNAME
+    - port:
+        number: 443
+        name: https-443
+        protocol: HTTPS
+      hosts:
+        - HOSTNAME
+      tls:
+        credentialName: tls-secret
+        mode: SIMPLE
