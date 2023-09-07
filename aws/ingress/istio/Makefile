@@ -48,7 +48,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-aws.yaml
 
 .PHONY: all
-all: camunda-values-istio-aws.yaml image-pull-secret camunda annotate-ingress-tls external-urls
+all: camunda-values-istio-aws.yaml camunda annotate-ingress-tls external-urls
 
 # 0 kube from kubernetes-aws.mk: Create Kubernetes cluster.
 
