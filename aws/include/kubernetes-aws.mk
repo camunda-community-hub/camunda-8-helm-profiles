@@ -86,15 +86,15 @@ kube-upgrade:
 
 .PHONY: detach-role-policy-mapping
 detach-role-policy-mapping:
-	aws iam detach-role-policy \
+	-aws iam detach-role-policy \
 	  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
 
 .PHONY: delete-iam-role
 delete-iam-role: detach-role-policy-mapping
-	aws iam delete-role \
+	-aws iam delete-role \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
-	rm ebs-csi-driver-trust-policy.json
+	-rm ebs-csi-driver-trust-policy.json
 
 .PHONY: clean-kube-aws
 clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
