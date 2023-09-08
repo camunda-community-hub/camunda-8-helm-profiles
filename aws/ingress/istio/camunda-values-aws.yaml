@@ -11,14 +11,14 @@ global:
     # pullPolicy: Always
   identity:
     auth:
-      enabled: false
+      enabled: true
       publicIssuerUrl: "http://keycloak.aws.c8sm.com/auth/realms/camunda-platform"
       operate:
-        redirectUrl: "http://operate.aws.c8sm.com/operate"
+        redirectUrl: "http://operate.aws.c8sm.com"
       tasklist:
-        redirectUrl: "http://tasklist.aws.c8sm.com/tasklist"
+        redirectUrl: "http://tasklist.aws.c8sm.com"
       optimize:
-        redirectUrl: "http://optimize.aws.c8sm.com/optimize"
+        redirectUrl: "http://optimize.aws.c8sm.com"
 
 connectors:
   enabled: false
@@ -33,8 +33,8 @@ optimize:
 #  enabled: true
 
 identity:
-  enabled: false
-  fullURL: "http://identity.aws.c8sm.com/identity"
+  enabled: true
+  fullURL: "http://identity.aws.c8sm.com"
 
   keycloak:
     extraEnvVars:

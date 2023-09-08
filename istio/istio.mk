@@ -25,7 +25,11 @@ istio-operate:
 
 .PHONY: istio-keycloak
 istio-keycloak:
-	cat $(root)/istio/keycloak.yaml | sed -e "s/RELEASE/$(release)/g" -e "s/HOSTNAME/keycloak.$(baseDomainName)/g" | kubectl apply -n $(namespace) -f -
+	cat $(root)/istio/keycloak.tpl.yaml | sed -e "s/RELEASE/$(release)/g" | kubectl apply -n $(namespace) -f -
+
+.PHONY: istio-virtual-services
+istio-virtual-services: istio-keycloak istio-operate istio-tasklist
+
 
 
 
