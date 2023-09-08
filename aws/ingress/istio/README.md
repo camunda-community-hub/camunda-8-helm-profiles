@@ -39,3 +39,8 @@ kubectl get svc istio-ingressgateway -n istio-system
 
 Test it out: 
 [https://<endpoint>/productpage](https://<endpoint>/productpage)
+
+How to view logs of sidecar proxy containers:
+```shell
+kubectl logs camunda-keycloak-0 -c istio-proxy -n camunda
+```
