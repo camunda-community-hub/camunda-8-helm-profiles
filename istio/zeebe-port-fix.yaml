@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: camunda
+    meta.helm.sh/release-namespace: camunda
+  labels:
+    app: camunda-platform
+    app.kubernetes.io/component: zeebe-broker
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: zeebe
+    app.kubernetes.io/part-of: camunda-platform
+    app.kubernetes.io/version: latest
+    helm.sh/chart: zeebe-8.2.12
+  name: camunda-zeebe
+  namespace: camunda
+spec:
+  ports:
+    - name: http-metrics
+      port: 9600
+      protocol: TCP
+      targetPort: 9600
+    - name: http-internal
+      port: 26502
+      protocol: TCP
+      targetPort: 26502
+    - name: http-command
+      port: 26501
+      protocol: TCP
+      targetPort: 26501
+  publishNotReadyAddresses: true
+  selector:
+    app: camunda-platform
+    app.kubernetes.io/component: zeebe-broker
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: zeebe
+    app.kubernetes.io/part-of: camunda-platform
+  sessionAffinity: None
+  type: ClusterIP

@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: camunda
+    meta.helm.sh/release-namespace: camunda
+  labels:
+    app: camunda-platform
+    app.kubernetes.io/component: identity
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: identity
+    app.kubernetes.io/part-of: camunda-platform
+    app.kubernetes.io/version: latest
+    helm.sh/chart: identity-8.2.12
+  name: camunda-identity
+  namespace: camunda
+spec:
+  ports:
+    - name: http-web
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+    - name: http-metrics
+      port: 82
+      protocol: TCP
+      targetPort: 8082
+  selector:
+    app: camunda-platform
+    app.kubernetes.io/component: identity
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: identity
+    app.kubernetes.io/part-of: camunda-platform
+  sessionAffinity: None
+  type: ClusterIP
