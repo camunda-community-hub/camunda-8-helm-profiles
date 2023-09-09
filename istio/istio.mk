@@ -1,3 +1,6 @@
+.PHONY: istio-analyze
+istio-analyze:
+	istioctl analyze
 
 .PHONY: istio-install
 istio-install:
@@ -15,6 +18,10 @@ istio-label-ns: namespace
 istio-gateway:
 	cat $(root)/istio/gateway.tpl.yaml | sed -e "s/RELEASE/$(release)/g" | kubectl apply -n $(namespace) -f -
 
+.PHONY: istio-gateway-logs
+istio-gateway-logs:
+	kubectl logs -f service/istio-ingressgateway -n istio-system
+
 .PHONY: istio-tasklist
 istio-tasklist:
 	cat $(root)/istio/tasklist.tpl.yaml | sed -e "s/RELEASE/$(release)/g" | kubectl apply -n $(namespace) -f -
@@ -28,7 +35,7 @@ istio-keycloak:
 	cat $(root)/istio/keycloak.tpl.yaml | sed -e "s/RELEASE/$(release)/g" | kubectl apply -n $(namespace) -f -
 
 .PHONY: istio-virtual-services
-istio-virtual-services: istio-keycloak istio-operate istio-tasklist
+	istio-virtual-services: istio-keycloak istio-operate istio-tasklist
 
 
 
