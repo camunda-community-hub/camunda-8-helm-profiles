@@ -27,7 +27,7 @@ webModeler:
   enabled: false
 
 optimize:
-  enabled: false
+  enabled: true
 
 #prometheusServiceMonitor:
 #  enabled: true

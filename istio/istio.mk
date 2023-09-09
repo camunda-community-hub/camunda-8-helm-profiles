@@ -38,8 +38,12 @@ istio-keycloak:
 istio-identity:
 	cat $(root)/istio/identity.tpl.yaml | sed -e "s/RELEASE/$(release)/g" | kubectl apply -n $(namespace) -f -
 
+.PHONY: istio-optimize
+istio-optimize:
+	cat $(root)/istio/optimize.tpl.yaml | sed -e "s/RELEASE/$(release)/g" | kubectl apply -n $(namespace) -f -
+
 .PHONY: istio-virtual-services
-istio-virtual-services: istio-keycloak istio-operate istio-tasklist istio-identity istio-analyze
+istio-virtual-services: istio-keycloak istio-operate istio-tasklist istio-identity istio-optimize istio-analyze
 
 
 
