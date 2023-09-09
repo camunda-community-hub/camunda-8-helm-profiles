@@ -1,4 +1,13 @@
 
+https://github.com/jessesimpson36/tmp-camunda-istio
+
+http://camunda-keycloak:80/auth/realms/camunda-platform
+
+curl -L -v -X GET http://camunda-keycloak:80/auth 
+
+kubectl exec --stdin --tty camunda-identity-84cdb6dcd5-v4g86 -- /bin/bash
+
+
 # Prerequisites
 
 ## Install `istoctl`
