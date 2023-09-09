@@ -10,7 +10,19 @@ spec:
   servers:
     - port:
         number: 8080
-        name: http
+        name: http-8080
+        protocol: HTTP
+      hosts:
+        - "*"
+    - port:
+        number: 80
+        name: http-80
+        protocol: HTTP
+      hosts:
+        - "*"
+    - port:
+        number: 443
+        name: http-443
         protocol: HTTP
       hosts:
         - "*"
