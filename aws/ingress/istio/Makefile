@@ -48,7 +48,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-aws.yaml
 
 .PHONY: all
-all: istio-label-ns camunda external-urls
+all: istio-label-ns camunda istio-gateway istio-virtual-services external-urls
 
 # 0 kube from kubernetes-aws.mk: Create Kubernetes cluster.
 
