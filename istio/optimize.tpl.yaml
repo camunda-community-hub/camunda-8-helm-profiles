@@ -9,10 +9,13 @@ spec:
   - RELEASE-gateway
   http:
   - match:
-    - uri:
-        prefix: /
+    - port: 443
     route:
     - destination:
         host: RELEASE-optimize
         port:
           number: 80
+      headers:
+        request:
+          set:
+            x-forwarded-proto: https

@@ -9,10 +9,14 @@ spec:
   - RELEASE-gateway
   http:
   - match:
-    - uri:
-        prefix: /
+    - port: 443
     route:
     - destination:
         host: RELEASE-keycloak
         port:
           number: 80
+      headers:
+        request:
+          set:
+            x-forwarded-proto: https
+

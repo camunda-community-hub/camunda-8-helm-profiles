@@ -1,18 +1,21 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: RELEASE-identity-vs
+  name: RELEASE-keycloak-vs
 spec:
   hosts:
-  - "identity.aws.c8sm.com"
+  - "keycloak.aws.c8sm.com"
   gateways:
   - RELEASE-gateway
   http:
   - match:
-    - uri:
-        prefix: /
+    - port: 443
     route:
     - destination:
-        host: RELEASE-identity
+        host: RELEASE-keycloak
         port:
           number: 80
+      headers:
+        request:
+          set:
+            x-forwarded-proto: https

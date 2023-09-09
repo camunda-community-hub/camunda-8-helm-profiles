@@ -12,13 +12,13 @@ global:
   identity:
     auth:
       enabled: true
-      publicIssuerUrl: "http://keycloak.aws.c8sm.com/auth/realms/camunda-platform"
+      publicIssuerUrl: "https://keycloak.aws.c8sm.com/auth/realms/camunda-platform"
       operate:
-        redirectUrl: "http://operate.aws.c8sm.com"
+        redirectUrl: "https://operate.aws.c8sm.com"
       tasklist:
-        redirectUrl: "http://tasklist.aws.c8sm.com"
+        redirectUrl: "https://tasklist.aws.c8sm.com"
       optimize:
-        redirectUrl: "http://optimize.aws.c8sm.com"
+        redirectUrl: "https://optimize.aws.c8sm.com"
 
 connectors:
   enabled: false
@@ -34,14 +34,14 @@ optimize:
 
 identity:
   enabled: true
-  fullURL: "http://identity.aws.c8sm.com"
+  fullURL: "https://identity.aws.c8sm.com"
 
   keycloak:
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
-        value: "http://keycloak.aws.c8sm.com/auth"
+        value: "https://keycloak.aws.c8sm.com/auth"
 
 zeebe-gateway:
   ingress:
