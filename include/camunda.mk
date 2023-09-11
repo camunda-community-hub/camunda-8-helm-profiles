@@ -58,9 +58,12 @@ update:
 	  --set identity.keycloak.postgresql.auth.password=$$POSTGRESQL_SECRET \
 	  --set connectors.inbound.auth.existingSecret=$CONNECTORS_SECRET
 
+rebalance-leader-job.yaml:
+	sed "s/RELEASE_NAME/$(release)/g;" $(root)/include/rebalance-leader-job.tpl.yaml > reblance-leader-job.yaml
+
 .PHONY: rebalance-leaders
 rebalance-leaders:
-	kubectl exec $$(kubectl get pod --namespace $(namespace) --selector="app=camunda-platform,app.kubernetes.io/component=zeebe-gateway,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=zeebe-gateway,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') --namespace $(namespace) -c zeebe-gateway -- curl -i localhost:9600/actuator/rebalance -XPOST
+	cat $(root)/include/rebalance-leader-job.tpl.yaml | sed -E "s/RELEASE_NAME/$(release)/g" | kubectl apply -n $(namespace) -f -
 
 .PHONY: curl-rebalance # can be used together with `make port-actuator`
 curl-rebalance:

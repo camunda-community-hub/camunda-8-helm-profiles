@@ -1,11 +1,17 @@
 
-.PHONY: deploy-model
-deploy-model:
+.PHONY: create-deploy-model
+create-deploy-model:
 	kubectl create configmap models --from-file=CamundaProcess.bpmn=$(pathToCamundaProcessBpmnFile) -n $(namespace)
 	kubectl apply -f $(root)/include/zbctl-deploy-job.yaml                      -n $(namespace)
-	kubectl wait --for=condition=complete job/zbctl-deploy --timeout=300s       -n $(namespace)
+	-kubectl wait --for=condition=complete job/zbctl-deploy --timeout=10s       -n $(namespace)
+
+.PHONY: clean-deploy-model
+clean-deploy-model:
 	kubectl delete configmap models                                             -n $(namespace)
 	kubectl delete -f $(root)/include/zbctl-deploy-job.yaml                     -n $(namespace)
+
+.PHONY: deploy-model
+deploy-model: create-deploy-model clean-deploy-model
 
 # Simple Inbound Connector Process
 
