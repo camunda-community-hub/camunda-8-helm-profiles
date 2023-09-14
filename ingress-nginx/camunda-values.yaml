@@ -25,6 +25,8 @@ global:
         redirectUrl: "https://YOUR_HOSTNAME/optimize"
       connectors:
         redirectUrl: "https://YOUR_HOSTNAME/connectors"
+      webModeler:
+        redirectUrl: "https://YOUR_HOSTNAME/modeler"
 
 operate:
   contextPath: "/operate"
@@ -46,6 +48,24 @@ connectors:
 #      value: demo
 #    - name: CAMUNDA_OPERATE_CLIENT_PASSWORD
 #      value: demo
+
+webModeler:
+  enabled: true
+  contextPath: "/modeler"
+  image:
+    pullSecrets:
+      - name: camunda-docker-registry
+  restapi:
+    mail:
+      fromAddress: YOUR_EMAIL
+    websockets:
+      host: YOUR_HOSTNAME
+      tls:
+        enabled: true
+        secretName: tls-secret
+
+postgresql:
+  enabled: true
 
 #prometheusServiceMonitor:
 #  enabled: true

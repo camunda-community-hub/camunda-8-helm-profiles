@@ -1,33 +1,4 @@
-# ------------------------------------
-# Set the following for your specific environment
-# Already have a Cluster? Set these values to point to your existing environment
-# Otherwise, these values will be used to create a new Cluster
-
-#region ?= us-east-1
-region ?= YOUR_AWS_REGION
-zones ?= ['us-east-1a', 'us-east-1b']
-clusterName ?= CLUSTER_NAME
-clusterVersion ?= 1.25
-
-machineType ?= c6i.4xlarge
-# TODO: Currently, auto scaling configuration using these scripts for AWS is not working
-# desiredSize is used as the starting size of the cluster
-desiredSize ?= 3
-minSize ?= 1
-maxSize ?= 6
-certEmail ?= YOUR_EMAIL@camunda.com
-
-# Configure the fully qualified domain name
-# The dnsLabel is the first part of the domain address. It will be used no matter what baseDomain you configure below
-dnsLabel ?= YOUR_DNS_LABEL
-
-# By default, we'll use nip.io (See more at [https://nip.io](http://nip.io) )
-# The fully qualified domain name will look something like <dnsLabel>.<ip address>.nip.io
-#baseDomainName ?= nip.io
-
-# Another option is to replace baseDomainName with your own domain name
-# In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
-baseDomainName ?= upgradingdave.com
+# Edit the files inside the `config` directory to configure your own local properties
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -37,8 +8,10 @@ else
     root ?= $(shell pwd)/../../../..
 endif
 
-# Camunda components will be installed into the following Kubernetes namespace
-namespace ?= camunda
+# Edit the following to configure your own local properties
+include $(root)/aws/config/properties.mk
+include $(root)/aws/config/properties-dns.mk
+
 # Helm release name
 release ?= camunda
 # Helm chart coordinates for Camunda
