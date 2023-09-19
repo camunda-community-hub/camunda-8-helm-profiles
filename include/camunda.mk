@@ -16,6 +16,18 @@ namespace:
 	-kubectl create namespace $(namespace)
 	-kubectl config set-context --current --namespace=$(namespace)
 
+.PHONY: create-reg-secret
+create-reg-secret:
+	- kubectl create secret docker-registry $(registrySecretName) -n $(namespace) \
+	  --docker-server=registry.camunda.cloud \
+	  --docker-username=$(dockerUser) \
+	  --docker-password=$(dockerPassword) \
+	  --docker-email=$(dockerEmail)
+
+.PHONY: get-registry-secret
+get-registry-secret:
+	- kubectl get secret --namespace camunda camunda-docker-registry-secret -o jsonpath="{.data.\.dockerconfigjson}" | base64 --decode
+
 # Generates templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
 .PHONY: template
 template:

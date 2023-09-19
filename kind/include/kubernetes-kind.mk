@@ -17,6 +17,7 @@ urls:
 
 .PHONY: ingress-nginx-kind
 ingress-nginx-kind:
+	# helm install -f $(root)/kind/include/nginx_ingress_values.yaml ingress-nginx oci://ghcr.io/nginxinc/charts/nginx-ingress --version 0.18.0
 	kubectl apply -f $(root)/kind/include/deploy-ingress.yml
 	kubectl wait --namespace ingress-nginx \
 	  --for=condition=ready pod \
@@ -24,8 +25,7 @@ ingress-nginx-kind:
 	  --timeout=90s
 #	kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
 
-.PHONY: clean-ingress
-clean-ingress:
-	helm --namespace ingress-nginx uninstall ingress-nginx
-	kubectl delete -n ingress-nginx pvc -l app.kubernetes.io/instance=ingress-nginx
-	kubectl delete namespace ingress-nginx
+.PHONY: clean-ingress-kind
+clean-ingress-kind:
+	-kubectl delete -n ingress-nginx pvc -l app.kubernetes.io/instance=ingress-nginx
+	-kubectl delete namespace ingress-nginx

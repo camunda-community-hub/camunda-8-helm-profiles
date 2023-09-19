@@ -1,0 +1,6 @@
+# nginx_ingress_values.yml
+controller:
+  replicaCount: 1
+  hostNetwork: true
+  service:
+    type: NodePort
