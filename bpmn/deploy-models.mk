@@ -2,8 +2,14 @@
 .PHONY: create-deploy-model
 create-deploy-model:
 	kubectl create configmap models --from-file=CamundaProcess.bpmn=$(pathToCamundaProcessBpmnFile) -n $(namespace)
-	kubectl apply -f $(root)/include/zbctl-deploy-job.yaml                      -n $(namespace)
-	-kubectl wait --for=condition=complete job/zbctl-deploy --timeout=10s       -n $(namespace)
+	kubectl apply -f $(root)/include/zbctl-deploy-job.yaml                     -n $(namespace)
+	kubectl wait --for=condition=complete job/zbctl-deploy --timeout=10s       -n $(namespace)
+
+.PHONY: create-deploy-model-with-auth
+create-deploy-model-with-auth:
+	kubectl create configmap models --from-file=CamundaProcess.bpmn=$(pathToCamundaProcessBpmnFile) -n $(namespace)
+	kubectl apply -f $(root)/include/zbctl-deploy-job-with-auth.yaml           -n $(namespace)
+	kubectl wait --for=condition=complete job/zbctl-deploy --timeout=10s       -n $(namespace)
 
 .PHONY: clean-deploy-model
 clean-deploy-model:
@@ -11,7 +17,7 @@ clean-deploy-model:
 	kubectl delete -f $(root)/include/zbctl-deploy-job.yaml                     -n $(namespace)
 
 .PHONY: deploy-model
-deploy-model: create-deploy-model clean-deploy-model
+deploy-model: create-deploy-model-with-auth clean-deploy-model
 
 # Simple Inbound Connector Process
 
