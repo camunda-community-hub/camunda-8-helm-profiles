@@ -38,6 +38,32 @@ zeebe-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 --decode))
 	@echo Zeebe Identity password: $(kcPassword)
 
+.PHONY: connectors-password
+connectors-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-connectors-identity-secret" -o jsonpath="{.data.connectors-secret}" | base64 --decode))
+	@echo Connectors Identity password: $(kcPassword)
+
+.PHONY: tasklist-password
+tasklist-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode))
+	@echo Tasklist Identity password: $(kcPassword)
+
+.PHONY: postgresql-password
+postgresql-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode))
+	@echo Postgresql password: $(kcPassword)
+
+# Connect to keycloak postgresql db
+#export PGUSER="postgres"
+#export PGPASSWORD="$(kubectl get secret --namespace camunda "camunda-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode)"
+#echo ${PGPASSWORD}
+#psql -p 5433 -h localhost
+
+.PHONY: docker-registry-password
+docker-registry-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "camunda-docker-registry" --output="jsonpath={.data.\\.dockerconfigjson}" | base64 --decode))
+	@echo Docker Registry Config Json: $(kcPassword)
+
 .PHONY: update
 update:
 	helm repo update camunda
@@ -58,12 +84,17 @@ update:
 	  --set identity.keycloak.postgresql.auth.password=$$POSTGRESQL_SECRET \
 	  --set connectors.inbound.auth.existingSecret=$CONNECTORS_SECRET
 
-rebalance-leader-job.yaml:
-	sed "s/RELEASE_NAME/$(release)/g;" $(root)/include/rebalance-leader-job.tpl.yaml > reblance-leader-job.yaml
+.PHONY: rebalance-leaders-create
+rebalance-leaders-create:
+	cat $(root)/include/rebalance-leader-job.tpl.yaml | sed -E "s/RELEASE_NAME/$(release)/g" | kubectl apply -n $(namespace) -f -
+	-kubectl wait --for=condition=complete job/leader-balancer --timeout=20s       -n $(namespace)
+
+.PHONY: rebalance-leaders-delete
+rebalance-leaders-delete:
+	cat $(root)/include/rebalance-leader-job.tpl.yaml | sed -E "s/RELEASE_NAME/$(release)/g" | kubectl delete -n $(namespace) -f -
 
 .PHONY: rebalance-leaders
-rebalance-leaders:
-	cat $(root)/include/rebalance-leader-job.tpl.yaml | sed -E "s/RELEASE_NAME/$(release)/g" | kubectl apply -n $(namespace) -f -
+rebalance-leaders: rebalance-leaders-create rebalance-leaders-delete
 
 .PHONY: curl-rebalance # can be used together with `make port-actuator`
 curl-rebalance:
@@ -164,6 +195,14 @@ port-optimize:
 port-connectors:
 	kubectl port-forward svc/$(release)-connectors 8084:8080 -n $(namespace)
 
+.PHONY: port-postgresql
+port-postgresql:
+	kubectl port-forward svc/$(release)-postgresql 5433:5432 -n $(namespace)
+
+.PHONY: port-elasticsearch
+port-elasticsearch:
+	kubectl port-forward svc/elasticsearch-master 9200:9200 -n $(namespace)
+
 .PHONY: pods
 pods:
 	kubectl get pods --namespace $(namespace)
@@ -182,3 +221,12 @@ external-urls-no-ingress:
 	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
 	@echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+
+.PHONY: image-pull-secret
+image-pull-secret: namespace
+	kubectl create secret docker-registry camunda-docker-registry \
+	  --docker-server="$(camundaDockerRegistryUrl)" \
+	  --docker-username="$(camundaDockerRegistryUsername)" \
+	  --docker-password="$(camundaDockerRegistryPassword)" \
+	  --docker-email="$(camundaDockerRegistryEmail)" \
+	  --namespace $(namespace)

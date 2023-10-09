@@ -5,82 +5,47 @@
 
 global:
   ingress:
-    enabled: true
-    className: nginx
-    host: "YOUR_HOSTNAME"
-    tls:
-      enabled: true
-      secretName: "tls-secret"
+    enabled: false
   image:
-    tag: latest
+    tag: 8.2.11
     # pullPolicy: Always
   identity:
     auth:
-      publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
+      enabled: true
+      publicIssuerUrl: "https://keycloak.aws.c8sm.com/auth/realms/camunda-platform"
       operate:
-        redirectUrl: "https://YOUR_HOSTNAME/operate"
+        redirectUrl: "https://operate.aws.c8sm.com"
       tasklist:
-        redirectUrl: "https://YOUR_HOSTNAME/tasklist"
+        redirectUrl: "https://tasklist.aws.c8sm.com"
       optimize:
-        redirectUrl: "https://YOUR_HOSTNAME/optimize"
-      connectors:
-        redirectUrl: "https://YOUR_HOSTNAME/connectors"
-      webModeler:
-        redirectUrl: "https://YOUR_HOSTNAME/modeler"
-
-operate:
-  contextPath: "/operate"
-
-tasklist:
-  contextPath: "/tasklist"
-
-optimize:
-  contextPath: "/optimize"
+        redirectUrl: "https://optimize.aws.c8sm.com"
 
 connectors:
-  enabled: true
-  inbound:
-    mode: oauth
-  contextPath: "/connectors"
-
-#  env:
-#    - name: CAMUNDA_OPERATE_CLIENT_USERNAME
-#      value: demo
-#    - name: CAMUNDA_OPERATE_CLIENT_PASSWORD
-#      value: demo
+  enabled: false
 
 webModeler:
-  enabled: true
-  contextPath: "/modeler"
-  image:
-    pullSecrets:
-      - name: camunda-docker-registry
-  restapi:
-    mail:
-      fromAddress: YOUR_EMAIL
+  enabled: false
 
-postgresql:
+optimize:
   enabled: true
 
 #prometheusServiceMonitor:
 #  enabled: true
 
 identity:
-  contextPath: "/identity"
-  fullURL: "https://YOUR_HOSTNAME/identity"
+  enabled: true
+  fullURL: "https://identity.aws.c8sm.com"
 
   keycloak:
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
-        value: "https://YOUR_HOSTNAME/auth"
+        value: "https://keycloak.aws.c8sm.com/auth"
 
 zeebe-gateway:
   ingress:
-    enabled: true
-    className: nginx
-    host: "YOUR_HOSTNAME"
+    enabled: false
   replicas: 1
   resources:
     requests:
@@ -118,9 +83,5 @@ elasticsearch:
     limits:
       cpu: "1000m"
       memory: "2Gi"
-
-
-
-
 
 

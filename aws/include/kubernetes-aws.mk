@@ -86,15 +86,15 @@ kube-upgrade:
 
 .PHONY: detach-role-policy-mapping
 detach-role-policy-mapping:
-	aws iam detach-role-policy \
+	-aws iam detach-role-policy \
 	  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
 
 .PHONY: delete-iam-role
 delete-iam-role: detach-role-policy-mapping
-	aws iam delete-role \
+	-aws iam delete-role \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
-	rm ebs-csi-driver-trust-policy.json
+	-rm ebs-csi-driver-trust-policy.json
 
 .PHONY: clean-kube-aws
 clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
@@ -131,4 +131,7 @@ camunda-values-ingress-aws.yaml: fqdn-aws
 	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress-aws.yaml
 
 camunda-values-nginx-tls-aws.yaml: fqdn-aws
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml; \
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml;
+
+camunda-values-istio-aws.yaml:
+	sed "s/YOUR_HOSTNAME/$(dnsLabel).$(baseDomainName)/g;" $(root)/istio/camunda-values.yaml > ./camunda-values-aws.yaml
