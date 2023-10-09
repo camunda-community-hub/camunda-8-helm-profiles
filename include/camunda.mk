@@ -199,6 +199,10 @@ port-connectors:
 port-postgresql:
 	kubectl port-forward svc/$(release)-postgresql 5433:5432 -n $(namespace)
 
+.PHONY: port-elasticsearch
+port-elasticsearch:
+	kubectl port-forward svc/elasticsearch-master 9200:9200 -n $(namespace)
+
 .PHONY: pods
 pods:
 	kubectl get pods --namespace $(namespace)
