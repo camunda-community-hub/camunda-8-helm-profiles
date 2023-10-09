@@ -8,7 +8,7 @@ service ?= zeebe-gateway
 # TLS secret name
 secret_name ?= tls-secret
 # Cert Signing Reqest (CSR) signer name
-signerName ?= example.com\/pdiddy
+signerName ?= 127.0.0.1.nip.io\/pdiddy
 
 .PHONY: all
 all: cfssl-create-csr kube-upload-csr kube-approve-csr \

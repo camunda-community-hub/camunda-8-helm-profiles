@@ -1,9 +1,8 @@
 {
   "hosts": [
-    "zeebe.127.0.0.1.nip.io",
-    "10.244.0.19"
+    "127.0.0.1.nip.io"
   ],
-  "CN": "zeebe.127.0.0.1.nip.io",
+  "CN": "127.0.0.1.nip.io",
   "key": {
     "algo": "ecdsa",
     "size": 256

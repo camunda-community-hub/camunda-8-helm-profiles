@@ -52,6 +52,10 @@ clean-ingress:
 camunda-values-ingress.yaml: fqdn
 	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress.yaml
 
+.PHONY: annotate-ingress-proxy-buffer-size
+annotate-ingress-proxy-buffer-size:
+	kubectl -n $(namespace) annotate ingress camunda-camunda-platform nginx.ingress.kubernetes.io/proxy-buffer-size=128k
+
 .PHONY: external-urls-with-fqdn
 external-urls-with-fqdn: fqdn
 	@echo To access operate: browse to: http://$(fqdn)/operate
