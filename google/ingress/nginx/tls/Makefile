@@ -30,6 +30,15 @@ baseDomainName ?= nip.io
 # clientSecret ?= CLIENT_SECRET
 
 # ------------------------------------
+# Camunda Enterprise Docker Registry Login
+
+camundaDockerRegistrySecretName ?= camunda-docker-registry-secret
+camundaDockerRegistryUrl ?= registry.camunda.cloud
+camundaDockerRegistryUsername ?= YOUR_EE_USERNAME
+camundaDockerRegistryPassword ?= YOUR_EE_PASSWORD
+camundaDockerRegistryEmail ?= YOUR_EE_EMAIL
+
+# ------------------------------------
 # The following variables should not be changed except for advanced use cases
 
 ifeq ($(OS),Windows_NT)
@@ -49,7 +58,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-all.yaml
 
 .PHONY: all
-all: ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-all.yaml image-pull-secret camunda annotate-ingress-tls external-urls
+all: ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-all.yaml create-docker-registry-secret camunda annotate-ingress-tls external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube

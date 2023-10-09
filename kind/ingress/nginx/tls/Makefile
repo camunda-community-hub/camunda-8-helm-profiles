@@ -12,11 +12,14 @@ secret_name ?= zeebe-gateway-secret
 signerName ?= 127.0.0.1.nip.io\/pdiddy
 
 # ------------------------------------
-# Enterprise docker login
-dockerUser ?=
-dockerPassword ?=
-registrySecretName ?= camunda-docker-registry-secret
-dockerEmail ?=
+# Camunda Enterprise Docker Registry Login
+
+camundaDockerRegistrySecretName ?= camunda-docker-registry-secret
+camundaDockerRegistryUrl ?= registry.camunda.cloud
+camundaDockerRegistryUsername ?= YOUR_EE_USERNAME
+camundaDockerRegistryPassword ?= YOUR_EE_PASSWORD
+camundaDockerRegistryEmail ?= YOUR_EE_EMAIL
+
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -38,7 +41,7 @@ chartValues ?= $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yam
 all: ingress-nginx-kind cert-manager letsencrypt-prod camunda-all
 
 .PHONY: camunda-all
-camunda-all: camunda-values-nginx-localhost.yaml namespace create-reg-secret \
+camunda-all: camunda-values-nginx-localhost.yaml namespace create-docker-registry-secret \
 	create-zeebe-gateway-certs camunda annotate-ingress-tls \
 	annotate-ingress-proxy-buffer-size external-urls
 
@@ -59,7 +62,7 @@ camunda-values-nginx-localhost.yaml:
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 .PHONY: camunda
-camunda: namespace create-reg-secret create-zeebe-gateway-certs
+camunda: namespace create-docker-registry-secret create-zeebe-gateway-certs
 	@echo "Attempting to install camunda using chartValues: $(chartValues)"
 	helm repo add camunda https://helm.camunda.io
 	helm repo update camunda

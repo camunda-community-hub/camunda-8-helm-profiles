@@ -16,18 +16,6 @@ namespace:
 	-kubectl create namespace $(namespace)
 	-kubectl config set-context --current --namespace=$(namespace)
 
-.PHONY: create-reg-secret
-create-reg-secret:
-	- kubectl create secret docker-registry $(registrySecretName) -n $(namespace) \
-	  --docker-server=registry.camunda.cloud \
-	  --docker-username=$(dockerUser) \
-	  --docker-password=$(dockerPassword) \
-	  --docker-email=$(dockerEmail)
-
-.PHONY: get-registry-secret
-get-registry-secret:
-	- kubectl get secret --namespace camunda camunda-docker-registry-secret -o jsonpath="{.data.\.dockerconfigjson}" | base64 --decode
-
 # Generates templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
 .PHONY: template
 template:
@@ -73,8 +61,18 @@ postgresql-password:
 
 .PHONY: docker-registry-password
 docker-registry-password:
-	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "camunda-docker-registry" --output="jsonpath={.data.\\.dockerconfigjson}" | base64 --decode))
-	@echo Docker Registry Config Json: $(kcPassword)
+	$(eval resultPassword := $(shell kubectl get secret --namespace $(namespace) $(camundaDockerRegistrySecretName) --output="jsonpath={.data.\\.dockerconfigjson}" | base64 --decode))
+	@echo Docker Registry Config Json: $(resultPassword)
+
+# https://docs.camunda.io/docs/next/self-managed/platform-deployment/helm-kubernetes/deploy/#create-image-pull-secret
+.PHONY: create-docker-registry-secret
+create-docker-registry-secret: namespace
+	kubectl create secret docker-registry $(camundaDockerRegistrySecretName) \
+	  --docker-server="$(camundaDockerRegistryUrl)" \
+	  --docker-username="$(camundaDockerRegistryUsername)" \
+	  --docker-password="$(camundaDockerRegistryPassword)" \
+	  --docker-email="$(camundaDockerRegistryEmail)" \
+	  --namespace $(namespace)
 
 .PHONY: update
 update:
@@ -233,12 +231,3 @@ external-urls-no-ingress:
 	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
 	@echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
-
-.PHONY: image-pull-secret
-image-pull-secret: namespace
-	kubectl create secret docker-registry camunda-docker-registry \
-	  --docker-server="$(camundaDockerRegistryUrl)" \
-	  --docker-username="$(camundaDockerRegistryUsername)" \
-	  --docker-password="$(camundaDockerRegistryPassword)" \
-	  --docker-email="$(camundaDockerRegistryEmail)" \
-	  --namespace $(namespace)
