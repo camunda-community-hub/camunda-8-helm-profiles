@@ -13,11 +13,11 @@ cert-manager:
 
 .PHONY: letsencrypt-staging
 letsencrypt-staging:
-	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl apply -n cert-manager -f -
+	cat $(root)/include/letsencrypt-stage.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl apply -n cert-manager -f -
 	
 .PHONY: letsencrypt-prod
 letsencrypt-prod:
-	cat $(root)/include/letsencrypt.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | sed -E "s/acme-staging-v02/acme-v02/g" | kubectl apply -n cert-manager -f -
+	cat $(root)/include/letsencrypt-prod.yaml | sed -E "s/someone@somewhere.io/$(certEmail)/g" | kubectl apply -n cert-manager -f -
 
 #TODO: succeeds, but does not seem to have right effect
 .PHONY: letsencrypt-prod-patch
@@ -33,6 +33,11 @@ annotate-remove-ingress-tls:
 .PHONY: annotate-ingress-tls
 annotate-ingress-tls: annotate-remove-ingress-tls
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
+	make get-ingress
+
+.PHONY: annotate-letsencrypt-stage
+annotate-letsencrypt-stage: annotate-remove-ingress-tls
+	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt-stage
 	make get-ingress
 
 # clean cert-manager and cluster issuer

@@ -12,22 +12,27 @@ global:
       enabled: true
       secretName: "tls-secret"
   image:
-    tag: 8.2.3
-    # tag: latest
+    tag: latest
+    # tag: 8.3.0-alpha6
     # pullPolicy: Always
   identity:
-    auth:
+    # auth:
       # Disable the Identity authentication
       # it will fall back to basic-auth: demo/demo as default user
-      enabled: false
-    #auth:
-    #  publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
-    #  operate:
-    #    redirectUrl: "https://YOUR_HOSTNAME/operate"
-    #  tasklist:
-    #    redirectUrl: "https://YOUR_HOSTNAME/tasklist"
-    #  optimize:
-    #    redirectUrl: "https://YOUR_HOSTNAME/optimize"
+      # enabled: false
+    auth:
+     publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
+     operate:
+       redirectUrl: "https://YOUR_HOSTNAME/operate"
+     tasklist:
+       redirectUrl: "https://YOUR_HOSTNAME/tasklist"
+     optimize:
+       redirectUrl: "https://YOUR_HOSTNAME/optimize"
+     webModeler:
+       redirectUrl: "https://YOUR_HOSTNAME/webmodeler"
+
+connectors:
+  enabled: false
 
 operate:
   contextPath: "/operate"
@@ -36,37 +41,77 @@ tasklist:
   contextPath: "/tasklist"
 
 optimize:
+  enabled: false
   contextPath: "/optimize"
 
 identity:
-  enabled: false
-#identity:
-#  contextPath: "/identity"
-#  fullURL: "https://YOUR_HOSTNAME/identity"
+  contextPath: "/identity"
+  fullURL: "https://YOUR_HOSTNAME/identity"
 
   keycloak:
-    #  ingress:
-    #    enabled: true
-    #    ingressClassName: nginx
-    #    hostname: "dnslabel.location.cloudapp.azure.com"
-    #    path: "/keycloak"
-    #    tls: true
-    #    extraHosts: []
-    #    extraTls:
-    #    - hosts:
-    #      - dnslabel.location.cloudapp.azure.com
-    #      secretName: "tls-secret"
+    image:
+      repository: bitnami/keycloak
+      tag: 21.1.2
     extraEnvVars:
       - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
         value: "true"
       - name: KEYCLOAK_FRONTEND_URL
         value: "https://YOUR_HOSTNAME/auth"
 
+
+webModeler:
+  enabled: true
+  contextPath: "/webmodeler"
+  image:
+    pullSecrets:
+      # replace with the name of the previously created secret
+      - name: camunda-docker-registry-secret
+  restapi:
+    mail:
+      smtpHost: smtp.example.com
+      smtpPort: 587
+      smtpUser: user
+      smtpPassword: secret
+      # email address to be displayed as sender of emails from Web Modeler
+      fromAddress: no-reply@example.com
+    # Restapi.env can be used to set extra environment variables in each restapi container
+    env:
+      - name: ZEEBE_CA_CERTIFICATE_PATH
+        value: /camunda/cert/signed-client.crt
+    # Restapi.command can be used to override the default command provided by the container image, see https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+    command: []
+    # Restapi.extraVolumes can be used to define extra volumes for the restapi pods, useful for TLS and self-signed certificates
+    extraVolumes:
+      - name: zeebe-client-secret
+        secret:
+          secretName: zeebe-gateway-client-secret
+    # Restapi.extraVolumeMounts can be used to mount extra volumes for the restapi pods, useful for TLS and self-signed certificates
+    extraVolumeMounts:
+      - name: zeebe-client-secret
+        mountPath: /camunda/cert/signed-client.crt
+        subPath: signed-client.crt
+        readOnly: true
+
+postgresql:
+  enabled: true
+
 zeebe-gateway:
+  env:
+    - name: ZEEBE_GATEWAY_SECURITY_AUTHENTICATION_MODE
+      value: "none"
   ingress:
     enabled: true
     className: nginx
     host: "YOUR_HOSTNAME"
+    annotations:
+      ingress.kubernetes.io/rewrite-target: "/"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+      nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    tls:
+      enabled: true
+      secretName: "zeebe-gateway-secret"
+      # secretName: tls-secret
   replicas: 1
   resources:
     requests:
@@ -104,9 +149,3 @@ elasticsearch:
     limits:
       cpu: "1000m"
       memory: "2Gi"
-
-
-
-
-
-

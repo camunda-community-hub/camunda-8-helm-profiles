@@ -41,7 +41,7 @@ fqdn: ingress-ip-from-service
 	@echo "Fully qualified domain name is: $(fqdn)"
 
 camunda-values-nginx-all.yaml: fqdn
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-all.yaml; \
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-all.yaml; \
 
 .PHONY: clean-ingress
 clean-ingress:
@@ -51,6 +51,10 @@ clean-ingress:
 
 camunda-values-ingress.yaml: fqdn
 	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress.yaml
+
+.PHONY: annotate-ingress-proxy-buffer-size
+annotate-ingress-proxy-buffer-size:
+	kubectl -n $(namespace) annotate ingress camunda-camunda-platform nginx.ingress.kubernetes.io/proxy-buffer-size=128k
 
 .PHONY: external-urls-with-fqdn
 external-urls-with-fqdn: fqdn

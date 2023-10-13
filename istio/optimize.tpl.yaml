@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: RELEASE-optimize-vs
+spec:
+  hosts:
+  - "optimize.aws.c8sm.com"
+  gateways:
+  - RELEASE-gateway
+  http:
+  - match:
+    - port: 443
+    route:
+    - destination:
+        host: RELEASE-optimize
+        port:
+          number: 80
+      headers:
+        request:
+          set:
+            x-forwarded-proto: https

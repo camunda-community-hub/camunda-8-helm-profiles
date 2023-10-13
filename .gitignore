@@ -16,7 +16,7 @@ google/keycloak/camunda/camunda-values-ext-keycloak.yaml
 google/external-keycloak/keycloak-secrets.yaml
 aws/cluster.yaml
 aws/camunda-values-aws.yaml
-**/ebs-csi-driver-trust-policy.json
+aws/ebs-csi-driver-trust-policy.json
 aws/ingress/nginx/tls/cluster.yaml
 aws/ingress/nginx/camunda-values-ingress.yaml
 aws/ingress/nginx/tls/camunda-values-nginx-aws.yaml
@@ -29,6 +29,7 @@ cfssl/certs
 keycloak/keycloak-secrets.yaml
 keycloak/keycloak-values.yaml
 **/oauth2-values.yaml
+google/multi-region/active-active/generated
 **/operate-configmap-importer-archiver.yaml
 **/operate-configmap-webapp.yaml
 **/operate-deployment-importer-archiver.yaml
