@@ -75,22 +75,22 @@ webModeler:
       # email address to be displayed as sender of emails from Web Modeler
       fromAddress: no-reply@example.com
     # Restapi.env can be used to set extra environment variables in each restapi container
-    env:
-      - name: ZEEBE_CA_CERTIFICATE_PATH
-        value: /camunda/cert/signed-client.crt
+    # env:
+    #   - name: ZEEBE_CA_CERTIFICATE_PATH
+    #     value: /camunda/cert/signed-client.crt
     # Restapi.command can be used to override the default command provided by the container image, see https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
     command: []
     # Restapi.extraVolumes can be used to define extra volumes for the restapi pods, useful for TLS and self-signed certificates
-    extraVolumes:
-      - name: zeebe-client-secret
-        secret:
-          secretName: zeebe-gateway-client-secret
+    # extraVolumes:
+    #   - name: zeebe-client-secret
+    #     secret:
+    #       secretName: zeebe-gateway-client-secret
     # Restapi.extraVolumeMounts can be used to mount extra volumes for the restapi pods, useful for TLS and self-signed certificates
-    extraVolumeMounts:
-      - name: zeebe-client-secret
-        mountPath: /camunda/cert/signed-client.crt
-        subPath: signed-client.crt
-        readOnly: true
+    # extraVolumeMounts:
+    #   - name: zeebe-client-secret
+    #     mountPath: /camunda/cert/signed-client.crt
+    #     subPath: signed-client.crt
+    #     readOnly: true
 
 postgresql:
   enabled: true
@@ -110,8 +110,8 @@ zeebe-gateway:
       nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
     tls:
       enabled: true
-      secretName: "zeebe-gateway-secret"
-      # secretName: tls-secret
+      secretName: tls-secret
+      # secretName: "zeebe-gateway-secret"
   replicas: 1
   resources:
     requests:
@@ -137,15 +137,25 @@ zeebe:
 
 elasticsearch:
   enabled: true
-  imageTag: 7.17.3
-  replicas: 1
+  # imageTag: 7.17.3
+  master:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "512M"
+      limits:
+        cpu: "1000m"
+        memory: "2Gi"
+  data:
+    replicaCount: 0
+  coordinating:
+    replicaCount: 0
+  ingest:
+    replicaCount: 0
+
+  # data:
+  #   replicaCount: 1
   minimumMasterNodes: 1
   # Allow no backup for single node setups
   clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "512M"
-    limits:
-      cpu: "1000m"
-      memory: "2Gi"

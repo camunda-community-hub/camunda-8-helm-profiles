@@ -37,13 +37,24 @@ chart ?= camunda/camunda-platform
 #chartValues ?= $(root)/development/camunda-values.yaml
 chartValues ?= $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 
-.PHONY: all
-all: ingress-nginx-kind cert-manager letsencrypt-prod camunda-all
+.PHONY: def
+def: ingress-nginx-kind cert-manager letsencrypt-prod camunda-all
 
 .PHONY: camunda-all
-camunda-all: camunda-values-nginx-localhost.yaml namespace create-docker-registry-secret \
-	create-zeebe-gateway-certs camunda annotate-ingress-tls \
-	annotate-ingress-proxy-buffer-size external-urls
+camunda-all: camunda-values-nginx-localhost.yaml namespace \
+	create-docker-registry-secret \
+	camunda \
+	annotate-ingress-tls \
+  external-urls
+
+.PHONY: camunda-cfssl
+camunda-cfssl: camunda-values-nginx-localhost.yaml namespace \
+	create-docker-registry-secret \
+	create-zeebe-gateway-certs \
+	camunda \
+	annotate-ingress-tls \
+	annotate-ingress-proxy-buffer-size \
+	external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
@@ -61,13 +72,13 @@ camunda-values-nginx-localhost.yaml:
 	sed "s/YOUR_HOSTNAME/127.0.0.1.nip.io/g;" $(root)/kind/ingress/nginx/tls/camunda-values.yaml > $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
-.PHONY: camunda
-camunda: namespace create-docker-registry-secret create-zeebe-gateway-certs
-	@echo "Attempting to install camunda using chartValues: $(chartValues)"
-	helm repo add camunda https://helm.camunda.io
-	helm repo update camunda
-	helm search repo $(chart)
-	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
+# .PHONY: camunda
+# camunda: namespace create-docker-registry-secret create-zeebe-gateway-certs
+# 	@echo "Attempting to install camunda using chartValues: $(chartValues)"
+# 	helm repo add camunda https://helm.camunda.io
+# 	helm repo update camunda
+# 	helm search repo $(chart)
+# 	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
 # 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
 
