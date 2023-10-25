@@ -1,21 +1,23 @@
 # Multi-Region Active-Active Setup for Camunda 8
 
-Note: This Helm profile uses a [slightly-modified version of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/pull/1006).
+Note: This Helm profile uses a [slightly-modified version of Camunda's Helm chart](https://github.com/camunda-consulting/camunda-platform-helm-multi-region/tree/main) (a [pull request](https://github.com/camunda/camunda-platform-helm/pull/1006) is pending).
+
+## Prerequisite: Kubernetes Cross-Cluster Communication
+
+A multi-region setup in Kubernetes really means a multi-cluster setup and that comes with a networking challenge: How to manage connectivity between my pods across different Kubernetes clusters? You should setup proper firewall rules and correctly route traffic among the pods. For that you have many options:
+* ["DNS Chainging" with kube-dns](https://youtu.be/az4BvMfYnLY?si=RmauCqchHwsmCDZZ&t=2004): That's the option we took in this example. We setup kube-dns automatically through a [python script](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/main/google/multi-region/active-active/setup-zeebe.py) to route traffic to the distant cluster based on the namespace. This requires to have different namespaces in each cluster.
+* [Istio](https://medium.com/@danielepolencic/scaling-kubernetes-to-multiple-clusters-and-regionss-491813c3c8cd) ([video](https://youtu.be/_8FNsvoECPU?si=dUOFwaaUxRroj8MP))
+* [Skupper](https://medium.com/@shailendra14k/deploy-the-skupper-networks-89800323925c#:~:text=Skupper%20creates%20a%20service%20network,secure%20communication%20across%20Kubernetes%20clusters.)
+* [Linkerd multi-cluster communication](https://linkerd.io/2.14/features/multicluster/)
+* [Google Kubernetes Engine (GKE) Fleet Management](https://cloud.google.com/kubernetes-engine/docs/fleets-overview)
+* [Azure Kubernetes Fleet Manager](https://azure.microsoft.com/en-us/products/kubernetes-fleet-manager)
+* etc.
 
 ## Special Case: Dual-Region Active-Active
 
 We are basing our dual-region active-active setup on standard Kubernetes features that are cloud-provider-independent. The heavy-lifting of the setup is done by kubectl and Helm. Python and Make are just used for scripting combinations of kubectl and Helm. These scripts could be easily ported to Infrastructure as Code languages. You can run `make --dry-run` on any of the Makefile targets mentioned below to see which kubectl and Helm commands are used.
 
 ### Initial Setup
-
-#### Prerequisites
-
-Multi-region setup comes with a network issue : How to manage connectivity between my pods across different clusters? You should setup proper firewall rules and correctly route traffic to the pods. For that you have multiple options :
-* Kube-dns : That's the option we took in this example. We setup kube-dns automatically through a [python script](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/main/google/multi-region/active-active/setup-zeebe.py) to route traffic to the distant cluster based on the namespace. This requires to have different namespaces in each cluster.
-* Istio is [described in this article](https://medium.com/@danielepolencic/scaling-kubernetes-to-multiple-clusters-and-regionss-491813c3c8cd)
-* Skupper is [described in this article](https://medium.com/@shailendra14k/deploy-the-skupper-networks-89800323925c#:~:text=Skupper%20creates%20a%20service%20network,secure%20communication%20across%20Kubernetes%20clusters.)
-* Linkerd is [described in this article](https://linkerd.io/2.14/features/multicluster/)
-* etc.
   
 #### Kubernetes Clusters
 
