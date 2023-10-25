@@ -18,8 +18,14 @@ A multi-region setup in Kubernetes really means a multi-cluster setup and that c
 We are basing our dual-region active-active setup on standard Kubernetes features that are cloud-provider-independent. The heavy-lifting of the setup is done by kubectl and Helm. Python and Make are just used for scripting combinations of kubectl and Helm. These scripts could be easily ported to Infrastructure as Code languages. You can run `make --dry-run` on any of the Makefile targets mentioned below to see which kubectl and Helm commands are used.
 
 ### Initial Setup
-  
-#### Kubernetes Clusters
+
+### Prepare installation
+
+You should clone this repository as well as the [second one](https://github.com/camunda-consulting/camunda-platform-helm-multi-region/tree/main) locally. This repository  references the first one in the makefile of each region : https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/d9168169ffe368a817e67c8cd70217ace1071285/google/multi-region/active-active/region0/Makefile#L29. So depending on how you clone these repositories you may want to change that line.
+
+The installation configurations are available at the beginning of these makefiles (clustername, region, project, machine type, etc). For this example, we decided to name our namespaces as our regions for an easier readability. You may want to change this. In such a case and if you want to use setup-zeebe.py to configure kube-dns,  this script should be updated accordingly.
+
+#### Prepare Kubernetes Clusters
 
 Edit [region0/Makefile](region0/Makefile) and [region1/Makefile](region1/Makefile)
 and adjust `project`, `region`, and `clusterName`.
@@ -35,6 +41,9 @@ make kube
 cd ..
 ```
 
+#### Configure Kube-dns
+
+Note : this step should not be executed if you plan to user another solution for cross cluster communication.
 Edit the Python script [setup-zeebe.py](./setup-zeebe.py)
 and adjust the lists of `contexts` and `regions`.
 To get the names of your kubectl "contexts" for each of your clusters, run:
