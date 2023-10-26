@@ -6,7 +6,7 @@
 #project ?= camunda-researchanddevelopment
 project ?= camunda-researchanddevelopment
 #region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
-region ?= europe-west1-b
+region ?= us-east1-b
 clusterName ?= cdame-region-1
 
 machineType ?= n2-standard-8

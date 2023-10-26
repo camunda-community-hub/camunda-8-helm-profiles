@@ -18,13 +18,12 @@ from time import sleep
 #
 # example:
 # contexts = {
-#     'us-central1-a': 'gke_cockroach-alex_us-central1-a_my-cluster',
-#     'us-central1-b': 'gke_cockroach-alex_us-central1-b_my-cluster',
-#     'us-west1-b': 'gke_cockroach-alex_us-west1-b_my-cluster',
+#     'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
+#     'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
 # }
 contexts = {
     'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
-    'europe-west1-b': 'gke_camunda-researchanddevelopment_europe-west1-b_cdame-region-1',
+    'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
 }
 
 # Fill in the `regions` map with the zones and corresponding regions of your
@@ -42,7 +41,7 @@ contexts = {
 # }
 regions = {
     'europe-west4-b': 'europe-west4',
-    'europe-west1-b': 'europe-west1',
+    'us-east1-b': 'us-east1',
 }
 
 # Paths to directories in which to store certificates and generated YAML files.
@@ -63,10 +62,6 @@ if len(contexts) == 0:
 if len(regions) != 0 and len(regions) != len(contexts):
     exit("regions not specified for all kubectl contexts (%d regions, %d contexts)" % (len(regions), len(contexts)))
 
-# try:
-#     check_call(["which", cockroach_path])
-# except:
-#     exit("no binary found at provided path '" + cockroach_path + "'; please put a cockroach binary in your path or change the cockroach_path variable")
 
 for zone, context in contexts.items():
     try:

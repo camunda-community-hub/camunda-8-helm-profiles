@@ -11,7 +11,7 @@ from subprocess import call
 #   kubectl config get-contexts
 contexts = {
     'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
-    'europe-west1-b': 'gke_camunda-researchanddevelopment_europe-west1-b_cdame-region-1',
+    'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
 }
 
 certs_dir = './certs'
