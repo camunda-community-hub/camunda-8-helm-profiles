@@ -68,8 +68,8 @@ The rule should have the correct :
 
 #### Installing Camunda
 
-Edit [region0/camunda-values.yaml](region0/camunda-values.yaml) and adjust
-`ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS`
+Adjust `ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS` in [region0/camunda-values.yaml](region0/camunda-values.yaml) and [region1/camunda-values.yaml](region1/camunda-values.yaml)
+
 
 ```sh
 cd region0
@@ -77,6 +77,49 @@ make
 cd ../region1
 make
 ```
+
+##### What happens behind the scenes?
+
+`make` is going to run commands similar to the following output of `make --dry-run` for region 0:
+
+```sh
+gcloud config set project camunda-researchanddevelopment
+gcloud container clusters get-credentials cdame-region-0 --region europe-west4-b
+kubectl create namespace europe-west4-b
+kubectl config set-context --current --namespace=europe-west4-b
+kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
+echo "Attempting to install camunda using chartValues: camunda-values.yaml"
+helm repo add camunda https://helm.camunda.io
+helm repo update camunda
+helm search repo ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform
+helm install --namespace europe-west4-b camunda ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform -f camunda-values.yaml --skip-crds
+echo To access operate: make port-operate, then browse to: http://localhost:8081
+echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
+echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
+echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+```
+
+and for region 1:
+
+```sh
+gcloud config set project camunda-researchanddevelopment
+gcloud container clusters get-credentials cdame-region-1 --region europe-west1-b
+kubectl create namespace europe-west1-b
+kubectl config set-context --current --namespace=europe-west1-b
+kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
+echo "Attempting to install camunda using chartValues: camunda-values.yaml"
+helm repo add camunda https://helm.camunda.io
+helm repo update camunda
+helm search repo ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform
+helm install --namespace europe-west1-b camunda ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform -f camunda-values.yaml --skip-crds
+echo To access operate: make port-operate, then browse to: http://localhost:8081
+echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
+echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
+echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+```
+
+If you don't want to use make you can also run the above commands
+manually or with some other automation tool.
 
 #### Verification
 
