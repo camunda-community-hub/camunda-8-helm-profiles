@@ -1,6 +1,16 @@
 # Multi-Region Active-Active Setup for Camunda 8
 
-Note: This Helm profile uses a [slightly-modified version of Camunda's Helm chart](https://github.com/camunda-consulting/camunda-platform-helm-multi-region/tree/main) (a [pull request](https://github.com/camunda/camunda-platform-helm/pull/1019) has been merged and is pending release).
+Note: This Helm profile uses [an unreleased version of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/) (a [pull request](https://github.com/camunda/camunda-platform-helm/pull/1019) has been merged and is pending release).
+
+## WARNING
+If you want Camunda enterprise support for your multi-region setup,
+you must have your configuration and run books reviewed by Camunda before going to production.
+Due to the complexity of operating multi-region setups and the dependencies on the underlying Kubernetes prerequisites,
+this is required for us to be able to assist you in the event of an outage.
+If you operate this incorrectly, you risk corrupting and losing all data, especially in the dual-region case.
+Consider three regions if possible. As soon as you begin planning a multi-region setup, please contact your customer success manager.
+Camunda reserves the right to restrict support if no review was performed prior to launch or if the review revealed significant risks.
+
 
 ## Prerequisite: Kubernetes Cross-Cluster Communication
 
@@ -18,13 +28,13 @@ A multi-region setup in Kubernetes really means a multi-cluster setup and that c
 
 ## Special Case: Dual-Region Active-Active
 
-We are basing our dual-region active-active setup on standard Kubernetes features that are cloud-provider-independent. The heavy-lifting of the setup is done by kubectl and Helm. Python and Make are just used for scripting combinations of kubectl and Helm. These scripts could be easily ported to Infrastructure as Code languages. You can run `make --dry-run` on any of the Makefile targets mentioned below to see which kubectl and Helm commands are used.
+We are basing our dual-region active-active setup on standard Kubernetes features that are cloud-provider-independent. The heavy-lifting of the setup is done by `kubectl` and `helm`. Python and Make are just used for scripting combinations of kubectl and Helm. These scripts could be easily ported to Infrastructure as Code languages. You can run `make --dry-run` on any of the Makefile targets mentioned below to see which kubectl and Helm commands are used.
 
 ### Initial Setup
 
 ### Prepare installation
 
-You should clone this repository as well as the [second one](https://github.com/camunda-consulting/camunda-platform-helm-multi-region/tree/main) locally. This repository  references the first one in the makefile of each region : https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/d9168169ffe368a817e67c8cd70217ace1071285/google/multi-region/active-active/region0/Makefile#L29. So depending on how you clone these repositories you may want to change that line.
+You should clone this repository as well as the [second one](https://github.com/camunda-consulting/camunda-platform-helm) locally. This repository  references the first one in the makefile of each region : https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/d9168169ffe368a817e67c8cd70217ace1071285/google/multi-region/active-active/region0/Makefile#L29. So depending on how you clone these repositories you may want to change that line.
 
 The installation configurations are available at the beginning of these makefiles (clustername, region, project, machine type, etc). For this example, we decided to name our namespaces as our regions for an easier readability. You may want to change this. In such a case and if you want to use setup-zeebe.py to configure kube-dns,  this script should be updated accordingly.
 
@@ -91,15 +101,7 @@ gcloud container clusters get-credentials cdame-region-0 --region europe-west4-b
 kubectl create namespace europe-west4-b
 kubectl config set-context --current --namespace=europe-west4-b
 kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
-echo "Attempting to install camunda using chartValues: camunda-values.yaml"
-helm repo add camunda https://helm.camunda.io
-helm repo update camunda
-helm search repo ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform
-helm install --namespace europe-west4-b camunda ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform -f camunda-values.yaml --skip-crds
-echo To access operate: make port-operate, then browse to: http://localhost:8081
-echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
-echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
-echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+helm install --namespace europe-west4-b camunda ../../../../../camunda-platform-helm/charts/camunda-platform -f camunda-values.yaml --skip-crds
 ```
 
 and for region 1:
@@ -110,15 +112,7 @@ gcloud container clusters get-credentials cdame-region-1 --region europe-west1-b
 kubectl create namespace europe-west1-b
 kubectl config set-context --current --namespace=europe-west1-b
 kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
-echo "Attempting to install camunda using chartValues: camunda-values.yaml"
-helm repo add camunda https://helm.camunda.io
-helm repo update camunda
-helm search repo ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform
-helm install --namespace europe-west1-b camunda ../../../../../camunda-platform-helm-multi-region/charts/camunda-platform -f camunda-values.yaml --skip-crds
-echo To access operate: make port-operate, then browse to: http://localhost:8081
-echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
-echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
-echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+helm install --namespace europe-west1-b camunda ../../../../../camunda-platform-helm/charts/camunda-platform -f camunda-values.yaml --skip-crds
 ```
 
 If you don't want to use make you can also run the above commands
@@ -203,10 +197,10 @@ Operate has a defect for now and if the zeebe brokers negotiation takes too long
 
 ##### Elasticsearch
 
-Elastic doesn't support a dual active active setup. You would need a tie breaker in a 3rd region : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
-Cross Cluster Replication is an Active-Passive setup that doesn't fit the current requirement.
+Elastic doesn't support a dual-region active-active setup. You would need a tie breaker in a 3rd region : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
+Cross-Cluster Replication is an Active-Passive setup that doesn't fit the current requirement.
 
-So the current approach would be to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters & then start the failOver.
+So the current approach is to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters & then start the failOver.
 Once the failback is started, resume the exporters.
 
 You can check the status of the Elasticsearch cluster using:

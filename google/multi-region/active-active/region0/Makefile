@@ -26,7 +26,7 @@ namespace ?= $(region)
 # Helm release name
 release ?= camunda
 # Helm chart coordinates for Camunda
-chart ?= $(root)/../camunda-platform-helm-multi-region/charts/camunda-platform
+chart ?= $(root)/../camunda-platform-helm/charts/camunda-platform
 
 chartValues ?= camunda-values.yaml
 
