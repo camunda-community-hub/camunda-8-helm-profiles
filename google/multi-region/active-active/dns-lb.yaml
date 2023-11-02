@@ -1,24 +1,22 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    # TODO: Check whether AWS/Azure can use internal load balancers. Google
-    # can't, unfortunately.
-    # service.beta.kubernetes.io/aws-load-balancer-internal: "true"
-    # service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-    # TODO Falko try this:
-    # cloud.google.com/load-balancer-type: "Internal"
-  labels:
-    k8s-app: kube-dns
   name: kube-dns-lb
   namespace: kube-system
+  labels:
+    k8s-app: kube-dns
+  annotations:
+    # see: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    networking.gke.io/load-balancer-type: "Internal"
 spec:
+  type: LoadBalancer
+  sessionAffinity: None
+  selector:
+    k8s-app: kube-dns
   ports:
   - name: dns
     port: 53
     protocol: UDP
     targetPort: 53
-  selector:
-    k8s-app: kube-dns
-  sessionAffinity: None
-  type: LoadBalancer
