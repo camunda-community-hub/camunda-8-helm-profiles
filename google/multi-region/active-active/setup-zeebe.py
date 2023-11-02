@@ -26,41 +26,14 @@ contexts = {
     'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
 }
 
-# Fill in the `regions` map with the zones and corresponding regions of your
-# clusters.
-#
-# Setting regions is optional, but recommended, because it improves cockroach's
-# ability to diversify data placement if you use more than one zone in the same
-# region. If you aren't specifying regions, just leave the map empty.
-#
-# example:
-# regions = {
-#     'us-central1-a': 'us-central1',
-#     'us-central1-b': 'us-central1',
-#     'us-west1-b': 'us-west1',
-# }
-regions = {
-    'europe-west4-b': 'europe-west4',
-    'us-east1-b': 'us-east1',
-}
-
-# Paths to directories in which to store certificates and generated YAML files.
-certs_dir = './certs'
-ca_key_dir = './my-safe-directory'
+# Path to directory generated YAML files.
 generated_files_dir = './generated'
-
-# Path to the cockroach binary on your local machine that you want to use
-# generate certificates. Defaults to trying to find cockroach in your PATH.
-cockroach_path = 'cockroach'
 
 # ------------------------------------------------------------------------------
 
 # First, do some basic input validation.
 if len(contexts) == 0:
     exit("must provide at least one Kubernetes cluster in the `contexts` map at the top of the script")
-
-if len(regions) != 0 and len(regions) != len(contexts):
-    exit("regions not specified for all kubectl contexts (%d regions, %d contexts)" % (len(regions), len(contexts)))
 
 
 for zone, context in contexts.items():
@@ -69,37 +42,15 @@ for zone, context in contexts.items():
     except:
         exit("unable to make basic API call using kubectl context '%s' for cluster in zone '%s'; please check if the context is correct and your Kubernetes cluster is working" % (context, zone))
 
-# Set up the necessary directories and certificates. Ignore errors because they may already exist.
-try:
-    os.mkdir(certs_dir)
-except OSError:
-    pass
-try:
-    os.mkdir(ca_key_dir)
-except OSError:
-    pass
+# Set up the necessary directory. Ignore errors because they may already exist.
 try:
     os.mkdir(generated_files_dir)
 except OSError:
     pass
 
-# check_call([cockroach_path, 'cert', 'create-ca', '--certs-dir', certs_dir, '--ca-key', ca_key_dir+'/ca.key'])
-# check_call([cockroach_path, 'cert', 'create-client', 'root', '--certs-dir', certs_dir, '--ca-key', ca_key_dir+'/ca.key'])
 
-# For each cluster, create secrets containing the node and client certificates.
-# Note that we create the root client certificate in both the zone namespace
-# and the default namespace so that it's easier for clients in the default
-# namespace to use without additional steps.
-#
-# Also create a load balancer to each cluster's DNS pods.
+# For each cluster, create a load balancer to its DNS pod.
 for zone, context in contexts.items():
-    #check_call(['kubectl', 'create', 'namespace', zone, '--context', context])
-    # check_call(['kubectl', 'create', 'secret', 'generic', 'cockroachdb.client.root', '--from-file', certs_dir, '--context', context])
-    # check_call(['kubectl', 'create', 'secret', 'generic', 'cockroachdb.client.root', '--namespace', zone, '--from-file', certs_dir, '--context', context])
-    # check_call([cockroach_path, 'cert', 'create-node', '--certs-dir', certs_dir, '--ca-key', ca_key_dir+'/ca.key', 'localhost', '127.0.0.1', 'cockroachdb-public', 'cockroachdb-public.default', 'cockroachdb-public.'+zone, 'cockroachdb-public.%s.svc.cluster.local' % (zone), '*.cockroachdb', '*.cockroachdb.'+zone, '*.cockroachdb.%s.svc.cluster.local' % (zone)])
-    # check_call(['kubectl', 'create', 'secret', 'generic', 'cockroachdb.node', '--namespace', zone, '--from-file', certs_dir, '--context', context])
-    # check_call('rm %s/node.*' % (certs_dir), shell=True)
-
     check_call(['kubectl', 'apply', '-f', 'dns-lb.yaml', '--context', context])
 
 # Set up each cluster to forward DNS requests for zone-scoped namespaces to the
@@ -144,37 +95,10 @@ data:
     check_call(['kubectl', 'apply', '-f', config_filename, '--namespace', 'kube-system', '--context', context])
     check_call(['kubectl', 'delete', 'pods', '-l', 'k8s-app=kube-dns', '--namespace', 'kube-system', '--context', context])
 
-# Create a cockroachdb-public service in the default namespace in each cluster.
-# for zone, context in contexts.items():
-#     yaml_file = '%s/external-name-svc-%s.yaml' % (generated_files_dir, zone)
-#     with open(yaml_file, 'w') as f:
-#         check_call(['sed', 's/YOUR_ZONE_HERE/%s/g' % (zone), 'external-name-svc.yaml'], stdout=f)
-#     check_call(['kubectl', 'apply', '-f', yaml_file, '--context', context])
-
-# Generate the join string to be used.
+# Generate ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
 join_addrs = []
 for zone in contexts:
     for i in range(3):
         join_addrs.append('camunda-zeebe-%d.camunda-zeebe.%s' % (i, zone))
 join_str = ','.join(join_addrs)
 print(join_str)
-
-# Create the cockroach resources in each cluster.
-# for zone, context in contexts.items():
-#     if zone in regions:
-#         locality = 'region=%s,zone=%s' % (regions[zone], zone)
-#     else:
-#         locality = 'zone=%s' % (zone)
-#     yaml_file = '%s/cockroachdb-statefulset-%s.yaml' % (generated_files_dir, zone)
-#     with open(yaml_file, 'w') as f:
-#         check_call(['sed', 's/JOINLIST/%s/g;s/LOCALITYLIST/%s/g' % (join_str, locality), 'cockroachdb-statefulset-secure.yaml'], stdout=f)
-#     check_call(['kubectl', 'apply', '-f', yaml_file, '--namespace', zone, '--context', context])
-
-# Finally, initialize the cluster.
-# print 'Sleeping 30 seconds before attempting to initialize cluster to give time for volumes to be created and pods started.'
-# sleep(30)
-# for zone, context in contexts.items():
-#     check_call(['kubectl', 'create', '-f', 'cluster-init-secure.yaml', '--namespace', zone, '--context', context])
-#     # We only need run the init command in one zone given that all the zones are
-#     # joined together as one cluster.
-#     break
