@@ -9,13 +9,14 @@ global:
     className: nginx
     host: "YOUR_HOSTNAME"
     tls:
-      enabled: true
+      enabled: false
       secretName: "tls-secret"
   image:
     tag: latest
     # pullPolicy: Always
   identity:
     auth:
+      enabled: false
       publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
       operate:
         redirectUrl: "https://YOUR_HOSTNAME/operate"
@@ -35,11 +36,10 @@ tasklist:
   contextPath: "/tasklist"
 
 optimize:
-  enabled: false
   contextPath: "/optimize"
 
 connectors:
-  enabled: true
+  enabled: false
   inbound:
     mode: oauth
   contextPath: "/connectors"
@@ -51,7 +51,7 @@ connectors:
 #      value: demo
 
 webModeler:
-  enabled: true
+  enabled: false
   contextPath: "/modeler"
   image:
     pullSecrets:
@@ -67,6 +67,7 @@ postgresql:
 #  enabled: true
 
 identity:
+  enabled: false
   contextPath: "/identity"
   fullURL: "https://YOUR_HOSTNAME/identity"
 

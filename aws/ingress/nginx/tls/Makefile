@@ -4,10 +4,10 @@
 # Otherwise, these values will be used to create a new Cluster
 
 #region ?= us-east-1
-region ?= YOUR_AWS_REGION
-zones ?= ['us-east-1a', 'us-east-1b']
-clusterName ?= CLUSTER_NAME
-clusterVersion ?= 1.25
+region ?= us-east-2
+zones ?= ['us-east-2a', 'us-east-2b']
+clusterName ?= paul-bms-test-01
+clusterVersion ?= 1.28
 
 machineType ?= c6i.4xlarge
 # TODO: Currently, auto scaling configuration using these scripts for AWS is not working
@@ -15,11 +15,11 @@ machineType ?= c6i.4xlarge
 desiredSize ?= 3
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@camunda.com
+certEmail ?= paul.lungu@camunda.com
 
 # Configure the fully qualified domain name
 # The dnsLabel is the first part of the domain address. It will be used no matter what baseDomain you configure below
-dnsLabel ?= YOUR_DNS_LABEL
+dnsLabel ?= paul
 
 # By default, we'll use nip.io (See more at [https://nip.io](http://nip.io) )
 # The fully qualified domain name will look something like <dnsLabel>.<ip address>.nip.io
@@ -27,7 +27,7 @@ dnsLabel ?= YOUR_DNS_LABEL
 
 # Another option is to replace baseDomainName with your own domain name
 # In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
-baseDomainName ?= upgradingdave.com
+# baseDomainName ?= upgradingdave.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases

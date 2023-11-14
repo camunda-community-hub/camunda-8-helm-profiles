@@ -1,5 +1,6 @@
 
 cluster.yaml:
+	-rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml
 	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR CLUSTER VERSION>/$(clusterVersion)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g;" $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
 
 .PHONY: clean-cluster-yaml
@@ -23,7 +24,7 @@ ebs-csi-controller-addon: ebs-csi-attach-role-policy create-ebs-csi-addon annota
 
 .PHONY: fetch-id-values
 fetch-id-values:
-	$(eval oidc_id := $(shell aws eks describe-cluster --name $(clusterName) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
+	$(eval oidc_id := $(shell aws eks describe-cluster --name $(clusterName) --region $(region) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
 	$(eval account_id_value := $(shell aws sts get-caller-identity | grep Account | cut -d ':' -f 2))
 	$(eval account_id := $(shell echo $(account_id_value) | tr -d ',' ))
 
@@ -51,7 +52,7 @@ ebs-csi-attach-role-policy: create-ebs-csi-role
 .PHONY: create-ebs-csi-addon
 create-ebs-csi-addon: fetch-id-values
 # 4. Add the aws-ebs-csi-driver addon to the cluster
-	aws eks create-addon --cluster-name $(clusterName) --addon-name aws-ebs-csi-driver \
+	aws eks create-addon --cluster-name $(clusterName) --region $(region) --addon-name aws-ebs-csi-driver \
 	  --service-account-role-arn arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName);
 	@echo "waiting 20 seconds to create the aws-ebs-csi-driver addon";
 	@sleep 20;
@@ -130,7 +131,9 @@ fqdn-aws: ingress-aws-ip-from-service
 camunda-values-ingress-aws.yaml: fqdn-aws
 	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress-aws.yaml
 
-camunda-values-nginx-tls-aws.yaml: fqdn-aws
+camunda-values-nginx-tls-aws.yaml: fqdn-aws camunda-values-grock-tls
+
+camunda-values-grock-tls:
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml;
 
 camunda-values-istio-aws.yaml:
