@@ -332,3 +332,7 @@ You need to [create Google Cloud Storage Bucket](https://console.cloud.google.co
 You need to [set up a service account](https://console.cloud.google.com/iam-admin/serviceaccounts/create) that will be used by Elasticsearch to Backup. You should grant it the "Storage Admin" role to allow it to access the bucket.
 
 Download the JSON API key and save it in each region as gcs_backup_key.json
+## FAQ
+### Broker names are same in all the regions instead of incremental, e.g. there is a camunda-zeebe-0 in every region?
+These pod names are correct. Kubernetes counts each stateful set starting from zero. The fully qualified names are still globally unique due to the different namespace names, e.g. camunda-zeebe-0.camunda-zeebe.eastus.svc and camunda-zeebe-0.camunda-zeebe.centralus.svc.
+The node ids of the brokers are important to be unique, e.g. even numbers in centralus and odd numbers in eastus.
