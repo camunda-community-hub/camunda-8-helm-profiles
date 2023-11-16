@@ -71,7 +71,7 @@ so that they can resolve each others service names.
 ```sh
 ./setup-zeebe.py
 ```
-You can test the DNS connection as described in the [Kubernetes Documentation on Debugging DNS Resolution](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/).
+For troubleshooting, you can test the DNS connection as described in the [Kubernetes Documentation on Debugging DNS Resolution](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/) (you could also build [your own](https://github.com/wkruse/dnsutils-docker) [dnsutils image](https://github.com/docker-archive/dnsutils) if you can't pull one). 
 
 #### Enabling Firewall rules
 To allow communication between the zeebe nodes and from the zeebe nodes to the Elasticsearch, we need to authorize the traffic.
@@ -189,7 +189,7 @@ Brokers:
     Partition 7 : Follower, Healthy
     Partition 8 : Follower, Healthy
 ```
-
+For troubleshooting and testing, you can also install everything into a single Kubernetes cluster without the DNS chaining configuration but into the region namespaces. That way you can test that the Camunda configuration is correct and reduce troubleshooting to networking and DNS as described above.
 
 ##### Operate
 
