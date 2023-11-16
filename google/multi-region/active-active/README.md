@@ -1,6 +1,6 @@
 # Multi-Region Active-Active Setup for Camunda 8
 
-Note: This Helm profile uses [an unreleased version of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/) (a [pull request](https://github.com/camunda/camunda-platform-helm/pull/1019) has been merged and is pending release).
+Note: This Helm profile requires [version 8.3.2 (or later) of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/releases/tag/camunda-platform-8.3.2).
 
 ## WARNING
 If you want Camunda enterprise support for your multi-region setup,
