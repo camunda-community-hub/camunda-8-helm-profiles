@@ -71,6 +71,7 @@ so that they can resolve each others service names.
 ```sh
 ./setup-zeebe.py
 ```
+You can test the DNS connection as described in the [Kubernetes Documentation on Debugging DNS Resolution](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/).
 
 #### Enabling Firewall rules
 To allow communication between the zeebe nodes and from the zeebe nodes to the Elasticsearch, we need to authorize the traffic.
