@@ -1,0 +1,25 @@
+identity:
+  keycloak:
+    replicaCount: 3
+    postgresql:
+      architecture: replication
+      replication:
+        synchronousCommit: "on"
+        numSynchronousReplicas: 2
+      readReplicas:
+        replicaCount: 2
+
+connectors:
+  replicas: 3
+
+postgresql:  ## https://github.com/bitnami/charts/tree/main/bitnami/postgresql-ha ?
+  enabled: true
+  architecture: replication
+  replication:
+        synchronousCommit: "on"
+        numSynchronousReplicas: 2
+  readReplicas:
+    replicaCount: 2
+
+
+
