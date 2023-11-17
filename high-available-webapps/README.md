@@ -28,3 +28,23 @@ Reason: Only one Importer should be present. Can be disabled via `CAMUNDA_OPTIMI
 Reason: Can only be scaled after the realm is initialized in Keycloak.
 
 ![Identity](identity.png)
+
+
+## Limitations and Compatibility
+
+Copied Deployments Include Helm Labels: The copied deployments will contain Helm-related labels, even though they are not managed by Helm directly. These labels are necessary for the service to also point to the new deployment.
+
+Compatibility: This Makefile was tested against version 8.3. 
+
+## How to Use the Makefile:
+
+1. **Navigate to the Repository**: Open a terminal and navigate to the root directory of this repository.
+   
+2. **Execute the Commands**:
+   - Run `make all` to setup camunda and scale Operate,Tasklist, Optimize and Identity afterwards
+   - Run `make scale-operate` to scale the Operate component.
+   - Run `make scale-tasklist` to scale the Tasklist component.
+   - Run `make scale-optimize` to scale the Optimize component.
+   - Run `make scale-identity` to scale the Identity component.
+
+**Note**: Before executing these commands, ensure you have proper access to the Kubernetes cluster and the necessary permissions for scaling deployments.
