@@ -123,7 +123,7 @@ manually or with some other automation tool.
 
 ##### Zeebe
 
-You can check the status of the Zeebe cluster using:
+You can check the status of the Zeebe cluster using (in any region):
 
 ```sh
 make zbctl-status
