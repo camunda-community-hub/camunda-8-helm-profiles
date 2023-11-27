@@ -54,7 +54,7 @@ webModeler:
   contextPath: "/modeler"
   image:
     pullSecrets:
-      - name: camunda-docker-registry
+      - name: camunda-docker-registry-secret
   restapi:
     mail:
       fromAddress: YOUR_EMAIL
