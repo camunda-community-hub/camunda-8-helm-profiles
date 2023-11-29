@@ -1,6 +1,6 @@
 # Multi-Region Active-Active Setup for Camunda 8
 
-Note: This Helm profile uses [an unreleased version of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/) (a [pull request](https://github.com/camunda/camunda-platform-helm/pull/1019) has been merged and is pending release).
+Note: This Helm profile requires [version 8.3.2 (or later) of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/releases/tag/camunda-platform-8.3.2).
 
 ## WARNING
 If you want Camunda enterprise support for your multi-region setup,
@@ -71,6 +71,7 @@ so that they can resolve each others service names.
 ```sh
 ./setup-zeebe.py
 ```
+For troubleshooting, you can test the DNS connection as described in the [Kubernetes Documentation on Debugging DNS Resolution](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/) (you could also build [your own](https://github.com/wkruse/dnsutils-docker) [dnsutils image](https://github.com/docker-archive/dnsutils) if you can't pull one). 
 
 #### Enabling Firewall rules
 To allow communication between the zeebe nodes and from the zeebe nodes to the Elasticsearch, we need to authorize the traffic.
@@ -122,7 +123,7 @@ manually or with some other automation tool.
 
 ##### Zeebe
 
-You can check the status of the Zeebe cluster using:
+You can check the status of the Zeebe cluster using (in any region):
 
 ```sh
 make zbctl-status
@@ -188,7 +189,7 @@ Brokers:
     Partition 7 : Follower, Healthy
     Partition 8 : Follower, Healthy
 ```
-
+For troubleshooting and testing, you can also install everything into a single Kubernetes cluster without the DNS chaining configuration but into the region namespaces. That way you can test that the Camunda configuration is correct and reduce troubleshooting to networking and DNS as described above.
 
 ##### Operate
 
@@ -332,3 +333,7 @@ You need to [create Google Cloud Storage Bucket](https://console.cloud.google.co
 You need to [set up a service account](https://console.cloud.google.com/iam-admin/serviceaccounts/create) that will be used by Elasticsearch to Backup. You should grant it the "Storage Admin" role to allow it to access the bucket.
 
 Download the JSON API key and save it in each region as gcs_backup_key.json
+## FAQ
+### Broker names are same in all the regions instead of incremental, e.g. there is a camunda-zeebe-0 in every region?
+These pod names are correct. Kubernetes counts each stateful set starting from zero. The fully qualified names are still globally unique due to the different namespace names, e.g. camunda-zeebe-0.camunda-zeebe.**eastus**.svc and camunda-zeebe-0.camunda-zeebe.**centralus**.svc.
+The node ids of the brokers are important to be unique, e.g. even numbers in centralus and odd numbers in eastus.
