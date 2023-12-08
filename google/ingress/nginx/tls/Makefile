@@ -32,7 +32,7 @@ baseDomainName ?= nip.io
 # ------------------------------------
 # Camunda Enterprise Docker Registry Login
 
-camundaDockerRegistrySecretName ?= camunda-docker-registry-secret
+camundaDockerRegistrySecretName ?= camunda-docker-registry
 camundaDockerRegistryUrl ?= registry.camunda.cloud
 camundaDockerRegistryUsername ?= YOUR_EE_USERNAME
 camundaDockerRegistryPassword ?= YOUR_EE_PASSWORD
