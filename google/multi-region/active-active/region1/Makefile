@@ -3,13 +3,14 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-#project ?= camunda-researchanddevelopment
+# GCP project
 project ?= camunda-researchanddevelopment
-#region ?= us-east1-b # see: https://cloud.withgoogle.com/region-picker/
-region ?= us-east1-b
-clusterName ?= cdame-region-1
-
-machineType ?= n2-standard-8
+# GCP region (see: https://cloud.withgoogle.com/region-picker/)
+region ?= europe-west1
+# GKE cluster name
+clusterName ?= falko-region-1
+# GCP machine type
+machineType ?= n2-standard-2
 minSize ?= 1
 maxSize ?= 24
 
@@ -26,27 +27,23 @@ namespace ?= $(region)
 # Helm release name
 release ?= camunda
 # Helm chart coordinates for Camunda
-chart ?= $(root)/../camunda-platform-helm/charts/camunda-platform
-
+chart ?= camunda/camunda-platform
+# Helm chart values
 chartValues ?= camunda-values.yaml
 
 .PHONY: all
 all: use-kube namespace prepare-elastic-backup-key camunda external-urls
 
-# 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
-.PHONY: kube
+.PHONY: kube # Create Kubernetes cluster. (No aplication gateway required)
 kube: kube-gke
 
-# 2 helm install camunda from camunda.mk
-
-# 3 Show external URLs
-.PHONY: external-urls
+.PHONY: external-urls # Show external URLs
 external-urls: external-urls-no-ingress
 
 ### <--- End of setup --->
 
-#: Create temporary brokers that impersonate half of the ones lost in region 0 to backfill and restore quorum
-fail-over-region0:
+.PHONY: fail-over-region0 # Create temporary brokers that impersonate half of the ones lost in region 0 to backfill and restore quorum
+fail-over-region1:
 	-kubectl create namespace $(namespace)-failover
 	-kubectl config set-context --current --namespace=$(namespace)-failover
 	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
