@@ -81,6 +81,9 @@ zeebe-gateway:
     enabled: true
     className: nginx
     host: "YOUR_HOSTNAME"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
   replicas: 1
   resources:
     requests:
@@ -94,7 +97,7 @@ zeebe:
   clusterSize: 1
   partitionCount: 1
   replicationFactor: 1
-  pvcSize: 1Gi
+  pvcSize: 10Gi
 
   resources:
     requests:
