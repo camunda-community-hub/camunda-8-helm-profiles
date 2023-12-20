@@ -41,7 +41,10 @@ fqdn: ingress-ip-from-service
 	@echo "Fully qualified domain name is: $(fqdn)"
 
 camunda-values-nginx-all.yaml: fqdn
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-all.yaml; \
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values.yaml > $(chartValues);
+
+camunda-values-nginx-metrics.yaml: fqdn
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values-with-metrics.yaml > $(chartValues);
 
 .PHONY: clean-ingress
 clean-ingress:
