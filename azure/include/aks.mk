@@ -88,23 +88,16 @@ azure-ingress-nginx:
 ingress-annotate-staticip: ingress-ip-from-service
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform controller.service.loadBalancerIP=$(IP)
 
+.PHONY: create-clound-dns
+create-cloud-dns: fqdn
+	gcloud dns record-sets create $(fqdn) \
+	  --rrdatas=$(IP) \
+	  --ttl=30 \
+	  --type=A \
+	  --zone=$(dnsManagedZone)
 
-# This didn't work out as I thought. Ok to remove once I test
-#.PHONY: azure-nginx-dns-tls
-#azure-nginx-dns-tls:
-#	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-#	helm repo update ingress-nginx
-#	helm search repo ingress-nginx
-#	if [ -n "$(useAzureDomain)" ]; then \
-#	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
-#	  --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-dns-label-name"=$(dnsLabel) \
-#	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
-#	  --set controller.service.annotations."cert-manager.io/cluster-issuer"="$(clusterIssuer)" \
-#	  --set controller.config.error-log-level="debug"; \
-#	else \
-#	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
-#	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
-#	  --set controller.service.annotations."cert-manager.io/cluster-issuer"="$(clusterIssuer)" \
-#	  --set controller.config.error-log-level="debug"; \
-#	fi
-
+.PHONY: delete-cloud-dns
+delete-cloud-dns: fqdn
+	gcloud dns record-sets delete $(fqdn) \
+	  --type=A \
+	  --zone=$(dnsManagedZone)

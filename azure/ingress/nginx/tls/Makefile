@@ -29,6 +29,9 @@ baseDomainName ?= $(region).cloudapp.azure.com
 # In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
 # baseDomainName ?= YOUR_CUSTOM_DOMAIN_NAME
 
+# Only relevant when using google cloud dns
+dnsManagedZone ?= aks
+
 # ------------------------------------
 # Camunda Enterprise Docker Registry Login
 
