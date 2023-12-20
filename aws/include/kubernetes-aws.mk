@@ -133,5 +133,22 @@ camunda-values-ingress-aws.yaml: fqdn-aws
 camunda-values-nginx-tls-aws.yaml: fqdn-aws
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml;
 
+camunda-values-with-metrics.yaml: fqdn-aws
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values-with-metrics.yaml > $(chartValues);
+
 camunda-values-istio-aws.yaml:
 	sed "s/YOUR_HOSTNAME/$(dnsLabel).$(baseDomainName)/g;" $(root)/istio/camunda-values.yaml > ./camunda-values-aws.yaml
+
+.PHONY: create-clound-dns
+create-cloud-dns: fqdn-aws
+	gcloud dns record-sets create $(fqdn) \
+	  --rrdatas=$(IP) \
+	  --ttl=30 \
+	  --type=A \
+	  --zone=$(dnsManagedZone)
+
+.PHONY: delete-cloud-dns
+delete-cloud-dns: fqdn-aws
+	gcloud dns record-sets delete $(fqdn) \
+	  --type=A \
+	  --zone=$(dnsManagedZone)
