@@ -107,4 +107,5 @@ include $(root)/echo-server/echo.mk
 include $(root)/oauth2-proxy/oauth2.mk
 include $(root)/operate/include/operate.mk
 include $(root)/tasklist/include/tasklist.mk
+include $(root)/kibana/kibana.mk
 
