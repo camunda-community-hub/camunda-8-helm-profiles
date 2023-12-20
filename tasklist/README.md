@@ -1,5 +1,8 @@
 # Helm Profile for Horizontally Scaling Tasklist
 
+> [!IMPORTANT]  
+> This profile is deprecated and will be removed soon, please use [high-available-webapps](../high-available-webapps) profile instead
+
 The Camunda 8 Tasklist webapp consists of 3 modules:
 - Webapp
 - Importer

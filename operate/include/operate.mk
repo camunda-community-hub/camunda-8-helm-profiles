@@ -17,16 +17,16 @@ operate-service-webapp.yaml:
 	cp $(root)/operate/include/service-webapp.tpl.yaml ./operate-service-webapp.yaml;
 
 operate-camunda-ingress.yaml:
-	cp $(root)/operate/include/camunda-ingress.tpl.yaml ./operate-camunda-ingress.yaml;
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/operate/include/camunda-ingress.tpl.yaml > ./operate-camunda-ingress.yaml;
 
 operate-operate-ingress.yaml:
-	cp $(root)/operate/include/operate-ingress.tpl.yaml ./operate-operate-ingress.yaml;
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/operate/include/operate-ingress.tpl.yaml > ./operate-operate-ingress.yaml;
 
 .PHONY: operate-yaml-files
 operate-yaml-files: operate-configmap-importer-archiver.yaml operate-configmap-webapp.yaml operate-deployment-importer-archiver.yaml operate-deployment-webapp.yaml operate-camunda-ingress.yaml operate-operate-ingress.yaml operate-service-webapp.yaml #operate-service-importer-archiver.yaml
 
 .PHONY: clean-operate-yaml-files
-operate-clean-yaml-files:
+clean-operate-yaml-files:
 	rm ./operate-configmap-importer-archiver.yaml;
 	rm ./operate-configmap-webapp.yaml;
 	rm ./operate-deployment-importer-archiver.yaml;
