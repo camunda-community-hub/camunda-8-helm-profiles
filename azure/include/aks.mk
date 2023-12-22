@@ -3,7 +3,7 @@ create-resource-group:
 	az group create --name $(resourceGroup) --location $(region)
 
 .PHONY: create-vnet
-create-vnet: create-resource-group
+create-vnet:
 	az network vnet create \
 	  --name $(vnetName) \
 	  --resource-group $(resourceGroup) \
@@ -13,15 +13,16 @@ create-vnet: create-resource-group
 
 .PHONY: create-vnet-peering
 create-vnet-peering:
+	$(eval result := $(shell az network vnet show --resource-group $(remoteResourceGroup) --name $(remoteVnetName) | jq -r '.id'))
 	az network vnet peering create --name $(vnetPeeringName) \
- 	  --remote-vnet $(remoteVnetName) \
+ 	  --remote-vnet $(result) \
  	  --resource-group $(resourceGroup) \
  	  --vnet-name $(vnetName) \
  	  --allow-forwarded-traffic true \
  	  --allow-vnet-access true
 
 .PHONY: kube-aks
-kube-aks: create-resource-group create-vnet
+kube-aks:
 	$(eval result := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(vnetName) --name $(subnetName) | jq -r '.id'))
 	az aks create \
       --resource-group $(resourceGroup) \
@@ -34,7 +35,12 @@ kube-aks: create-resource-group create-vnet
       --max-count $(maxSize) \
       --enable-managed-identity \
       --generate-ssh-keys \
-      --vnet-subnet-id $(result)
+      --vnet-subnet-id $(result) \
+      --pod-cidr $(podCidr) \
+      --service-cidr $(serviceCidr) \
+      --dns-service-ip $(dnsServiceIp) \
+      --network-plugin kubenet
+
 	kubectl config unset clusters.$(clusterName)
 	kubectl config unset users.clusterUser_$(resourceGroup)_$(clusterName)
 	az aks get-credentials --resource-group $(resourceGroup) --name $(clusterName)
