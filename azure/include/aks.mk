@@ -8,8 +8,27 @@ create-vnet:
 	  --name $(vnetName) \
 	  --resource-group $(resourceGroup) \
 	  --address-prefix $(addressPrefix) \
-	  --subnet-name $(subnetName) \
-	  --subnet-prefixes $(subnetPrefix)
+	  -o none
+#	  --subnet-name $(subnetName) \
+#	  --subnet-prefixes $(subnetPrefix)
+
+.PHONY: create-node-subnet
+create-node-subnet:
+	az network vnet subnet create \
+	  -g $(resourceGroup) \
+	  --vnet-name $(vnetName) \
+	  --name $(nodeSubnetName) \
+	  --address-prefixes $(nodeSubnetPrefix) \
+	  -o none
+
+.PHONY: create-pod-subnet
+create-pod-subnet:
+	az network vnet subnet create \
+	  -g $(resourceGroup) \
+	  --vnet-name $(vnetName) \
+	  --name $(podSubnetName) \
+	  --address-prefixes $(podSubnetPrefix) \
+	  -o none
 
 .PHONY: create-vnet-peering
 create-vnet-peering:
@@ -23,23 +42,27 @@ create-vnet-peering:
 
 .PHONY: kube-aks
 kube-aks:
-	$(eval result := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(vnetName) --name $(subnetName) | jq -r '.id'))
+	$(eval NodeSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(vnetName) --name $(nodeSubnetName) | jq -r '.id'))
+	$(eval PodSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(vnetName) --name $(podSubnetName) | jq -r '.id'))
 	az aks create \
-      --resource-group $(resourceGroup) \
-      --name $(clusterName) \
-      --node-vm-size $(machineType) \
-      --node-count 1 \
-      --vm-set-type VirtualMachineScaleSets \
-      --enable-cluster-autoscaler \
-      --min-count $(minSize) \
-      --max-count $(maxSize) \
-      --enable-managed-identity \
-      --generate-ssh-keys \
-      --vnet-subnet-id $(result) \
-      --pod-cidr $(podCidr) \
-      --service-cidr $(serviceCidr) \
-      --dns-service-ip $(dnsServiceIp) \
-      --network-plugin kubenet
+	--resource-group $(resourceGroup) \
+	 --name $(clusterName) \
+	 --node-vm-size $(machineType) \
+	 --node-count 1 \
+	 --network-plugin azure \
+	 --max-pods 250 \
+	 --vnet-subnet-id $(NodeSubnetResult) \
+	 --pod-subnet-id $(PodSubnetResult) \
+	 --enable-cluster-autoscaler \
+	 --min-count $(minSize) \
+	 --max-count $(maxSize)
+#	 --enable-managed-identity \
+#	 --generate-ssh-keys
+#	 --pod-cidr $(podCidr) \
+#	 --service-cidr $(serviceCidr) \
+#	 --dns-service-ip $(dnsServiceIp) \
+#	 --network-plugin azure \
+#	 --network-plugin-mode overlay
 
 	kubectl config unset clusters.$(clusterName)
 	kubectl config unset users.clusterUser_$(resourceGroup)_$(clusterName)
