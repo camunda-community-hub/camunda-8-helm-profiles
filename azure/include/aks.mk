@@ -5,7 +5,7 @@ create-resource-group:
 .PHONY: create-vnet
 create-vnet:
 	az network vnet create \
-	  --name $(vnetName) \
+	  --name $(clusterName)-vnet \
 	  --resource-group $(resourceGroup) \
 	  --address-prefix $(addressPrefix) \
 	  -o none
@@ -16,8 +16,8 @@ create-vnet:
 create-node-subnet:
 	az network vnet subnet create \
 	  -g $(resourceGroup) \
-	  --vnet-name $(vnetName) \
-	  --name $(nodeSubnetName) \
+	  --vnet-name $(clusterName)-vnet \
+	  --name $(clusterName)-node-subnet \
 	  --address-prefixes $(nodeSubnetPrefix) \
 	  -o none
 
@@ -25,25 +25,26 @@ create-node-subnet:
 create-pod-subnet:
 	az network vnet subnet create \
 	  -g $(resourceGroup) \
-	  --vnet-name $(vnetName) \
-	  --name $(podSubnetName) \
+	  --vnet-name $(clusterName)-vnet \
+	  --name $(clusterName)-pod-subnet \
 	  --address-prefixes $(podSubnetPrefix) \
 	  -o none
 
-.PHONY: create-vnet-peering
-create-vnet-peering:
-	$(eval result := $(shell az network vnet show --resource-group $(remoteResourceGroup) --name $(remoteVnetName) | jq -r '.id'))
-	az network vnet peering create --name $(vnetPeeringName) \
- 	  --remote-vnet $(result) \
- 	  --resource-group $(resourceGroup) \
- 	  --vnet-name $(vnetName) \
- 	  --allow-forwarded-traffic true \
- 	  --allow-vnet-access true
+# NOT WORKING YET! If you create the peering thru the ui, it works, but the following doesn't work yet:
+#.PHONY: create-vnet-peering
+#create-vnet-peering:
+#	$(eval result := $(shell az network vnet show --resource-group $(remoteResourceGroup) --name $(remoteVnetName) | jq -r '.id'))
+#	az network vnet peering create --name $(vnetPeeringName) \
+# 	  --remote-vnet $(result) \
+# 	  --resource-group $(resourceGroup) \
+# 	  --vnet-name $(clusterName)-vnet \
+# 	  --allow-forwarded-traffic true \
+# 	  --allow-vnet-access true
 
 .PHONY: kube-aks
 kube-aks:
-	$(eval NodeSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(vnetName) --name $(nodeSubnetName) | jq -r '.id'))
-	$(eval PodSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(vnetName) --name $(podSubnetName) | jq -r '.id'))
+	$(eval NodeSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(clusterName)-vnet --name $(clusterName)-node-subnet | jq -r '.id'))
+	$(eval PodSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(clusterName)-vnet --name $(clusterName)-pod-subnet | jq -r '.id'))
 	az aks create \
 	--resource-group $(resourceGroup) \
 	 --name $(clusterName) \
@@ -55,7 +56,9 @@ kube-aks:
 	 --pod-subnet-id $(PodSubnetResult) \
 	 --enable-cluster-autoscaler \
 	 --min-count $(minSize) \
-	 --max-count $(maxSize)
+	 --max-count $(maxSize) \
+	 --service-cidr $(serviceCidr) \
+     --dns-service-ip $(dnsServiceIp) \
 #	 --enable-managed-identity \
 #	 --generate-ssh-keys
 #	 --pod-cidr $(podCidr) \
