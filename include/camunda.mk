@@ -84,7 +84,9 @@ update:
 	KEYCLOAK_ADMIN_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode) \
 	KEYCLOAK_MANAGEMENT_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.management-password}" | base64 --decode) \
 	POSTGRESQL_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode) \
-        CONNECTORS_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-connectors-auth-credentials" -o jsonpath="{.data.connectors-secret}" | base64 -d) \
+    CONNECTORS_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-connectors-identity-secret" -o jsonpath="{.data.connectors-secret}" | base64 -d) \
+    ZEEBE_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 -d) \
+
 	helm upgrade --namespace $(namespace) $(release) $(chart) -f $(chartValues) \
 	  --set global.identity.auth.operate.existingSecret=$$OPERATE_SECRET \
 	  --set global.identity.auth.tasklist.existingSecret=$$TASKLIST_SECRET \
@@ -231,3 +233,5 @@ external-urls-no-ingress:
 	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
 	@echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+
+
