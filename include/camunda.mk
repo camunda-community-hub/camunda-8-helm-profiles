@@ -35,8 +35,8 @@ config-keycloak: keycloak-password
 
 .PHONY: zeebe-password
 zeebe-password:
-	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 --decode))
-	@echo Zeebe Identity password: $(kcPassword)
+	$(eval zeebePassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 --decode))
+	@echo Zeebe Identity password: $(zeebePassword)
 
 .PHONY: connectors-password
 connectors-password:

@@ -67,12 +67,12 @@ external-urls-with-fqdn: fqdn
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
 
 .PHONY: external-urls-all
-external-urls-all: fqdn
+external-urls-all: fqdn zeebe-password
 	@echo Keycloak: https://$(fqdn)/auth
 	@echo Identity: https://$(fqdn)/identity
 	@echo Operate: https://$(fqdn)/operate
 	@echo Tasklist: https://$(fqdn)/tasklist
 	@echo Optimize: https://$(fqdn)/optimize
 	@echo Connectors: https://$(fqdn)/inbound
-	@echo Zeebe GRPC: zbctl status --address $(fqdn):443
+	@echo Zeebe GRPC: zbctl status --address $(fqdn):443 --authzUrl  https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token --clientId zeebe --clientSecret $(zeebePassword)
 	@echo Auth URL: https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token
