@@ -6,6 +6,9 @@ else
     root ?= $(shell pwd)/../../../../..
 endif
 
+camundaVersion ?= latest
+camundaHelmVersion ?= latest
+
 # Camunda components will be installed into the following Kubernetes namespace
 namespace ?= camunda
 # Helm release name
@@ -51,7 +54,6 @@ public-zeebe-ingress: fqdn
 # Remove nginx ingress and Camunda from cluster
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
-	rm -f $(chartValues)
 
 .PHONY: clean-kube
 clean-kube: clean-metrics clean-kube-aks

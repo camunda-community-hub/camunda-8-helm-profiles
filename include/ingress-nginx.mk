@@ -76,3 +76,15 @@ external-urls-all: fqdn zeebe-password
 	@echo Connectors: https://$(fqdn)/inbound
 	@echo Zeebe GRPC: zbctl status --address $(fqdn):443 --authzUrl  https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token --clientId zeebe --clientSecret $(zeebePassword)
 	@echo Auth URL: https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token
+
+.PHONY: webmodeler-urls
+web-modeler-urls: zeebe-password
+	@echo Cluster Endpoint: http://camunda-zeebe-gateway:26500
+	@echo Client Id: zeebe
+	@echo Client Secret: $(zeebePassword)
+	@echo OAuth URL: http://camunda-keycloak/auth/realms/camunda-platform/protocol/openid-connect/token
+	@echo Audience: zeebe
+
+.PHONY: status
+status: fqdn zeebe-password
+	zbctl status --address $(fqdn):443 --authzUrl  https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token --clientId zeebe --clientSecret $(zeebePassword)

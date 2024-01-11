@@ -40,8 +40,23 @@ grafana:
             path: /var/lib/grafana/dashboards/default
   dashboards:
     default:
+      zeebe-overview:
+        url: https://raw.githubusercontent.com/camunda/zeebe/main/monitor/grafana/zeebe-overview.json
       zeebe:
-        url: https://raw.githubusercontent.com/zeebe-io/zeebe/develop/monitor/grafana/zeebe.json
+        url: https://raw.githubusercontent.com/camunda/zeebe/main/monitor/grafana/zeebe.json
+      camunda-elasticsearch:
+        url: https://raw.githubusercontent.com/camunda/zeebe/main/monitor/grafana/dashboards/elasticsearch.json
+      camunda-operate:
+        url: https://raw.githubusercontent.com/camunda/zeebe/main/monitor/grafana/dashboards/operate.json
+      camunda-jvm:
+        url: https://raw.githubusercontent.com/camunda/zeebe/main/monitor/grafana/dashboards/jvm.json
+      camunda-spring:
+        url: https://raw.githubusercontent.com/camunda/zeebe/main/monitor/grafana/dashboards/spring.json
+      camunda-tasklist:
+        url: https://raw.githubusercontent.com/camunda/zeebe/main/monitor/grafana/dashboards/tasklist.json
+      connectors:
+        url: https://raw.githubusercontent.com/camunda-community-hub/connectors-grafana-dashboard/main/grafana/provisioning/dashboards/connectors-dashboard.json
+
   persistence:
     enabled: true
     storageClassName: ssd

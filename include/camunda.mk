@@ -4,7 +4,7 @@ camunda: namespace
 	helm repo add camunda https://helm.camunda.io
 	helm repo update camunda
 	helm search repo $(chart)
-	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
+	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds --version $(camundaHelmVersion)
 
 # List Helm Chart versions + Camunda Platform versions
 .PHONY: versions
@@ -130,6 +130,7 @@ uninstall-camunda:
 .PHONY: clean-camunda
 clean-camunda: uninstall-camunda
 	-kubectl delete namespace $(namespace)
+	-rm -f $(chartValues)
 
 .PHONY: zeebe-logs
 zeebe-logs:

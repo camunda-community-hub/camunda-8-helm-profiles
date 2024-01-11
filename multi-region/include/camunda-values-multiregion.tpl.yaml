@@ -12,7 +12,7 @@ global:
       enabled: true
       secretName: "tls-secret"
   image:
-    tag: latest
+    tag: CAMUNDA_VERSION
     # pullPolicy: Always
   identity:
     auth:
@@ -102,6 +102,8 @@ zeebe-gateway:
       value: "true"
     - name: ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS
       value: "camunda-zeebe-0.camunda-zeebe.camunda-eastus.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.camunda-eastus.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.camunda-canadacentral.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.camunda-canadacentral.svc.cluster.local:26502"
+    - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "500ms"
 
 zeebe:
   clusterSize: 4
@@ -127,6 +129,8 @@ zeebe:
       value: "http://camunda-elasticsearch-master-hl.NAMESPACE2.svc.cluster.local:9200"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_INDEX_PREFIX
       value: "zeebe-record"
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "500ms"
 
 #elasticsearch:
 #  enabled: true

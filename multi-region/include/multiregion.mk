@@ -1,5 +1,5 @@
 camunda-values-multiregion.yaml: fqdn
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g; s/REGIONS/$(regions)/g; s/REGION_ID/$(regionId)/g; s/NAMESPACE1/$(namespace)/g; s/NAMESPACE2/$(namespace2)/g;" $(root)/multi-region/include/camunda-values-multiregion.tpl.yaml > $(chartValues);
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g; s/REGIONS/$(regions)/g; s/REGION_ID/$(regionId)/g; s/NAMESPACE1/$(namespace)/g; s/NAMESPACE2/$(namespace2)/g; s/CAMUNDA_VERSION/$(camundaVersion)/g;" $(root)/multi-region/include/camunda-values-multiregion.tpl.yaml > $(chartValues);
 
 .PHONY: restart-dns
 restart-dns:
