@@ -367,18 +367,18 @@ WARNING: open /home/falko/.cache/helm/repository/prometheus-community-index.yaml
 WARNING: Repo "stable" is corrupt or missing. Try 'helm repo update'.
 WARNING: open /home/falko/.cache/helm/repository/stable-index.yaml: no such file or directory
 NAME                            CHART VERSION   APP VERSION     DESCRIPTION                                       
-camunda/camunda-platform        8.3.4           8.3.x           Camunda 8 Self-Managed Helm charts. Camunda's p...
+camunda/camunda-platform        9.0.2           8.4.x           Camunda 8 Self-Managed Helm charts. Camunda's p...
 helm install --namespace us-east1 camunda camunda/camunda-platform -f camunda-values.yaml --skip-crds
-W1213 13:36:32.695588   47912 warnings.go:70] spec.template.spec.containers[0].env[6]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_USERNAME"
-W1213 13:36:32.695633   47912 warnings.go:70] spec.template.spec.containers[0].env[7]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_PASSWORD"
-W1213 13:36:32.903716   47912 warnings.go:70] spec.template.spec.containers[0].env[25]: hides previous definition of "ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS"
+W0120 13:30:40.390359   25577 warnings.go:70] spec.template.spec.containers[0].env[6]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_USERNAME"
+W0120 13:30:40.390415   25577 warnings.go:70] spec.template.spec.containers[0].env[7]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_PASSWORD"
+W0120 13:30:40.554727   25577 warnings.go:70] spec.template.spec.containers[0].env[25]: hides previous definition of "ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS"
 NAME: camunda
-LAST DEPLOYED: Wed Dec 13 13:36:24 2023
+LAST DEPLOYED: Sat Jan 20 13:30:31 2024
 NAMESPACE: us-east1
 STATUS: deployed
 REVISION: 1
 NOTES:
-# (camunda-platform - 8.3.4)
+# (camunda-platform - 9.0.2)
 
  ######     ###    ##     ## ##     ## ##    ## ########     ###
 ##    ##   ## ##   ###   ### ##     ## ###   ## ##     ##   ## ##
@@ -394,20 +394,20 @@ NOTES:
 
 - Zeebe:
   - Enabled: true
-  - Docker Image used for Zeebe: camunda/zeebe:8.3.4
+  - Docker Image used for Zeebe: camunda/zeebe:8.4.0
   - Zeebe Cluster Name: "camunda-zeebe"
   - Prometheus ServiceMonitor Enabled: false
 - Operate:
   - Enabled: true
-  - Docker Image used for Operate: camunda/operate:8.3.4
+  - Docker Image used for Operate: camunda/operate:8.4.0
 - Tasklist:
   - Enabled: true
-  - Docker Image used for Tasklist: camunda/tasklist:8.3.4
+  - Docker Image used for Tasklist: camunda/tasklist:8.4.0
 - Optimize:
   - Enabled: false
 - Connectors:
   - Enabled: true
-  - Docker Image used for Connectors: camunda/connectors-bundle:8.3.2
+  - Docker Image used for Connectors: camunda/connectors-bundle:8.4.3
 - Identity:
   - Enabled: false
 - Web Modeler:
@@ -449,7 +449,7 @@ Default user and password: "demo/demo"
 ## Console config
 - name: camunda
   namespace: us-east1
-  version: 8.3.4
+  version: 9.0.2
   components:
   
 
@@ -496,18 +496,18 @@ WARNING: open /home/falko/.cache/helm/repository/prometheus-community-index.yaml
 WARNING: Repo "stable" is corrupt or missing. Try 'helm repo update'.
 WARNING: open /home/falko/.cache/helm/repository/stable-index.yaml: no such file or directory
 NAME                            CHART VERSION   APP VERSION     DESCRIPTION                                       
-camunda/camunda-platform        8.3.4           8.3.x           Camunda 8 Self-Managed Helm charts. Camunda's p...
+camunda/camunda-platform        9.0.2           8.4.x           Camunda 8 Self-Managed Helm charts. Camunda's p...
 helm install --namespace europe-west1 camunda camunda/camunda-platform -f camunda-values.yaml --skip-crds
-W1213 13:41:59.312024   49320 warnings.go:70] spec.template.spec.containers[0].env[6]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_USERNAME"
-W1213 13:41:59.312065   49320 warnings.go:70] spec.template.spec.containers[0].env[7]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_PASSWORD"
-W1213 13:41:59.428526   49320 warnings.go:70] spec.template.spec.containers[0].env[25]: hides previous definition of "ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS"
+W0120 13:31:25.870663   26373 warnings.go:70] spec.template.spec.containers[0].env[6]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_USERNAME"
+W0120 13:31:25.870683   26373 warnings.go:70] spec.template.spec.containers[0].env[7]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_PASSWORD"
+W0120 13:31:25.963735   26373 warnings.go:70] spec.template.spec.containers[0].env[25]: hides previous definition of "ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS"
 NAME: camunda
-LAST DEPLOYED: Wed Dec 13 13:41:54 2023
+LAST DEPLOYED: Sat Jan 20 13:31:20 2024
 NAMESPACE: europe-west1
 STATUS: deployed
 REVISION: 1
 NOTES:
-# (camunda-platform - 8.3.4)
+# (camunda-platform - 9.0.2)
 
  ######     ###    ##     ## ##     ## ##    ## ########     ###
 ##    ##   ## ##   ###   ### ##     ## ###   ## ##     ##   ## ##
@@ -523,20 +523,20 @@ NOTES:
 
 - Zeebe:
   - Enabled: true
-  - Docker Image used for Zeebe: camunda/zeebe:8.3.4
+  - Docker Image used for Zeebe: camunda/zeebe:8.4.0
   - Zeebe Cluster Name: "camunda-zeebe"
   - Prometheus ServiceMonitor Enabled: false
 - Operate:
   - Enabled: true
-  - Docker Image used for Operate: camunda/operate:8.3.4
+  - Docker Image used for Operate: camunda/operate:8.4.0
 - Tasklist:
   - Enabled: true
-  - Docker Image used for Tasklist: camunda/tasklist:8.3.4
+  - Docker Image used for Tasklist: camunda/tasklist:8.4.0
 - Optimize:
   - Enabled: false
 - Connectors:
   - Enabled: true
-  - Docker Image used for Connectors: camunda/connectors-bundle:8.3.2
+  - Docker Image used for Connectors: camunda/connectors-bundle:8.4.3
 - Identity:
   - Enabled: false
 - Web Modeler:
@@ -578,7 +578,7 @@ Default user and password: "demo/demo"
 ## Console config
 - name: camunda
   namespace: europe-west1
-  version: 8.3.4
+  version: 9.0.2
   components:
   
 
@@ -621,52 +621,52 @@ in which they are hosted.):
 Cluster size: 8
 Partitions count: 8
 Replication factor: 4
-Gateway version: 8.2.8
+Gateway version: 8.4.0
 Brokers:
   Broker 0 - camunda-zeebe-0.camunda-zeebe.us-east1.svc:26501
-    Version: 8.2.8
+    Version: 8.4.0
     Partition 1 : Leader, Healthy
-    Partition 6 : Leader, Healthy
+    Partition 6 : Follower, Healthy
     Partition 7 : Leader, Healthy
     Partition 8 : Leader, Healthy
   Broker 1 - camunda-zeebe-0.camunda-zeebe.europe-west1.svc:26501
-    Version: 8.2.8
+    Version: 8.4.0
     Partition 1 : Follower, Healthy
     Partition 2 : Follower, Healthy
     Partition 7 : Follower, Healthy
     Partition 8 : Follower, Healthy
   Broker 2 - camunda-zeebe-1.camunda-zeebe.us-east1.svc:26501
-    Version: 8.2.8
+    Version: 8.4.0
     Partition 1 : Follower, Healthy
     Partition 2 : Leader, Healthy
     Partition 3 : Leader, Healthy
     Partition 8 : Follower, Healthy
   Broker 3 - camunda-zeebe-1.camunda-zeebe.europe-west1.svc:26501
-    Version: 8.2.8
+    Version: 8.4.0
     Partition 1 : Follower, Healthy
     Partition 2 : Follower, Healthy
     Partition 3 : Follower, Healthy
-    Partition 4 : Follower, Healthy
+    Partition 4 : Leader, Healthy
   Broker 4 - camunda-zeebe-2.camunda-zeebe.us-east1.svc:26501
-    Version: 8.2.8
+    Version: 8.4.0
     Partition 2 : Follower, Healthy
     Partition 3 : Follower, Healthy
-    Partition 4 : Leader, Healthy
+    Partition 4 : Follower, Healthy
     Partition 5 : Leader, Healthy
-  Broker 5 - camunda-zeebe-1.camunda-zeebe.europe-west1.svc:26501
-    Version: 8.2.8
+  Broker 5 - camunda-zeebe-2.camunda-zeebe.europe-west1.svc:26501
+    Version: 8.4.0
     Partition 3 : Follower, Healthy
     Partition 4 : Follower, Healthy
     Partition 5 : Follower, Healthy
-    Partition 6 : Follower, Healthy
+    Partition 6 : Leader, Healthy
   Broker 6 - camunda-zeebe-3.camunda-zeebe.us-east1.svc:26501
-    Version: 8.2.8
+    Version: 8.4.0
     Partition 4 : Follower, Healthy
     Partition 5 : Follower, Healthy
     Partition 6 : Follower, Healthy
     Partition 7 : Follower, Healthy
   Broker 7 - camunda-zeebe-3.camunda-zeebe.europe-west1.svc:26501
-    Version: 8.2.8
+    Version: 8.4.0
     Partition 5 : Follower, Healthy
     Partition 6 : Follower, Healthy
     Partition 7 : Follower, Healthy
