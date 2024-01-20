@@ -15,7 +15,7 @@ Camunda reserves the right to restrict support if no review was performed prior 
 ## Prerequisite: Kubernetes Cross-Cluster Communication
 
 A multi-region setup in Kubernetes really means a multi-cluster setup and that comes with a networking challenge: How to manage connectivity between my pods across different Kubernetes clusters? You should setup proper firewall rules and correctly route traffic among the pods. For that you have many options (in nor particular order):
-* ["DNS Chainging" with kube-dns](https://youtu.be/az4BvMfYnLY?si=RmauCqchHwsmCDZZ&t=2004): That's the option we took in this example. We setup kube-dns automatically through a [python script](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/main/google/multi-region/active-active/setup-zeebe.py) to route traffic to the distant cluster based on the namespace. This requires to have different namespaces in each cluster.
+* ["DNS Chainging" with kube-dns](https://youtu.be/az4BvMfYnLY?si=RmauCqchHwsmCDZZ&t=2004): That's the option we took in this example. We setup kube-dns automatically through a [python script](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/main/google/multi-region/active-active/setup-dns-chaining.py) to route traffic to the distant cluster based on the namespace. This requires to have different namespaces in each cluster.
 * [Istio](https://medium.com/@danielepolencic/scaling-kubernetes-to-multiple-clusters-and-regionss-491813c3c8cd) ([video](https://youtu.be/_8FNsvoECPU?si=dUOFwaaUxRroj8MP))
 * [Skupper](https://medium.com/@shailendra14k/deploy-the-skupper-networks-89800323925c#:~:text=Skupper%20creates%20a%20service%20network,secure%20communication%20across%20Kubernetes%20clusters.)
 * [Linkerd multi-cluster communication](https://linkerd.io/2.14/features/multicluster/)
@@ -37,7 +37,7 @@ We are basing our dual-region active-active setup on standard Kubernetes feature
 
 You should clone this repository locally.
 
-The installation configurations are available at the beginning of these makefiles (clustername, region, project, machine type, etc). For this example, we decided to name our namespaces after our regions for an easier readability. You may want to change this. In such a case and if you want to use setup-zeebe.py to configure kube-dns,  this script should be updated accordingly.
+The installation configurations are available at the beginning of these makefiles (clustername, region, project, machine type, etc). For this example, we decided to name our namespaces after our regions for an easier readability. You may want to change this. In such a case and if you want to use setup-dns-chaining.py to configure kube-dns,  this script should be updated accordingly.
 
 #### Prepare Kubernetes Clusters
 
@@ -170,7 +170,7 @@ $ cd ..
 #### Configure Kube-dns
 
 Note: this step should not be executed if you plan to user another solution for cross cluster communication.
-Edit the Python script [setup-zeebe.py](./setup-zeebe.py)
+Edit the Python script [setup-dns-chaining.py](./setup-dns-chaining.py)
 and adjust the list of `contexts` and the `number_of_zeebe_brokers_per_region`.
 To get the names of your kubectl "contexts" for each of your clusters, run:
 
@@ -193,14 +193,14 @@ Then run that script to adjust the DNS configuration of both Kubernetes clusters
 so that they can resolve each others service names.
 
 ```sh
-./setup-zeebe.py
+./setup-dns-chaining.py
 ```
 
 <details>
 <summary>Example Command Output</summary>
 
 ```sh
-$ ./setup-zeebe.py
+$ ./setup-dns-chaining.py
 No resources found in default namespace.
 No resources found in default namespace.
 service/kube-dns-lb created
@@ -225,17 +225,17 @@ camunda-zeebe-0.camunda-zeebe.us-east1,camunda-zeebe-1.camunda-zeebe.us-east1,ca
 
 For troubleshooting, you can test the DNS connection as described in the [Kubernetes Documentation on Debugging DNS Resolution](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/) (you could also build [your own](https://github.com/wkruse/dnsutils-docker) [dnsutils image](https://github.com/docker-archive/dnsutils) if you can't pull one).
 
-To roll back the changes made by the Python script [setup-zeebe.py](./setup-zeebe.py), you can adjust and run [teardown-zeebe.py](./teardown-zeebe.py):
+To roll back the changes made by the Python script [setup-dns-chaining.py](./setup-dns-chaining.py), you can adjust and run [teardown-dns-chaining.py](./teardown-dns-chaining.py):
 
 ```sh
-./teardown-zeebe.py
+./teardown-dns-chaining.py
 ```
 
 <details>
 <summary>Example Command Output</summary>
 
 ```sh
-$ ./teardown-zeebe.py 
+$ ./teardown-dns-chaining.py 
 namespace "us-east1" deleted
 service "kube-dns-lb" deleted
 configmap "kube-dns" deleted
@@ -272,7 +272,7 @@ Download the JSON API key and save it in each region as `gcs_backup_key.json`
 
 #### Installing Camunda
 
-Adjust `ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS` and `ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL` in [region0/camunda-values.yaml](region0/camunda-values.yaml) and [region1/camunda-values.yaml](region1/camunda-values.yaml) with the values printed by the Python script [setup-zeebe.py](./setup-zeebe.py), e.g.
+Adjust `ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS` and `ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL` in [region0/camunda-values.yaml](region0/camunda-values.yaml) and [region1/camunda-values.yaml](region1/camunda-values.yaml) with the values printed by the Python script [setup-dns-chaining.py](./setup-dns-chaining.py), e.g.
 
 ```yaml
 zeebe:
