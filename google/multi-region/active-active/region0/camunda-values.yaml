@@ -16,8 +16,6 @@ global:
     regions: 2
     # unique id of the region. Should start at 0 for easy computation. With 2 regions, you would have region 0 and 1.
     regionId: 0
-  image:
-    tag: latest
   identity:
     auth:
       # Disable the Identity authentication
@@ -68,11 +66,11 @@ zeebe:
     - name: ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK
       value: "0.87"
     - name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
-      value: "camunda-zeebe-0.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-2.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-3.camunda-zeebe.europe-west4-b.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.us-east1-b.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-east1-b.svc.cluster.local:26502, camunda-zeebe-2.camunda-zeebe.us-east1-b.svc.cluster.local:26502, camunda-zeebe-3.camunda-zeebe.us-east1-b.svc.cluster.local:26502"
+      value: "camunda-zeebe-0.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-0.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.europe-west1.svc.cluster.local:26502"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_CLASSNAME
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL
-      value: "http://elasticsearch-master-headless.us-east1-b.svc.cluster.local:9200"
+      value: "http://elasticsearch-master-headless.europe-west1.svc.cluster.local:9200"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_BULK_SIZE
       value: "1"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_INDEX_PREFIX

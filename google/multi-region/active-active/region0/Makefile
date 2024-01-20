@@ -99,7 +99,7 @@ prepare-elastic-backup-key:
 
 .PHONY: prepare-elastic-backup-repo
 prepare-elastic-backup-repo:
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "cdame-elasticsearch-backup", "base_path": "backups"}}'
+	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "falko-elasticsearch-backup", "base_path": "backups"}}'
 
 .PHONY: operate-snapshot
 operate-snapshot:
