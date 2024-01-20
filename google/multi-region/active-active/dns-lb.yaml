@@ -9,7 +9,7 @@ metadata:
     # see: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
     service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-    networking.gke.io/load-balancer-type: "Internal"
+    # FIXME: find firewall configuration for using: networking.gke.io/load-balancer-type: "Internal"
 spec:
   type: LoadBalancer
   sessionAffinity: None
