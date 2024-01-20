@@ -20,11 +20,11 @@ generated_files_dir = './generated'
 
 # ------------------------------------------------------------------------------
 
-# Delete each cluster's special zone-scoped namespace, which transitively
+# Delete each cluster's special region-scoped namespace, which transitively
 # deletes all resources that were created in the namespace, along with the few
 # other resources we created that weren't in that namespace
-for zone, context in contexts.items():
-    call(['kubectl', 'delete', 'namespace', zone, '--context', context])
+for region, context in contexts.items():
+    call(['kubectl', 'delete', 'namespace', region, '--context', context])
     # call(['kubectl', 'delete', 'secret', 'cockroachdb.client.root', '--context', context])
     # call(['kubectl', 'delete', '-f', 'external-name-svc.yaml', '--context', context])
     call(['kubectl', 'delete', '-f', 'dns-lb.yaml', '--context', context])

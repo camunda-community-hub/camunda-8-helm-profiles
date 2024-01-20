@@ -45,11 +45,11 @@ generated_files_dir = './generated'
 if len(contexts) == 0:
     exit("must provide at least one Kubernetes cluster in the `contexts` map at the top of the script")
 
-for zone, context in contexts.items():
+for region, context in contexts.items():
     try:
         check_call(['kubectl', 'get', 'pods', '--context', context])
     except:
-        exit("unable to make basic API call using kubectl context '%s' for cluster in zone '%s'; please check if the context is correct and your Kubernetes cluster is working" % (context, zone))
+        exit("unable to make basic API call using kubectl context '%s' for cluster in region '%s'; please check if the context is correct and your Kubernetes cluster is working" % (context, region))
 
 # Set up the necessary directory. Ignore errors because they may already exist.
 try:
@@ -59,37 +59,37 @@ except OSError:
 
 
 # For each cluster, create a load balancer to its DNS pod.
-for zone, context in contexts.items():
+for region, context in contexts.items():
     check_call(['kubectl', 'apply', '-f', 'dns-lb.yaml', '--context', context])
 
-# Set up each cluster to forward DNS requests for zone-scoped namespaces to the
+# Set up each cluster to forward DNS requests for region-scoped namespaces to the
 # relevant cluster's DNS server, using load balancers in order to create a
 # static IP for each cluster's DNS endpoint.
 dns_ips = dict()
-for zone, context in contexts.items():
+for region, context in contexts.items():
     external_ip = ''
     while True:
         external_ip = check_output(['kubectl', 'get', 'svc', 'kube-dns-lb', '--namespace', 'kube-system', '--context', context, '--template', '{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}']).decode("UTF-8")
         if external_ip:
             break
-        print('Waiting for DNS load balancer IP in %s...' % (zone))
+        print('Waiting for DNS load balancer IP in %s...' % (region))
         sleep(10)
-    print ('DNS endpoint for zone %s: %s' % (zone, external_ip))
-    dns_ips[zone] = external_ip
+    print ('DNS endpoint for region %s: %s' % (region, external_ip))
+    dns_ips[region] = external_ip
 
 # Update each cluster's DNS configuration with an appropriate configmap. Note
 # that we have to leave the local cluster out of its own configmap to avoid
 # infinite recursion through the load balancer IP. We then have to delete the
 # existing DNS pods in order for the new configuration to take effect.
-for zone, context in contexts.items():
+for region, context in contexts.items():
     remote_dns_ips = dict()
-    for z, ip in dns_ips.items():
-        if z == zone:
+    for r, ip in dns_ips.items():
+        if r == region:
             continue
-        remote_dns_ips[z+'.svc.cluster.local'] = [ip]
-        remote_dns_ips[z+'-failover.svc.cluster.local'] = [ip]
+        remote_dns_ips[r+'.svc.cluster.local'] = [ip]
+        remote_dns_ips[r+'-failover.svc.cluster.local'] = [ip]
     print(remote_dns_ips)
-    config_filename = '%s/dns-configmap-%s.yaml' % (generated_files_dir, zone)
+    config_filename = '%s/dns-configmap-%s.yaml' % (generated_files_dir, region)
     with open(config_filename, 'w') as f:
         f.write("""\
 apiVersion: v1
@@ -106,13 +106,13 @@ data:
 
 # Generate ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
 join_addrs = []
-for zone in contexts:
+for region in contexts:
     for i in range(number_of_zeebe_brokers_per_region):
-        join_addrs.append('camunda-zeebe-%d.camunda-zeebe.%s.svc.cluster.local:26502' % (i, zone))
+        join_addrs.append('camunda-zeebe-%d.camunda-zeebe.%s.svc.cluster.local:26502' % (i, region))
 join_str = ','.join(join_addrs)
 print(join_str)
 
 # Generate ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL e.g. http://elasticsearch-master-headless.us-east1.svc.cluster.local:9200
 elastic_urls = {}
-for zone, context in contexts.items():
-    print('http://elasticsearch-master-headless.%s.svc.cluster.local:9200' % (zone))
+for region, context in contexts.items():
+    print('http://elasticsearch-master-headless.%s.svc.cluster.local:9200' % (region))
