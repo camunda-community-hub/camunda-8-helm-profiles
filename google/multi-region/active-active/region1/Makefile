@@ -36,6 +36,8 @@ all: use-kube namespace prepare-elastic-backup-key camunda external-urls
 
 .PHONY: kube # Create Kubernetes cluster. (No aplication gateway required)
 kube: kube-gke
+	@echo "Please add the following line to the list of contexts in setup-zeebe.py & teardown-zeebe.py:"
+	@echo "    '$(region)': 'gke_$(project)_$(region)_$(clusterName)',"
 
 .PHONY: external-urls # Show external URLs
 external-urls: external-urls-no-ingress
