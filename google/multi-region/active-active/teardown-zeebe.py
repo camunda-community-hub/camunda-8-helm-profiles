@@ -10,8 +10,8 @@ from subprocess import call
 # To get the names of your kubectl "contexts" for each of your clusters, run:
 #   kubectl config get-contexts
 contexts = {
-    'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
-    'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
+    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
+    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
 }
 
 certs_dir = './certs'

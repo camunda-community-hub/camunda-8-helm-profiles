@@ -10,21 +10,31 @@ from time import sleep
 # Before running the script, fill in appropriate values for all the parameters
 # above the dashed line.
 
-# Fill in the `contexts` map with the zones of your clusters and their
+# Fill in the `contexts` map with the regions of your clusters and their
 # corresponding kubectl context names.
 #
 # To get the names of your kubectl "contexts" for each of your clusters, run:
 #   kubectl config get-contexts
 #
+# format:
+# contexts = {
+#    region_name: context_name,
+# }
+#
 # example:
 # contexts = {
-#     'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
-#     'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
+#    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
+#    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
 # }
+# TODO generate kubectl contexts via make using pattern: gke_$(project)_$(region)_$(clusterName)
 contexts = {
-    'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
-    'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
+    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
+    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
 }
+
+# Fill in the number of Zeebe brokers per region,
+# i.e. clusterSize/regions as defined in camunda-values.yaml
+number_of_zeebe_brokers_per_region = 4
 
 # Path to directory generated YAML files.
 generated_files_dir = './generated'
@@ -34,7 +44,6 @@ generated_files_dir = './generated'
 # First, do some basic input validation.
 if len(contexts) == 0:
     exit("must provide at least one Kubernetes cluster in the `contexts` map at the top of the script")
-
 
 for zone, context in contexts.items():
     try:
@@ -98,7 +107,12 @@ data:
 # Generate ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
 join_addrs = []
 for zone in contexts:
-    for i in range(3):
-        join_addrs.append('camunda-zeebe-%d.camunda-zeebe.%s' % (i, zone))
+    for i in range(number_of_zeebe_brokers_per_region):
+        join_addrs.append('camunda-zeebe-%d.camunda-zeebe.%s.svc.cluster.local:26502' % (i, zone))
 join_str = ','.join(join_addrs)
 print(join_str)
+
+# Generate ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL e.g. http://elasticsearch-master-headless.us-east1.svc.cluster.local:9200
+elastic_urls = {}
+for zone, context in contexts.items():
+    print('http://elasticsearch-master-headless.%s.svc.cluster.local:9200' % (zone))
