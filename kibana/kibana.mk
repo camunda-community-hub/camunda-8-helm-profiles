@@ -3,7 +3,7 @@ install-kibana:
 	helm repo add elastic https://helm.elastic.co
 	helm repo add stable https://charts.helm.sh/stable
 	helm repo update elastic stable
-	helm upgrade kibana elastic/kibana --version $(kibanaVersion) --atomic --install --namespace $(namespace)
+	helm upgrade kibana elastic/kibana --version 7.17.3 --atomic --install --namespace $(namespace) --set elasticsearchHosts=http://camunda-elasticsearch:9200
 
 .PHONY: clean-kibana
 clean-kibana:

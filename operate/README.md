@@ -1,5 +1,8 @@
 # Helm Profile for Horizontally Scaling Operate
 
+> [!IMPORTANT]  
+> This profile is deprecated, please use [high-available-webapps](../high-available-webapps) profile instead
+
 The Camunda 8 Operate webapp [consists of 3 modules](https://docs.camunda.io/docs/self-managed/operate-deployment/importer-and-archiver/). 
 - Webapp
 - Importer

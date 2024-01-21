@@ -29,6 +29,9 @@ dnsLabel ?= YOUR_DNS_LABEL
 # In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
 baseDomainName ?= upgradingdave.com
 
+# Only relevant when using google cloud dns
+dnsManagedZone ?= aws
+
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 ifeq ($(OS),Windows_NT)
@@ -49,6 +52,8 @@ chartValues ?= camunda-values-ingress-tls-aws.yaml
 
 .PHONY: all
 all: ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-tls-aws.yaml create-docker-registry-secret camunda annotate-ingress-tls external-urls
+# Uncomment this to setup prometheus metrics
+#all: ingress-nginx cert-manager letsencrypt-prod camunda-values-with-metrics.yaml create-docker-registry-secret camunda annotate-ingress-tls external-urls
 
 # 0 kube from kubernetes-aws.mk: Create Kubernetes cluster.
 
@@ -86,3 +91,4 @@ include $(root)/bpmn/deploy-models.mk
 include $(root)/include/ingress-nginx.mk
 include $(root)/include/cert-manager.mk
 include $(root)/metrics/metrics.mk
+include $(root)/kibana/kibana.mk

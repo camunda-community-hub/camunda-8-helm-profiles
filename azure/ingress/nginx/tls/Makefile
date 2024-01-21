@@ -11,7 +11,7 @@ resourceGroup ?= YOUR_CLUSTER_NAME-rg
 machineType ?= Standard_A8_v2
 minSize ?= 1
 maxSize ?= 6
-certEmail ?= YOUR_EMAIL@camunda.com
+certEmail ?= YOUR_EMAIL
 
 # Configure the fully qualified domain name
 # The dnsLabel is the first part of the domain address. It will be used no matter what baseDomain you configure below
@@ -29,6 +29,17 @@ baseDomainName ?= $(region).cloudapp.azure.com
 # In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
 # baseDomainName ?= YOUR_CUSTOM_DOMAIN_NAME
 
+# Only relevant when using google cloud dns
+dnsManagedZone ?= aks
+
+# ------------------------------------
+# Camunda Enterprise Docker Registry Login
+
+camundaDockerRegistrySecretName ?= camunda-docker-registry
+camundaDockerRegistryUrl ?= registry.camunda.cloud
+camundaDockerRegistryUsername ?= YOUR_EE_USERNAME
+camundaDockerRegistryPassword ?= YOUR_EE_PASSWORD
+camundaDockerRegistryEmail ?= YOUR_EE_EMAIL
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -49,8 +60,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-all.yaml
 
 .PHONY: all
-#all: azure-ingress-nginx dns-create-a-record cert-manager letsencrypt-staging camunda-values-nginx-all.yaml camunda annotate-ingress-tls external-urls
-all: azure-ingress-nginx cert-manager letsencrypt-staging camunda-values-nginx-all.yaml camunda annotate-ingress-tls external-urls
+all: azure-ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-all.yaml create-docker-registry-secret camunda annotate-ingress-tls external-urls
 
 # 0 kube from aks.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube

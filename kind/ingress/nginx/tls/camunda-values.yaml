@@ -65,7 +65,7 @@ webModeler:
   image:
     pullSecrets:
       # replace with the name of the previously created secret
-      - name: camunda-docker-registry-secret
+      - name: camunda-docker-registry
   restapi:
     mail:
       smtpHost: smtp.example.com

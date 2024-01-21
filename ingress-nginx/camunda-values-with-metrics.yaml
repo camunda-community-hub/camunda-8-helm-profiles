@@ -62,8 +62,8 @@ webModeler:
 postgresql:
   enabled: true
 
-#prometheusServiceMonitor:
-#  enabled: true
+prometheusServiceMonitor:
+  enabled: true
 
 identity:
   contextPath: "/identity"
@@ -92,6 +92,9 @@ zeebe-gateway:
     limits:
       memory: "2048Mi"
       cpu: "1000m"
+  env:
+    - name: ZEEBE_GATEWAY_MONITORING_ENABLED
+      value: "true"
 
 zeebe:
   clusterSize: 1
@@ -106,6 +109,9 @@ zeebe:
     limits:
       cpu: "512m"
       memory: "2Gi"
+  env:
+    - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
+      value: "true"
 
 elasticsearch:
   enabled: true
