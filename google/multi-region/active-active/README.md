@@ -33,7 +33,7 @@ We are basing our dual-region active-active setup on standard Kubernetes feature
 
 ### Initial Setup
 
-### Prepare installation
+#### Prepare installation
 
 You should clone this repository locally.
 
@@ -703,9 +703,45 @@ make elastic-nodes
 
 ### Disaster
 
-In case of disaster, if a region is lost, attempting to start a process instance would lead to an exception:
+If a region is lost, attempting to start a process instance would lead to an exception:
 
+```
 io.grpc.StatusRuntimeException: RESOURCE_EXHAUSTED: Expected to execute the command on one of the partitions, but all failed; there are no more partitions available to retry. Please try again. If the error persists contact your zeebe operator
+```
+
+`zbctl` would show only the local half of the brokers and no partition would have a leader:
+
+```
+Cluster size: 8
+Partitions count: 8
+Replication factor: 4
+Gateway version: 8.4.0
+Brokers:
+  Broker 0 - camunda-zeebe-0.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+    Partition 8 : Follower, Healthy
+  Broker 2 - camunda-zeebe-1.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 8 : Follower, Healthy
+  Broker 4 - camunda-zeebe-2.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 4 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+  Broker 6 - camunda-zeebe-3.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 4 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+```
 
 the procedure would be to:
 * start temporary nodes that will restore the quorum in the surviving region
@@ -718,25 +754,150 @@ the procedure would be to:
 * clean the temporary nodes from the surviving region
 * restore the initial setup
 
-##### pause exporters
+#### pause exporters
 
 TODO: write a makefile target to pause exporters in the surviving region
 
 
-##### start temporary nodes (failOver)
+#### Fail Over by starting Temporary Nodes
 
 In the surviving region, use the "make fail-over-regionX" to create the temporary nodes with the partitions to restore the qorum.
 If region0 survived, the command would be
+
+<table>
+  <thead>
+    <tr>
+      <th>Using GNU Make</th>
+      <th>Manual Commands</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top">
 
 ```sh
 cd region0
 make fail-over-region1
 ```
+</td><td>
+
+```sh
+kubectl create namespace us-east1-failover
+kubectl config set-context --current --namespace=us-east1-failover
+helm install --namespace us-east1-failover camunda camunda/camunda-platform -f camunda-values.yaml  --skip-crds \
+  --set global.installationType=failOver \
+  --set global.regionId=1 \
+  --set elasticsearch.enabled=false \
+  --set operate.enabled=false \
+  --set tasklist.enabled=false \
+  --set zeebe-gateway.enabled=false
+```
+</td></tr></tbody></table>
 
 <details>
 <summary>Example Command Output</summary>
 
 ```sh
+$ make fail-over-region1
+kubectl create namespace us-east1-failover
+namespace/us-east1-failover created
+kubectl config set-context --current --namespace=us-east1-failover
+Context "gke_camunda-researchanddevelopment_us-east1_falko-region-0" modified.
+helm install --namespace us-east1-failover camunda camunda/camunda-platform -f camunda-values.yaml  --skip-crds \
+  --set global.installationType=failOver \
+  --set global.regionId=1 \
+  --set elasticsearch.enabled=false \
+  --set operate.enabled=false \
+  --set tasklist.enabled=false \
+  --set zeebe-gateway.enabled=false
+W0121 14:04:51.739034   55061 warnings.go:70] spec.template.spec.containers[0].env[6]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_USERNAME"
+W0121 14:04:51.739048   55061 warnings.go:70] spec.template.spec.containers[0].env[7]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_PASSWORD"
+W0121 14:04:51.916650   55061 warnings.go:70] spec.template.spec.containers[0].env[25]: hides previous definition of "ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS"
+NAME: camunda
+LAST DEPLOYED: Sun Jan 21 14:04:45 2024
+NAMESPACE: us-east1-failover
+STATUS: deployed
+REVISION: 1
+NOTES:
+# (camunda-platform - 9.0.2)
+
+ ######     ###    ##     ## ##     ## ##    ## ########     ###
+##    ##   ## ##   ###   ### ##     ## ###   ## ##     ##   ## ##
+##        ##   ##  #### #### ##     ## ####  ## ##     ##  ##   ##
+##       ##     ## ## ### ## ##     ## ## ## ## ##     ## ##     ##
+##       ######### ##     ## ##     ## ##  #### ##     ## #########
+##    ## ##     ## ##     ## ##     ## ##   ### ##     ## ##     ##
+ ######  ##     ## ##     ##  #######  ##    ## ########  ##     ##
+
+###################################################################
+
+## Installed Services:
+
+- Zeebe:
+  - Enabled: true
+  - Docker Image used for Zeebe: camunda/zeebe:8.4.0
+  - Zeebe Cluster Name: "camunda-zeebe"
+  - Prometheus ServiceMonitor Enabled: false
+- Operate:
+  - Enabled: false
+- Tasklist:
+  - Enabled: false
+- Optimize:
+  - Enabled: false
+- Connectors:
+  - Enabled: true
+  - Docker Image used for Connectors: camunda/connectors-bundle:8.4.3
+- Identity:
+  - Enabled: false
+- Web Modeler:
+  - Enabled: false
+- Elasticsearch:
+  - Enabled: false
+
+### Zeebe
+
+The Cluster itself is not exposed as a service which means that you can use `kubectl port-forward` to access the Zeebe cluster from outside Kubernetes:
+
+> kubectl port-forward svc/camunda-zeebe-gateway 26500:26500 -n us-east1-failover
+
+Now you can connect your workers and clients to `localhost:26500`
+### Connecting to Web apps
+
+
+As part of the Helm charts, an ingress definition can be deployed, but you require to have an Ingress Controller for that Ingress to be Exposed.
+In order to deploy the ingress manifest, set `<service>.ingress.enabled` to `true`. Example: `operate.ingress.enabled=true`
+
+If you don't have an ingress controller you can use `kubectl port-forward` to access the deployed web application from outside the cluster:
+
+
+
+
+
+Connectors:
+> kubectl port-forward svc/camunda-connectors 8088:8080
+
+
+Now you can point your browser to one of the service's login pages. Example: http://localhost:8081 for Operate.
+
+Default user and password: "demo/demo"
+
+
+## Console config
+- name: camunda
+  namespace: us-east1-failover
+  version: 9.0.2
+  components:
+  
+
+  
+
+  
+
+  
+
+  - name: Zeebe Gateway
+    url: grpc://
+    readiness: http://camunda-zeebe-gateway.us-east1-failover:9600/actuator/health/readiness
 ```
 </details>
 
