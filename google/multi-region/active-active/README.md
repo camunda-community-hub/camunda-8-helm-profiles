@@ -963,7 +963,7 @@ make fail-over-region0
 
 > :information_source: As a result, we have a working zeebe engine but the exporters are stuck because one ES target is not yet available.
 
-#### Fail Back by restore missing nodes in the disastered region
+#### Fail Back by restoring missing nodes in the disastered region
 
 Once you're able to restore the disaster region, you don't want to restart all nodes at once because you would end-up with some brokerIds duplicated (from the failOver). So instead, you want to restart only the missing brokerIds.
 
