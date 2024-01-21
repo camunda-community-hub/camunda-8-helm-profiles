@@ -756,8 +756,10 @@ the procedure would be to:
 
 #### pause exporters
 
-TODO: write a makefile target to pause exporters in the surviving region
-
+```sh
+cd region0
+make pause-exporters
+```
 
 #### Fail Over by starting Temporary Nodes
 
@@ -1110,6 +1112,65 @@ Default user and password: "demo/demo"
 </details>
 
 > :information_source: This will indeed create all the brokers. But half of them (the ones in the failOver) will not be started (start script is altered in the configmap). Operate and tasklist are not restarted on purpose to avoid touching ES indices.
+
+`zbctl status` should now show all brokers but with three different DNS suffixes,
+e.g. four in `us-east1`, two in `us-east1-failover`, and two in `europe-west1`:
+
+```
+Cluster size: 8
+Partitions count: 8
+Replication factor: 4
+Gateway version: 8.4.0
+Brokers:
+  Broker 0 - camunda-zeebe-0.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+    Partition 8 : Follower, Healthy
+  Broker 1 - camunda-zeebe-0.camunda-zeebe.us-east1-failover.svc:26501
+    Version: 8.4.0
+    Partition 1 : Leader, Healthy
+    Partition 2 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+    Partition 8 : Leader, Healthy
+  Broker 2 - camunda-zeebe-1.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 8 : Follower, Healthy
+  Broker 3 - camunda-zeebe-1.camunda-zeebe.europe-west1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 4 : Leader, Healthy
+  Broker 4 - camunda-zeebe-2.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 2 : Leader, Healthy
+    Partition 3 : Leader, Healthy
+    Partition 4 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+  Broker 5 - camunda-zeebe-1.camunda-zeebe.us-east1-failover.svc:26501
+    Version: 8.4.0
+    Partition 3 : Follower, Healthy
+    Partition 4 : Follower, Healthy
+    Partition 5 : Leader, Healthy
+    Partition 6 : Follower, Healthy
+  Broker 6 - camunda-zeebe-3.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 4 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+    Partition 6 : Leader, Healthy
+    Partition 7 : Leader, Healthy
+  Broker 7 - camunda-zeebe-3.camunda-zeebe.europe-west1.svc:26501
+    Version: 8.4.0
+    Partition 5 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+    Partition 8 : Follower, Healthy
+```
 
 ##### pause exporters
 
