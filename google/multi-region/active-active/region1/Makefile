@@ -49,8 +49,8 @@ fail-over-region1:
 	-kubectl create namespace $(namespace)-failover
 	-kubectl config set-context --current --namespace=$(namespace)-failover
 	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
-	  --set global.installationType=failOver \
-	  --set global.regionId=0 \
+	  --set global.multiregion.installationType=failOver \
+	  --set global.multiregion.regionId=0 \
 	  --set elasticsearch.enabled=false \
 	  --set operate.enabled=false \
 	  --set tasklist.enabled=false \
@@ -60,7 +60,7 @@ fail-over-region1:
 
 fail-back: use-kube namespace prepare-elastic-backup-key
 	helm install --namespace $(region) $(release) $(chart) -f $(chartValues)  --skip-crds \
-	  --set global.installationType=failBack \
+	  --set global.multiregion.installationType=failBack \
 	  --set operate.enabled=false \
 	  --set tasklist.enabled=false
 

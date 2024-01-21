@@ -785,8 +785,8 @@ make fail-over-region1
 kubectl create namespace us-east1-failover
 kubectl config set-context --current --namespace=us-east1-failover
 helm install --namespace us-east1-failover camunda camunda/camunda-platform -f camunda-values.yaml  --skip-crds \
-  --set global.installationType=failOver \
-  --set global.regionId=1 \
+  --set global.multiregion.installationType=failOver \
+  --set global.multiregion.regionId=1 \
   --set elasticsearch.enabled=false \
   --set operate.enabled=false \
   --set tasklist.enabled=false \
@@ -804,8 +804,8 @@ namespace/us-east1-failover created
 kubectl config set-context --current --namespace=us-east1-failover
 Context "gke_camunda-researchanddevelopment_us-east1_falko-region-0" modified.
 helm install --namespace us-east1-failover camunda camunda/camunda-platform -f camunda-values.yaml  --skip-crds \
-  --set global.installationType=failOver \
-  --set global.regionId=1 \
+  --set global.multiregion.installationType=failOver \
+  --set global.multiregion.regionId=1 \
   --set elasticsearch.enabled=false \
   --set operate.enabled=false \
   --set tasklist.enabled=false \
