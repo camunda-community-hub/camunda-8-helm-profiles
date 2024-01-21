@@ -901,8 +901,53 @@ Default user and password: "demo/demo"
 ```
 </details>
 
+`zbctl` should now also show half of the brokers of the failed region, e.g. two of the odd-numbered ones:
 
-If region1 survived, the command would be
+```
+Cluster size: 8
+Partitions count: 8
+Replication factor: 4
+Gateway version: 8.4.0
+Brokers:
+  Broker 0 - camunda-zeebe-0.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Leader, Healthy
+    Partition 6 : Leader, Healthy
+    Partition 7 : Follower, Healthy
+    Partition 8 : Leader, Healthy
+  Broker 1 - camunda-zeebe-0.camunda-zeebe.us-east1-failover.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 2 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+    Partition 8 : Follower, Healthy
+  Broker 2 - camunda-zeebe-1.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 2 : Leader, Healthy
+    Partition 3 : Leader, Healthy
+    Partition 8 : Follower, Healthy
+  Broker 4 - camunda-zeebe-2.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 4 : Leader, Healthy
+    Partition 5 : Leader, Healthy
+  Broker 5 - camunda-zeebe-1.camunda-zeebe.us-east1-failover.svc:26501
+    Version: 8.4.0
+    Partition 3 : Follower, Healthy
+    Partition 4 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+  Broker 6 - camunda-zeebe-3.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 4 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+    Partition 7 : Leader, Healthy
+```
+
+If region1 survived, the commands would be
 
 ```sh
 cd region1
@@ -918,18 +963,149 @@ make fail-over-region0
 
 > :information_source: As a result, we have a working zeebe engine but the exporters are stuck because one ES target is not yet available.
 
-##### restore missing nodes in the disastered region (failBack)
+#### Fail Back by restore missing nodes in the disastered region
 
-Once you're able to restore the disaster region, you don't want to restart all nodes. Else you will end-up with some brokerIds duplicated (from the failOver). So instead, you want to restart only missing brokerIds.
+Once you're able to restore the disaster region, you don't want to restart all nodes at once because you would end-up with some brokerIds duplicated (from the failOver). So instead, you want to restart only the missing brokerIds.
+
+<table>
+  <thead>
+    <tr>
+      <th>Using GNU Make</th>
+      <th>Manual Commands</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top">
+
 ```sh
-cd region0
+cd region1
 make fail-back
 ```
+</td><td>
+
+```sh
+gcloud config set project camunda-researchanddevelopment
+gcloud container clusters get-credentials falko-region-1 --region europe-west1
+kubectl create namespace europe-west1
+kubectl config set-context --current --namespace=europe-west1
+kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
+helm install --namespace europe-west1 camunda camunda/camunda-platform -f camunda-values.yaml  --skip-crds \
+  --set global.multiregion.installationType=failBack \
+  --set operate.enabled=false \
+  --set tasklist.enabled=false
+```
+</td></tr></tbody></table>
 
 <details>
 <summary>Example Command Output</summary>
 
 ```sh
+$ make fail-back
+gcloud config set project camunda-researchanddevelopment
+Updated property [core/project].
+gcloud container clusters get-credentials falko-region-1 --region europe-west1
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for falko-region-1.
+kubectl create namespace europe-west1
+namespace/europe-west1 created
+kubectl config set-context --current --namespace=europe-west1
+Context "gke_camunda-researchanddevelopment_europe-west1_falko-region-1" modified.
+kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
+secret/gcs-backup-key created
+helm install --namespace europe-west1 camunda camunda/camunda-platform -f camunda-values.yaml  --skip-crds \
+  --set global.multiregion.installationType=failBack \
+  --set operate.enabled=false \
+  --set tasklist.enabled=false
+W0121 16:50:38.304149   68228 warnings.go:70] spec.template.spec.containers[0].env[6]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_USERNAME"
+W0121 16:50:38.304198   68228 warnings.go:70] spec.template.spec.containers[0].env[7]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_PASSWORD"
+W0121 16:50:38.474040   68228 warnings.go:70] spec.template.spec.containers[0].env[25]: hides previous definition of "ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS"
+NAME: camunda
+LAST DEPLOYED: Sun Jan 21 16:50:34 2024
+NAMESPACE: europe-west1
+STATUS: deployed
+REVISION: 1
+NOTES:
+# (camunda-platform - 9.0.2)
+
+ ######     ###    ##     ## ##     ## ##    ## ########     ###
+##    ##   ## ##   ###   ### ##     ## ###   ## ##     ##   ## ##
+##        ##   ##  #### #### ##     ## ####  ## ##     ##  ##   ##
+##       ##     ## ## ### ## ##     ## ## ## ## ##     ## ##     ##
+##       ######### ##     ## ##     ## ##  #### ##     ## #########
+##    ## ##     ## ##     ## ##     ## ##   ### ##     ## ##     ##
+ ######  ##     ## ##     ##  #######  ##    ## ########  ##     ##
+
+###################################################################
+
+## Installed Services:
+
+- Zeebe:
+  - Enabled: true
+  - Docker Image used for Zeebe: camunda/zeebe:8.4.0
+  - Zeebe Cluster Name: "camunda-zeebe"
+  - Prometheus ServiceMonitor Enabled: false
+- Operate:
+  - Enabled: false
+- Tasklist:
+  - Enabled: false
+- Optimize:
+  - Enabled: false
+- Connectors:
+  - Enabled: true
+  - Docker Image used for Connectors: camunda/connectors-bundle:8.4.3
+- Identity:
+  - Enabled: false
+- Web Modeler:
+  - Enabled: false
+- Elasticsearch:
+  - Enabled: true
+  - Elasticsearch URL: http://camunda-elasticsearch:9200
+
+### Zeebe
+
+The Cluster itself is not exposed as a service which means that you can use `kubectl port-forward` to access the Zeebe cluster from outside Kubernetes:
+
+> kubectl port-forward svc/camunda-zeebe-gateway 26500:26500 -n europe-west1
+
+Now you can connect your workers and clients to `localhost:26500`
+### Connecting to Web apps
+
+
+As part of the Helm charts, an ingress definition can be deployed, but you require to have an Ingress Controller for that Ingress to be Exposed.
+In order to deploy the ingress manifest, set `<service>.ingress.enabled` to `true`. Example: `operate.ingress.enabled=true`
+
+If you don't have an ingress controller you can use `kubectl port-forward` to access the deployed web application from outside the cluster:
+
+
+
+
+
+Connectors:
+> kubectl port-forward svc/camunda-connectors 8088:8080
+
+
+Now you can point your browser to one of the service's login pages. Example: http://localhost:8081 for Operate.
+
+Default user and password: "demo/demo"
+
+
+## Console config
+- name: camunda
+  namespace: europe-west1
+  version: 9.0.2
+  components:
+  
+
+  
+
+  
+
+  
+
+  - name: Zeebe Gateway
+    url: grpc://
+    readiness: http://camunda-zeebe-gateway.europe-west1:9600/actuator/health/readiness
 ```
 </details>
 
