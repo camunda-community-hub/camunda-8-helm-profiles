@@ -93,7 +93,7 @@ include $(root)/connectors/connectors.mk
 
 .PHONY: elastic-nodes
 elastic-nodes:
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
 
 .PHONY: prepare-elastic-backup-key
 prepare-elastic-backup-key:
@@ -101,7 +101,7 @@ prepare-elastic-backup-key:
 
 .PHONY: prepare-elastic-backup-repo
 prepare-elastic-backup-repo:
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "falko-elasticsearch-backup", "base_path": "backups"}}'
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "falko-elasticsearch-backup", "base_path": "backups"}}'
 
 .PHONY: operate-snapshot
 operate-snapshot:
@@ -109,9 +109,9 @@ operate-snapshot:
 
 .PHONY: restore-operate-snapshot
 restore-operate-snapshot:
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_1_of_6/_restore?wait_for_completion=true
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_2_of_6/_restore?wait_for_completion=true
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_3_of_6/_restore?wait_for_completion=true
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_4_of_6/_restore?wait_for_completion=true
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_5_of_6/_restore?wait_for_completion=true
-	kubectl exec elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_6_of_6/_restore?wait_for_completion=true
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_1_of_6/_restore?wait_for_completion=true
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_2_of_6/_restore?wait_for_completion=true
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_3_of_6/_restore?wait_for_completion=true
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_4_of_6/_restore?wait_for_completion=true
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_5_of_6/_restore?wait_for_completion=true
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_6_of_6/_restore?wait_for_completion=true
