@@ -754,11 +754,11 @@ the procedure would be to:
 * clean the temporary nodes from the surviving region
 * restore the initial setup
 
-#### pause exporters
+#### Disable Exporters to the failed region
 
 ```sh
 cd region0
-make pause-exporters
+# TODO make disable-exporter-to-region1
 ```
 
 #### Fail Over by starting Temporary Nodes
@@ -1184,6 +1184,11 @@ make pause-exporters
 <summary>Example Command Output</summary>
 
 ```sh
+$ make pause-exporters
+kubectl exec camunda-elasticsearch-master-0 -n us-east1 -c elasticsearch -- curl -i camunda-zeebe-gateway:9600/actuator/exporting/pause -XPOST
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0HTTP/1.1 204 No Content
 ```
 </details>
 
@@ -1255,6 +1260,11 @@ make resume-exporters
 <summary>Example Command Output</summary>
 
 ```sh
+$ make resume-exporters 
+kubectl exec camunda-elasticsearch-master-0 -n us-east1 -c elasticsearch -- curl -i camunda-zeebe-gateway:9600/actuator/exporting/resume -XPOST
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--HTTP/1.1 204 No Content
 ```
 </details>
 
@@ -1271,8 +1281,66 @@ make clean-fail-over-region1
 <summary>Example Command Output</summary>
 
 ```sh
+$ make clean-fail-over-region1
+gcloud config set project camunda-researchanddevelopment
+Updated property [core/project].
+gcloud container clusters get-credentials falko-region-0 --region us-east1
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for falko-region-0.
+helm --namespace us-east1-failover uninstall camunda
+release "camunda" uninstalled
+kubectl delete -n us-east1-failover pvc -l app.kubernetes.io/instance=camunda
+persistentvolumeclaim "data-camunda-zeebe-0" deleted
+persistentvolumeclaim "data-camunda-zeebe-1" deleted
+kubectl delete namespace us-east1-failover
+namespace "us-east1-failover" deleted
 ```
 </details>
+
+`zbctl startus` should show that the temporary brokers are gone from the topology:
+
+```
+Cluster size: 8
+Partitions count: 8
+Replication factor: 4
+Gateway version: 8.4.0
+Brokers:
+  Broker 0 - camunda-zeebe-0.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+    Partition 8 : Follower, Healthy
+  Broker 2 - camunda-zeebe-1.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Leader, Healthy
+    Partition 2 : Leader, Healthy
+    Partition 3 : Leader, Healthy
+    Partition 8 : Leader, Healthy
+  Broker 3 - camunda-zeebe-1.camunda-zeebe.europe-west1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 4 : Leader, Healthy
+  Broker 4 - camunda-zeebe-2.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 4 : Follower, Healthy
+    Partition 5 : Leader, Healthy
+  Broker 6 - camunda-zeebe-3.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 4 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+    Partition 6 : Leader, Healthy
+    Partition 7 : Leader, Healthy
+  Broker 7 - camunda-zeebe-3.camunda-zeebe.europe-west1.svc:26501
+    Version: 8.4.0
+    Partition 5 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+    Partition 7 : Follower, Healthy
+```
 
 ##### restore the initial setup (back to normal)
 
@@ -1287,6 +1355,145 @@ make fail-back-to-normal
 <summary>Example Command Output</summary>
 
 ```sh
+$ make fail-back-to-normal
+gcloud config set project camunda-researchanddevelopment
+Updated property [core/project].
+gcloud container clusters get-credentials falko-region-1 --region europe-west1
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for falko-region-1.
+helm repo update camunda
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "camunda" chart repository
+Update Complete. ⎈Happy Helming!⎈
+helm search repo camunda/camunda-platform
+WARNING: Repo "prometheus-community" is corrupt or missing. Try 'helm repo update'.
+WARNING: open /home/falko/.cache/helm/repository/prometheus-community-index.yaml: no such file or directory
+WARNING: Repo "stable" is corrupt or missing. Try 'helm repo update'.
+WARNING: open /home/falko/.cache/helm/repository/stable-index.yaml: no such file or directory
+NAME                            CHART VERSION   APP VERSION     DESCRIPTION                                       
+camunda/camunda-platform        9.0.2           8.4.x           Camunda 8 Self-Managed Helm charts. Camunda's p...
+OPERATE_SECRET=$(kubectl get secret --namespace europe-west1 "camunda-operate-identity-secret" -o jsonpath="{.data.operate-secret}" | base64 --decode); \
+TASKLIST_SECRET=$(kubectl get secret --namespace europe-west1 "camunda-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode); \
+OPTIMIZE_SECRET=$(kubectl get secret --namespace europe-west1 "camunda-optimize-identity-secret" -o jsonpath="{.data.optimize-secret}" | base64 --decode); \
+KEYCLOAK_ADMIN_SECRET=$(kubectl get secret --namespace europe-west1 "camunda-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode) \
+KEYCLOAK_MANAGEMENT_SECRET=$(kubectl get secret --namespace europe-west1 "camunda-keycloak" -o jsonpath="{.data.management-password}" | base64 --decode) \
+POSTGRESQL_SECRET=$(kubectl get secret --namespace europe-west1 "camunda-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode) \
+        CONNECTORS_SECRET=$(kubectl get secret --namespace europe-west1 "camunda-connectors-auth-credentials" -o jsonpath="{.data.connectors-secret}" | base64 -d) \
+helm upgrade --namespace europe-west1 camunda camunda/camunda-platform -f camunda-values.yaml \
+  --set global.identity.auth.operate.existingSecret=$OPERATE_SECRET \
+  --set global.identity.auth.tasklist.existingSecret=$TASKLIST_SECRET \
+  --set global.identity.auth.optimize.existingSecret=$OPTIMIZE_SECRET \
+  --set identity.keycloak.auth.adminPassword=$KEYCLOAK_ADMIN_SECRET \
+  --set identity.keycloak.auth.managementPassword=$KEYCLOAK_MANAGEMENT_SECRET \
+  --set identity.keycloak.postgresql.auth.password=$POSTGRESQL_SECRET \
+  --set connectors.inbound.auth.existingSecret=ONNECTORS_SECRET
+Error from server (NotFound): secrets "camunda-operate-identity-secret" not found
+Error from server (NotFound): secrets "camunda-tasklist-identity-secret" not found
+Error from server (NotFound): secrets "camunda-optimize-identity-secret" not found
+Error from server (NotFound): secrets "camunda-keycloak" not found
+Error from server (NotFound): secrets "camunda-keycloak" not found
+Error from server (NotFound): secrets "camunda-postgresql" not found
+W0121 19:49:24.231459   92899 warnings.go:70] spec.template.spec.containers[0].env[3]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_USERNAME"
+W0121 19:49:24.231507   92899 warnings.go:70] spec.template.spec.containers[0].env[5]: hides previous definition of "CAMUNDA_OPERATE_CLIENT_PASSWORD"
+Release "camunda" has been upgraded. Happy Helming!
+NAME: camunda
+LAST DEPLOYED: Sun Jan 21 19:49:19 2024
+NAMESPACE: europe-west1
+STATUS: deployed
+REVISION: 2
+NOTES:
+# (camunda-platform - 9.0.2)
+
+ ######     ###    ##     ## ##     ## ##    ## ########     ###
+##    ##   ## ##   ###   ### ##     ## ###   ## ##     ##   ## ##
+##        ##   ##  #### #### ##     ## ####  ## ##     ##  ##   ##
+##       ##     ## ## ### ## ##     ## ## ## ## ##     ## ##     ##
+##       ######### ##     ## ##     ## ##  #### ##     ## #########
+##    ## ##     ## ##     ## ##     ## ##   ### ##     ## ##     ##
+ ######  ##     ## ##     ##  #######  ##    ## ########  ##     ##
+
+###################################################################
+
+## Installed Services:
+
+- Zeebe:
+  - Enabled: true
+  - Docker Image used for Zeebe: camunda/zeebe:8.4.0
+  - Zeebe Cluster Name: "camunda-zeebe"
+  - Prometheus ServiceMonitor Enabled: false
+- Operate:
+  - Enabled: true
+  - Docker Image used for Operate: camunda/operate:8.4.0
+- Tasklist:
+  - Enabled: true
+  - Docker Image used for Tasklist: camunda/tasklist:8.4.0
+- Optimize:
+  - Enabled: false
+- Connectors:
+  - Enabled: true
+  - Docker Image used for Connectors: camunda/connectors-bundle:8.4.3
+- Identity:
+  - Enabled: false
+- Web Modeler:
+  - Enabled: false
+- Elasticsearch:
+  - Enabled: true
+  - Elasticsearch URL: http://camunda-elasticsearch:9200
+
+### Zeebe
+
+The Cluster itself is not exposed as a service which means that you can use `kubectl port-forward` to access the Zeebe cluster from outside Kubernetes:
+
+> kubectl port-forward svc/camunda-zeebe-gateway 26500:26500 -n europe-west1
+
+Now you can connect your workers and clients to `localhost:26500`
+### Connecting to Web apps
+
+
+As part of the Helm charts, an ingress definition can be deployed, but you require to have an Ingress Controller for that Ingress to be Exposed.
+In order to deploy the ingress manifest, set `<service>.ingress.enabled` to `true`. Example: `operate.ingress.enabled=true`
+
+If you don't have an ingress controller you can use `kubectl port-forward` to access the deployed web application from outside the cluster:
+
+
+Operate:
+> kubectl port-forward svc/camunda-operate  8081:80
+Tasklist:
+> kubectl port-forward svc/camunda-tasklist 8082:80
+
+Connectors:
+> kubectl port-forward svc/camunda-connectors 8088:8080
+
+
+Now you can point your browser to one of the service's login pages. Example: http://localhost:8081 for Operate.
+
+Default user and password: "demo/demo"
+
+
+## Console config
+- name: camunda
+  namespace: europe-west1
+  version: 9.0.2
+  components:
+  
+
+  - name: Operate
+    url: http://
+    readiness: http://camunda-operate.europe-west1:80/actuator/health/readiness
+
+  
+
+  - name: Tasklist
+    url: http://
+    readiness: http://camunda-tasklist.europe-west1:80/actuator/health/readiness
+
+  - name: Zeebe Gateway
+    url: grpc://
+    readiness: http://camunda-zeebe-gateway.europe-west1:9600/actuator/health/readiness
+kubectl delete pod camunda-zeebe-0 -n europe-west1
+pod "camunda-zeebe-0" deleted
+kubectl delete pod camunda-zeebe-2 -n europe-west1
+pod "camunda-zeebe-2" deleted
 ```
 </details>
 
