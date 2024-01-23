@@ -79,11 +79,11 @@ zeebe:
 
   resources:
     requests:
-      cpu: "100m"
-      memory: "512M"
+      cpu: "1350m"
+      memory: "4Gi"
     limits:
-      cpu: "512m"
-      memory: "2Gi"
+      cpu: "1350m"
+      memory: "4Gi"
 
 zeebe-gateway:
   replicas: 1
@@ -108,11 +108,11 @@ elasticsearch:
 
   resources:
     requests:
-      cpu: "100m"
-      memory: "512M"
+      cpu: 1
+      memory: "3Gi"
     limits:
-      cpu: "1000m"
-      memory: "2Gi"
+      cpu: 2
+      memory: "6Gi"
 
   # Request smaller persistent volumes.
   volumeClaimTemplate:
