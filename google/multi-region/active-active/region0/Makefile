@@ -40,12 +40,12 @@ kube: kube-gke
 	@echo "    '$(region)': 'gke_$(project)_$(region)_$(clusterName)',"
 
 .PHONY: external-urls # Show external URLs
-external-urls: external-urls-no-ingress
+external-urls: use-kube external-urls-no-ingress
 
 ### <--- End of setup --->
 
 .PHONY: fail-over-region1 # Create temporary brokers that impersonate half of the ones lost in region 1 to backfill and restore quorum
-fail-over-region1:
+fail-over-region1: use-kube
 	-kubectl create namespace $(namespace)-failover
 	-kubectl config set-context --current --namespace=$(namespace)-failover
 	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
@@ -66,7 +66,7 @@ fail-back: use-kube namespace prepare-elastic-backup-key
 
 # TODO what if something is running
 # require clean-camunda but without deleting PVCs or with because its dirty
-fail-back-with-cluster-running:
+fail-back-with-cluster-running: use-kube
 	kubectl delete pod camunda-zeebe-0 -n $(namespace)
 	kubectl delete pod camunda-zeebe-2 -n $(namespace)
 
@@ -92,23 +92,23 @@ include $(root)/bpmn/deploy-models.mk
 include $(root)/connectors/connectors.mk
 
 .PHONY: elastic-nodes
-elastic-nodes:
+elastic-nodes: use-kube
 	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
 
 .PHONY: prepare-elastic-backup-key
-prepare-elastic-backup-key:
+prepare-elastic-backup-key: use-kube
 	kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=gcs_backup_key.json
 
 .PHONY: prepare-elastic-backup-repo
-prepare-elastic-backup-repo:
+prepare-elastic-backup-repo: use-kube
 	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "falko-elasticsearch-backup", "base_path": "backups"}}'
 
 .PHONY: operate-snapshot
-operate-snapshot:
+operate-snapshot: use-kube
 	kubectl exec $$(kubectl get pod --namespace $(namespace) --selector="app=camunda-platform,app.kubernetes.io/component=operate,app.kubernetes.io/instance=camunda,app.kubernetes.io/managed-by=Helm,app.kubernetes.io/name=operate,app.kubernetes.io/part-of=camunda-platform" --output jsonpath='{.items[0].metadata.name}') --namespace $(namespace) -c operate -- curl -i http://localhost:8080/actuator/backups  -XPOST  -H 'Content-Type: application/json'  -d'{"backupId": 3}'
 
 .PHONY: restore-operate-snapshot
-restore-operate-snapshot:
+restore-operate-snapshot: use-kube
 	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_1_of_6/_restore?wait_for_completion=true
 	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_2_of_6/_restore?wait_for_completion=true
 	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPOST http://localhost:9200/_snapshot/camunda_backup/camunda_operate_3_8.2.10_part_3_of_6/_restore?wait_for_completion=true
