@@ -3,6 +3,7 @@
 import distutils.spawn
 import json
 import os
+import sys
 from subprocess import check_call,check_output
 from sys import exit
 from time import sleep
@@ -26,11 +27,23 @@ from time import sleep
 #    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
 #    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
 # }
-# TODO generate kubectl contexts via make using pattern: gke_$(project)_$(region)_$(clusterName)
+if len(sys.argv) != 7:
+        print("Usage: python your_script.py <project> <region0> <clusterName0> <region1> <clusterName1> <brokersPerRegion>")
+        sys.exit(1)
+
+project = sys.argv[1]
+region0 = sys.argv[2]
+clusterName0 = sys.argv[3]
+region1 = sys.argv[4]
+clusterName1 = sys.argv[5]
+brokersPerRegion = int(sys.argv[6])
+
 contexts = {
-    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
-    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
+    region0: f'gke_{project}_{region0}_{clusterName0}',
+    region1: f'gke_{project}_{region1}_{clusterName1}',
 }
+
+number_of_zeebe_brokers_per_region = brokersPerRegion
 
 # Fill in the number of Zeebe brokers per region,
 # i.e. clusterSize/regions as defined in camunda-values.yaml
