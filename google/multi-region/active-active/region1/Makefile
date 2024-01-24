@@ -4,13 +4,15 @@
 # Otherwise, these values will be used to create a new Cluster
 
 # GCP project
-project ?= camunda-researchanddevelopment
+project ?= infrastructure-experience
 # GCP region (see: https://cloud.withgoogle.com/region-picker/)
 region ?= europe-west1
 # GKE cluster name
 clusterName ?= falko-region-1
 # GCP machine type
 machineType ?= n2-standard-2
+# GCP bucket name
+backupBackupName ?= camunda-hackweek-elasticsearch-backup
 minSize ?= 1
 maxSize ?= 24
 
@@ -93,7 +95,7 @@ include $(root)/connectors/connectors.mk
 
 .PHONY: elastic-nodes
 elastic-nodes: use-kube
-	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python -m json.tool
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -s http://localhost:9200/_nodes | python3 -m json.tool
 
 .PHONY: prepare-elastic-backup-key
 prepare-elastic-backup-key: use-kube
@@ -101,7 +103,7 @@ prepare-elastic-backup-key: use-kube
 
 .PHONY: prepare-elastic-backup-repo
 prepare-elastic-backup-repo: use-kube
-	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "falko-elasticsearch-backup", "base_path": "backups"}}'
+	kubectl exec camunda-elasticsearch-master-0 -n $(namespace) -c elasticsearch -- curl -XPUT http://localhost:9200/_snapshot/camunda_backup -H 'Content-Type: application/json' -d'{"type": "gcs","settings":{"bucket": "$(backupBackupName)", "base_path": "backups"}}'
 
 .PHONY: operate-snapshot
 operate-snapshot: use-kube

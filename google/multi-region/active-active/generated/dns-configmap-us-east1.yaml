@@ -5,4 +5,4 @@ metadata:
   namespace: kube-system
 data:
   stubDomains: |
-    {"europe-west1.svc.cluster.local": ["8.34.209.179"], "europe-west1-failover.svc.cluster.local": ["8.34.209.179"]}
+    {"europe-west1.svc.cluster.local": ["34.38.191.213"], "europe-west1-failover.svc.cluster.local": ["34.38.191.213"]}

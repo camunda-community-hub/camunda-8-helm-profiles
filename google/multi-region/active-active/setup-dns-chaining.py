@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import distutils.spawn
 import json
@@ -28,8 +28,8 @@ from time import sleep
 # }
 # TODO generate kubectl contexts via make using pattern: gke_$(project)_$(region)_$(clusterName)
 contexts = {
-    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
-    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
+    'us-east1': 'gke_infrastructure-experience_us-east1_falko-region-0',
+    'europe-west1': 'gke_infrastructure-experience_europe-west1_falko-region-1',
 }
 
 # Fill in the number of Zeebe brokers per region,
