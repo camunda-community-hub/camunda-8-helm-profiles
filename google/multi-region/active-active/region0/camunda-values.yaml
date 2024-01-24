@@ -23,13 +23,10 @@ global:
       enabled: false
 
 operate:
-  env:
-    - name: CAMUNDA_OPERATE_BACKUP_REPOSITORYNAME
-      value: "camunda_backup"
+  enabled: false
+  
 tasklist:
-  env:
-    - name: CAMUNDA_TASKLIST_BACKUP_REPOSITORYNAME
-      value: "camunda_backup"
+  enabled: false
       
 identity:
   enabled: false
@@ -67,14 +64,20 @@ zeebe:
       value: "0.87"
     - name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
       value: "camunda-zeebe-0.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-0.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.europe-west1.svc.cluster.local:26502"
+    - name: ZEEBE_BROKER_THREADS_IOTHREADCOUNT
+      value: "4"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_CLASSNAME
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL
       value: "http://camunda-elasticsearch.europe-west1.svc.cluster.local:9200"
-    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_BULK_SIZE
-      value: "1"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_INDEX_PREFIX
       value: "zeebe-record"
+    - name: ZEEBE_BROKER_CLUSTER_MESSAGECOMPRESSION
+      value: "GZIP"
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "1s"
+    - name: ZEEBE_BROKER_BACKPRESSURE_AIMD_REQUESTTIMEOUT
+      value: "1s"
   pvcSize: 64Gi
 
   resources:
@@ -87,6 +90,11 @@ zeebe:
 
 zeebe-gateway:
   replicas: 1
+  env: 
+    - name: ZEEBE_GATEWAY_CLUSTER_MESSAGECOMPRESSION
+      value: "GZIP"
+    - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBEINTERVAL
+      value: "1s"
 
   resources:
     requests:
@@ -100,6 +108,14 @@ zeebe-gateway:
 
 elasticsearch:
   enabled: true
+  master:
+    resources:
+      request:
+        cpu: 6
+        memory: "6Gi"
+      limit: 
+        cpu: 6
+        memory: "6Gi"
 #  imageTag: 7.17.3
   replicas: 1
   
@@ -108,11 +124,11 @@ elasticsearch:
 
   resources:
     requests:
-      cpu: 1
-      memory: "3Gi"
-    limits:
-      cpu: 2
+      cpu: 6
       memory: "6Gi"
+    limits:
+      cpu: 12
+      memory: "12Gi"
 
   # Request smaller persistent volumes.
   volumeClaimTemplate:
@@ -127,3 +143,20 @@ prometheusServiceMonitor:
   labels:
     release: monitoring
   scrapeInterval: 30s
+
+prometheus-elasticsearch-exporter:
+  es:
+    ## Address (host and port) of the Elasticsearch node we should connect to.
+    ## This could be a local node (localhost:9200, for instance), or the address
+    ## of a remote Elasticsearch server. When basic auth is needed,
+    ## specify as: <proto>://<user>:<password>@<host>:<port>. e.g., http://admin:pass@localhost:9200.
+    ##
+    uri: "http://{{ .Release.Name }}-elasticsearch:9200"
+  serviceMonitor:
+    ## If true, a ServiceMonitor CRD is created for a prometheus operator
+    ## https://github.com/coreos/prometheus-operator
+    ##
+    enabled: true
+    # Labels used by the service monitor, specific to our prometheus installation
+    labels:
+      release: monitoring
