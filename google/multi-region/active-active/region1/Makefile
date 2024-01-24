@@ -29,7 +29,9 @@ release ?= camunda
 # Helm chart coordinates for Camunda
 chart ?= camunda/camunda-platform
 # Helm chart values
-chartValues ?= camunda-values.yaml
+globalChartValues ?= ../camunda-values.yaml
+regionalChartValues ?= camunda-values.yaml
+chartValues ?= $(globalChartValues) -f $(regionalChartValues)
 
 .PHONY: all
 all: use-kube namespace prepare-elastic-backup-key camunda external-urls
@@ -48,7 +50,7 @@ external-urls: use-kube external-urls-no-ingress
 fail-over-region1: use-kube
 	-kubectl create namespace $(namespace)-failover
 	-kubectl config set-context --current --namespace=$(namespace)-failover
-	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues)  --skip-crds \
+	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues) --skip-crds \
 	  --set global.multiregion.installationType=failOver \
 	  --set global.multiregion.regionId=0 \
 	  --set elasticsearch.enabled=false \
@@ -59,7 +61,7 @@ fail-over-region1: use-kube
 # TODO importers
 
 fail-back: use-kube namespace prepare-elastic-backup-key
-	helm install --namespace $(region) $(release) $(chart) -f $(chartValues)  --skip-crds \
+	helm install --namespace $(region) $(release) $(chart) -f $(chartValues) --skip-crds \
 	  --set global.multiregion.installationType=failBack \
 	  --set operate.enabled=false \
 	  --set tasklist.enabled=false
