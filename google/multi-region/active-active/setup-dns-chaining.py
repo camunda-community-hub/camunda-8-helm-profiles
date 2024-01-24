@@ -27,30 +27,28 @@ from time import sleep
 #    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
 #    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
 # }
-if len(sys.argv) != 7:
-        print("Usage: python your_script.py <project> <region0> <clusterName0> <region1> <clusterName1> <brokersPerRegion>")
+if len(sys.argv) != 4:
+        print("Usage: python your_script.py <project> <regions_clusters> <brokersPerRegion>")
         sys.exit(1)
 
 project = sys.argv[1]
-region0 = sys.argv[2]
-clusterName0 = sys.argv[3]
-region1 = sys.argv[4]
-clusterName1 = sys.argv[5]
-brokersPerRegion = int(sys.argv[6])
+regions_clusters = sys.argv[2]
+brokersPerRegion = int(sys.argv[3])
 
-contexts = {
-    region0: f'gke_{project}_{region0}_{clusterName0}',
-    region1: f'gke_{project}_{region1}_{clusterName1}',
-}
+regions_clusters_list = regions_clusters.split()
+
+contexts = {}
+
+for region_cluster in regions_clusters_list:
+    region_cluster = region_cluster.replace('"', '')
+    region = region_cluster.split(";")[0]
+    clusterName = region_cluster.split(";")[1]
+    contexts[region] = f'gke_{project}_{region}_{clusterName}'
 
 number_of_zeebe_brokers_per_region = brokersPerRegion
 
-# Fill in the number of Zeebe brokers per region,
-# i.e. clusterSize/regions as defined in camunda-values.yaml
-number_of_zeebe_brokers_per_region = 4
-
 # Path to directory generated YAML files.
-generated_files_dir = './generated'
+generated_files_dir = '../generated'
 
 # ------------------------------------------------------------------------------
 
@@ -73,7 +71,7 @@ except OSError:
 
 # For each cluster, create a load balancer to its DNS pod.
 for region, context in contexts.items():
-    check_call(['kubectl', 'apply', '-f', 'dns-lb.yaml', '--context', context])
+    check_call(['kubectl', 'apply', '-f', '../dns-lb.yaml', '--context', context])
 
 # Set up each cluster to forward DNS requests for region-scoped namespaces to the
 # relevant cluster's DNS server, using load balancers in order to create a

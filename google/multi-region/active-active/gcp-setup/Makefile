@@ -14,10 +14,6 @@ include $(root)/include/camunda.mk
 
 # GCP project
 project ?= camunda-researchanddevelopment
-# GCP region 0
-region0 ?=us-east1-c# region = zone for simplicity
-# GCP region 1
-region1 ?= europe-west1-b
 
 machineType ?= n2-standard-2
 minSize ?= 1
@@ -26,10 +22,6 @@ maxSize ?= 24
 regions ?= us-east1-c europe-west1-b
 clusters ?= manus-region-0 manus-region-1
 regions_clusters ?= "us-east1-c;manus-region-0" "europe-west1-b;manus-region-1"
-# GKE cluster name 0
-clusterName0 ?= manus-region-0
-# GKE cluster name 1
-clusterName1 ?= manus-region-1
 # Firewall rule name
 firewallRule ?= zeebe-between-clusters-manu
 # Brokers per Region
@@ -70,30 +62,10 @@ gcp-firewall:
 	done; \
 	gcloud compute firewall-rules create $(firewallRule) --direction=INGRESS --priority=999 --network=default --action=ALLOW --rules=tcp:9600,tcp:26501,tcp:26502,tcp:9300,tcp:9200,udp:26502,udp:9300,udp:9200 --source-ranges=$$ipRanges --target-tags=$$networkTags
 
-.PHONY: dns-chaining
-dns-chaining:
-	python3 setup-dns-chaining.py $(project) $(region0) $(clusterName0) $(region1) $(clusterName1) $(brokersPerRegion)
+.PHONY: gcp-dns-chaining
+gcp-dns-chaining:
+	python3 ../setup-dns-chaining.py $(project) '$(regions_clusters)' $(brokersPerRegion)
 ## TODO teardown
-
-.PHONY: generate-camunda-values
-generate-camunda-values:
-	@contactPoints=$$(/bin/bash -c ' \
-		join_addrs=(); \
-		for region in $(region0) $(region1); do \
-			for i in `seq 0 $$(($(brokersPerRegion)-1))`; do \
-				join_addrs+=("camunda-zeebe-$$i.camunda-zeebe.$$region.svc.cluster.local:26502"); \
-			done; \
-		done; \
-		IFS=,; echo "$${join_addrs[*]}";'); \
-	echo "Initial contact points: $$contactPoints"; \
-	cp camunda-values-template.yaml camunda-values-region-0.yaml; \
-	sed -i 's/\$$REGIONID\$$/0/' camunda-values-region-0.yaml; \
-	sed -i 's@\$$ELASTIC_URL_2\$$@http://elasticsearch-master-headless.$(region1).svc.cluster.local:9200@' camunda-values-region-0.yaml; \
-	sed -i 's@\$$CONTACTPOINTS\$$@'"$$contactPoints"'@' camunda-values-region-0.yaml; \
-	cp camunda-values-template.yaml camunda-values-region-1.yaml; \
-	sed -i 's/\$$REGIONID\$$/1/' camunda-values-region-1.yaml; \
-	sed -i 's@\$$ELASTIC_URL_2\$$@http://elasticsearch-master-headless.$(region0).svc.cluster.local:9200@' camunda-values-region-1.yaml; \
-	sed -i 's@\$$CONTACTPOINTS\$$@'"$$contactPoints"'@' camunda-values-region-1.yaml
 
 .PHONY: gcp-bucket
 gcp-bucket:
@@ -104,24 +76,37 @@ gcp-bucket:
 	gcloud projects add-iam-policy-binding $(project) \
     --member="serviceAccount:$(bucketName)-sa@$(project).iam.gserviceaccount.com" \
     --role="roles/storage.admin"
-	gcloud iam service-accounts keys create ~/Downloads/camunda-hackweek-es-backup-key.json \
-    --iam-account=$(bucketName)-sa@$(project).iam.gserviceaccount.com
+	gcloud iam service-accounts keys create ../generated/$(bucketName)-backup-key.json \
+     --iam-account=$(bucketName)-sa@$(project).iam.gserviceaccount.com
 
-#.PHONY register-repository-es
-#register-repository-es:
-#	sed -i 's/\$$BUCKETNAME\$$/$(bucketName)/' elasticsearch-repo-setup.yaml; \
-	
+gcp-gcs-secret:
+	for region_cluster in $(regions_clusters); do \
+		region=$$(echo $$region_cluster | cut -d';' -f1); \
+		clusterName=$$(echo $$region_cluster | cut -d';' -f2); \
+		kubectl create secret generic gcs-backup-key --from-file=gcs_backup_key.json=../generated/$(bucketName)-backup-key.json --context gke_$(project)_"$$region"_"$$clusterName"; \
+	done;
 
+.PHONY: gcp-register-backup-repo
+gcp-register-backup-repo:
+	@echo "Starting port-forwarding to svc/camunda-elasticsearch..."
+	@kubectl port-forward svc/camunda-elasticsearch 9200:9200 & \
+	PID=$$!; \
+	echo "Waiting for port-forwarding to be ready..."; \
+	while ! curl -s -o /dev/null -w "%{http_code}" localhost:9200 | grep -q "200"; do sleep 1; done; \
+	echo "Executing backup command..."; \
+	status_code=$$(curl --silent --location --request PUT "http://localhost:9200/_snapshot/camunda_backup" \
+	--header "Content-Type: application/json" \
+	--data-raw "{\"type\": \"gcs\", \"settings\": {\"client\": \"default\", \"bucket\": \"$(bucketName)\", \"compress\": true}}" \
+	-o /dev/null -w "%{http_code}"); \
+	if [ $$status_code -eq 200 ]; then \
+		echo "Backup repository registered successfully."; \
+	else \
+		echo "Failed to register backup repository. Status code: $$status_code"; \
+		exit 1; \
+	fi; \
+	echo "Stopping port-forwarding..."; \
+	kill $$PID
 
-.PHONY: install-camunda
-install-camunda:
-	kubectl config use-context gke_$(project)_$(region0)_$(clusterName0)
-	kubectl create namespace $(region0)
-	helm install camunda camunda/camunda-platform -f camunda-values-region-0.yaml -n $(region0)
-	kubectl config use-context gke_$(project)_$(region1)_$(clusterName1)
-	kubectl create namespace $(region1)
-	helm install camunda camunda/camunda-platform -f camunda-values-region-1.yaml -n $(region1)
-
-.PHONY: setup-mraa-gcp
-setup-mraa-gcp: gcp-create-cluster gcp-firewall dns-chaining generate-camunda-values install-camunda
+.PHONY: all
+all: kube gcp-firewall gcp-dns-chaining gcp-bucket gcp-gcs-secret
 
