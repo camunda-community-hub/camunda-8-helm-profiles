@@ -32,6 +32,7 @@ chart ?= camunda/camunda-platform
 globalChartValues ?= ../camunda-values.yaml
 regionalChartValues ?= camunda-values.yaml
 failoverChartValues ?= camunda-failover-to-region0.yaml
+jsonLoggingValues ?= ../../../include/log-format-stackdriver.yaml
 chartValues ?= $(globalChartValues) -f $(regionalChartValues)
 
 .PHONY: all
@@ -48,7 +49,7 @@ external-urls: use-kube external-urls-no-ingress
 ### <--- End of setup --->
 
 .PHONY: fail-over-region1 # Create temporary brokers that impersonate half of the ones lost in region 1 to backfill and restore quorum
-fail-over-region1: chartValues = $(globalChartValues) -f $(failoverChartValues)
+fail-over-region1: chartValues = $(globalChartValues) -f $(failoverChartValues) -f $(jsonLoggingValues)
 fail-over-region1: namespace = $(region)-failover 
 fail-over-region1: use-kube namespace camunda
 # TODO connect to existing elastic in current region
