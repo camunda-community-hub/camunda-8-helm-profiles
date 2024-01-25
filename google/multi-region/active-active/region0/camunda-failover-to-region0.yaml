@@ -1,0 +1,14 @@
+global:
+  multiregion:
+    installationType: failOver
+    regionId: 1
+operate:
+  enabled: false
+tasklist:
+  enabled: false
+zeebe-gateway:
+  enabled: false
+zeebe:
+  env:
+    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_URL
+      value: "http://elasticsearch-master-headless.us-east1-failover.svc.cluster.local:9200"
