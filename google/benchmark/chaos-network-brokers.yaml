@@ -1,18 +1,20 @@
 kind: NetworkChaos
 apiVersion: chaos-mesh.org/v1alpha1
 metadata:
-  namespace: default
+  namespace: us-east1
   name: chaos-network-brokers
 spec:
   selector:
     namespaces:
-      - camunda
+      - us-east1
     pods:
       camunda:
-        - camunda-zeebe-4
-        - camunda-zeebe-5
-        - camunda-zeebe-6
-        - camunda-zeebe-7
+        - camunda-zeebe-0
+        - camunda-zeebe-1
+        - camunda-zeebe-2
+        - camunda-zeebe-3
+        - camunda-elasticsearch-master-0
+        - camunda-elasticsearch-master-1
   mode: all
   action: delay
   delay:
@@ -23,11 +25,13 @@ spec:
   target:
     selector:
       namespaces:
-        - camunda
+        - europe-west1
       pods:
         camunda:
           - camunda-zeebe-0
           - camunda-zeebe-1
           - camunda-zeebe-2
           - camunda-zeebe-3
+          - camunda-elasticsearch-master-0
+          - camunda-elasticsearch-master-1
     mode: all
