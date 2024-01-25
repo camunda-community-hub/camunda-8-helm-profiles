@@ -71,14 +71,10 @@ zeebe:
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_ARGS_URL
       value: "http://elasticsearch-master-headless.us-east1.svc.cluster.local:9200"
-    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_ARGS_INDEX_PREFIX
-      value: "zeebe-record"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_CLASSNAME
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_URL
       value: "http://elasticsearch-master-headless.europe-west1.svc.cluster.local:9200"
-    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_INDEX_PREFIX
-      value: "zeebe-record"
   pvcSize: 1Gi
 
   resources:
