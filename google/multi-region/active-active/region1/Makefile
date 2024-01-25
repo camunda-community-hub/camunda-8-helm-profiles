@@ -37,7 +37,7 @@ chartValues ?= $(globalChartValues) -f $(regionalChartValues)
 all: use-kube namespace prepare-elastic-backup-key camunda external-urls
 
 .PHONY: kube # Create Kubernetes cluster. (No aplication gateway required)
-kube: kube-gke
+kube: kube-gke metrics
 	@echo "Please add the following line to the list of contexts in setup-dns-chaining.py & teardown-dns-chaining.py:"
 	@echo "    '$(region)': 'gke_$(project)_$(region)_$(clusterName)',"
 
@@ -92,6 +92,7 @@ include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
 include $(root)/bpmn/deploy-models.mk
 include $(root)/connectors/connectors.mk
+include $(root)/metrics/metrics.mk
 
 .PHONY: elastic-nodes
 elastic-nodes: use-kube
