@@ -29,11 +29,11 @@ release ?= camunda
 # Helm chart coordinates for Camunda
 chart ?= camunda/camunda-platform
 # Helm chart values
-globalChartValues ?= ../camunda-values.yaml
+chartValues ?= $(globalChartValues) -f $(regionalChartValues) -f $(jsonLoggingValues)
+jsonLoggingValues ?= $(root)/google/include/log-format-stackdriver.yaml
+globalChartValues ?= $(root)/google/multi-region/active-active/camunda-values.yaml
 regionalChartValues ?= camunda-values.yaml
 failoverChartValues ?= camunda-failover-to-region0.yaml
-jsonLoggingValues ?= ../../../include/log-format-stackdriver.yaml
-chartValues ?= $(globalChartValues) -f $(regionalChartValues)
 
 .PHONY: all
 all: use-kube namespace prepare-elastic-backup-key camunda external-urls
@@ -49,8 +49,8 @@ external-urls: use-kube external-urls-no-ingress
 ### <--- End of setup --->
 
 .PHONY: fail-over-region1 # Create temporary brokers that impersonate half of the ones lost in region 1 to backfill and restore quorum
-fail-over-region1: chartValues = $(globalChartValues) -f $(failoverChartValues) -f $(jsonLoggingValues)
-fail-over-region1: namespace = $(region)-failover 
+fail-over-region1: chartValues +=  -f $(failoverChartValues)
+fail-over-region1: namespace = $(region)-failover
 fail-over-region1: use-kube namespace camunda
 # TODO connect to existing elastic in current region
 # TODO importers
@@ -78,10 +78,8 @@ clean: use-kube clean-camunda
 clean-kube: clean-kube-gke
 
 #: Delete temporary brokers that impersonated half of the ones lost in region 1
-clean-fail-over-region1: use-kube
-	-helm --namespace $(namespace)-failover uninstall $(release)
-	-kubectl delete -n $(namespace)-failover pvc -l app.kubernetes.io/instance=$(release)
-	-kubectl delete namespace $(namespace)-failover
+clean-fail-over-region1: namespace = $(region)-failover
+clean-fail-over-region1: clean
 
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
