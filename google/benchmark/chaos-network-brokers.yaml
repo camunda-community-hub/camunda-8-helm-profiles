@@ -8,7 +8,7 @@ spec:
     namespaces:
       - us-east1
     pods:
-      camunda:
+      us-east1:
         - camunda-zeebe-0
         - camunda-zeebe-1
         - camunda-zeebe-2
@@ -18,7 +18,7 @@ spec:
   mode: all
   action: delay
   delay:
-    latency: 35ms
+    latency: 50ms
     correlation: '100'
     jitter: '0'
   direction: both
@@ -27,7 +27,7 @@ spec:
       namespaces:
         - europe-west1
       pods:
-        camunda:
+        europe-west1:
           - camunda-zeebe-0
           - camunda-zeebe-1
           - camunda-zeebe-2
