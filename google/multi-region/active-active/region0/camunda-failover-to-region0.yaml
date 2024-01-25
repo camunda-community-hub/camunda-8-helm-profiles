@@ -6,8 +6,6 @@ operate:
   enabled: false
 tasklist:
   enabled: false
-zeebe-gateway:
-  enabled: false
 zeebe:
   env:
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_URL
