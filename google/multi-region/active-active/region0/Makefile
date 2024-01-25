@@ -48,17 +48,9 @@ external-urls: use-kube external-urls-no-ingress
 ### <--- End of setup --->
 
 .PHONY: fail-over-region1 # Create temporary brokers that impersonate half of the ones lost in region 1 to backfill and restore quorum
-fail-over-region1: use-kube
-	chartValues = $(globalChartValues) -f $(regionalChartValues) -f $(failoverChartValues)
-	-kubectl create namespace $(namespace)-failover
-	-kubectl config set-context --current --namespace=$(namespace)-failover
-	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues) --skip-crds
-	  # --set global.multiregion.installationType=failOver \
-	  # --set global.multiregion.regionId=1 \
-	  # --set elasticsearch.enabled=false \
-	  # --set operate.enabled=false \
-	  # --set tasklist.enabled=false \
-	  # --set zeebe-gateway.enabled=false
+fail-over-region1: chartValues = $(globalChartValues) -f $(failoverChartValues)
+fail-over-region1: namespace = $(region)-failover 
+fail-over-region1: use-kube namespace camunda
 # TODO connect to existing elastic in current region
 # TODO importers
 
