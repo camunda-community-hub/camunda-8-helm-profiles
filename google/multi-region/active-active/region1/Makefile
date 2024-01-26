@@ -80,7 +80,7 @@ fail-back-to-normal: use-kube update
 clean: use-kube clean-camunda
 
 .PHONY: clean-kube
-clean-kube: clean-kube-gke
+clean-kube: clean-metrics clean-kube-gke
 
 #: Delete temporary brokers that impersonated half of the ones lost in region 0
 clean-fail-over-region0: use-kube
