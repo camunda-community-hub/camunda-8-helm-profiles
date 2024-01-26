@@ -29,8 +29,8 @@ release ?= camunda
 # Helm chart coordinates for Camunda
 chart ?= camunda/camunda-platform
 # Helm chart values
-chartValues ?= $(globalChartValues) -f $(regionalChartValues) -f $(jsonLoggingValues)
-jsonLoggingValues ?= $(root)/google/include/log-format-stackdriver.yaml
+
+chartValues ?= $(globalChartValues) -f $(regionalChartValues)
 globalChartValues ?= $(root)/google/multi-region/active-active/camunda-values.yaml
 regionalChartValues ?= camunda-values.yaml
 failoverChartValues ?= camunda-failover-to-region0.yaml
