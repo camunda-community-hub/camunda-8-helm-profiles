@@ -1,13 +1,15 @@
 global:
   multiregion:
     installationType: failOver
-    regionId: 1
+    regionId: 0
 operate:
   enabled: false
 tasklist:
   enabled: false
 zeebe:
   env:
+    # the entire env array is copied from camunda-values.yaml
+    # because Helm cannot merge arrays from multiple value files
     - name: ZEEBE_BROKER_DATA_SNAPSHOTPERIOD
       value: "5m"
     - name: ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK
@@ -18,13 +20,15 @@ zeebe:
       value: "camunda-zeebe-0.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-0.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.europe-west1.svc.cluster.local:26502"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_CLASSNAME
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
+    # Changing the exporter for the lost ES instance to a throw-away ES instance
+    # to allow the other exporter to continue exporting to the surviving ES
+    # and keep counting sequences in preparation for ES snapshot restore
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_ARGS_URL
-      value: "http://elasticsearch-master-hl.us-east1.svc.cluster.local:9200"
+      value: "http://elasticsearch-master-hl.europe-west1-failover.svc.cluster.local:9200"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_CLASSNAME
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
-    # Changing the second exporter to the secondary elasticsearch
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_URL
-      value: "http://elasticsearch-master-hl.us-east1-failover.svc.cluster.local:9200"
+      value: "http://elasticsearch-master-hl.europe-west1.svc.cluster.local:9200"
     # Enable JSON logging for Google Cloud Stackdriver
     - name: ZEEBE_LOG_APPENDER
       value: Stackdriver

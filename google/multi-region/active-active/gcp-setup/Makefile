@@ -41,6 +41,7 @@ kube:
 		$(MAKE) kube-gke region=$$region clusterName=$$clusterName; \
 	done
 #FIXME: run the sub-make directly on the gke makefile to avoid variable clashes
+#TODO: add metrics & clean-metrics
 
 .PHONY: gcp-firewall
 gcp-firewall:

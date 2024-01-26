@@ -29,11 +29,10 @@ release ?= camunda
 # Helm chart coordinates for Camunda
 chart ?= camunda/camunda-platform
 # Helm chart values
-
 chartValues ?= $(globalChartValues) -f $(regionalChartValues)
 globalChartValues ?= $(root)/google/multi-region/active-active/camunda-values.yaml
 regionalChartValues ?= camunda-values.yaml
-failoverChartValues ?= camunda-failover-to-region0.yaml
+failoverChartValues ?= camunda-values-failover.yaml
 
 # The all target MUST be the first target in the file so that it is invoked when `make` is called without a goal
 .PHONY: all

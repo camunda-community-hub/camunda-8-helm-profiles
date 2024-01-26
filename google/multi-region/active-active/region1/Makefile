@@ -29,9 +29,10 @@ release ?= camunda
 # Helm chart coordinates for Camunda
 chart ?= camunda/camunda-platform
 # Helm chart values
-globalChartValues ?= ../camunda-values.yaml
-regionalChartValues ?= camunda-values.yaml
 chartValues ?= $(globalChartValues) -f $(regionalChartValues)
+globalChartValues ?= $(root)/google/multi-region/active-active/camunda-values.yaml
+regionalChartValues ?= camunda-values.yaml
+failoverChartValues ?= camunda-values-failover.yaml
 
 # The all target MUST be the first target in the file so that it is invoked when `make` is called without a goal
 .PHONY: all
@@ -47,17 +48,10 @@ external-urls: use-kube external-urls-no-ingress
 
 ### <--- End of setup --->
 
-.PHONY: fail-over # Create temporary brokers that impersonate half of the ones lost in region 0 to backfill and restore quorum
-fail-over: use-kube
-	-kubectl create namespace $(namespace)-failover
-	-kubectl config set-context --current --namespace=$(namespace)-failover
-	helm install --namespace $(namespace)-failover $(release) $(chart) -f $(chartValues) --skip-crds \
-	  --set global.multiregion.installationType=failOver \
-	  --set global.multiregion.regionId=0 \
-	  --set elasticsearch.enabled=false \
-	  --set operate.enabled=false \
-	  --set tasklist.enabled=false \
-	  --set zeebe-gateway.enabled=false
+.PHONY: fail-over # Create temporary brokers that impersonate half of the ones lost from the other region to backfill and restore quorum
+fail-over: chartValues +=  -f $(failoverChartValues)
+fail-over: namespace = $(region)-failover
+fail-over: use-kube namespace camunda
 # TODO connect to existing elastic in current region
 # TODO importers
 
