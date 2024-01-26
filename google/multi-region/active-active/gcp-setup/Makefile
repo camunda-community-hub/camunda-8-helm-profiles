@@ -1,33 +1,36 @@
 # ------------------------------------
+# Set the following for your specific environment
+# Already have a Cluster? Set these values to point to your existing environment
+# Otherwise, these values will be used to create a new Cluster
+
+# GCP project
+project ?= camunda-researchanddevelopment
+# GCP regions (see: https://cloud.withgoogle.com/region-picker/)
+# and GKE cluster names
+regions_clusters ?= "us-east1;falko-region-0" "europe-west1;falko-region-1"
+# GCP machine type
+machineType ?= n2-standard-2
+minSize ?= 1
+maxSize ?= 24
+
+# Firewall rule name
+firewallRule ?= falko-camunda-multi-region
+# Brokers per Region
+brokersPerRegion = 4
+# Bucket Name for GCP
+bucketName ?= falko-elasticsearch-backup
+
+# ------------------------------------
 # The following variables should not be changed except for advanced use cases
 ifeq ($(OS),Windows_NT)
     root ?= $(CURDIR)/../../../..
 else
     root ?= $(shell pwd)/../../../..
 endif
-# ------------------------------------
-# Set the following for your specific environment
-# Already have a Cluster? Set these values to point to your existing environment
-# Otherwise, these values will be used to create a new Cluster
-include $(root)/google/include/kubernetes-gke.mk
-include $(root)/include/camunda.mk
 
-# GCP project
-project ?= camunda-researchanddevelopment
-
-machineType ?= n2-standard-2
-minSize ?= 1
-maxSize ?= 24
-
-regions ?= us-east1-c europe-west1-b
-clusters ?= manus-region-0 manus-region-1
-regions_clusters ?= "us-east1-c;manus-region-0" "europe-west1-b;manus-region-1"
-# Firewall rule name
-firewallRule ?= zeebe-between-clusters-manu2
-# Brokers per Region
-brokersPerRegion = 4
-# Bucket Name for GCP
-bucketName ?= manus-backup
+# The all target MUST be the first target in the file so that it is invoked when `make` is called without a goal
+.PHONY: all
+all: kube gcp-firewall gcp-dns-chaining gcp-bucket gcp-gcs-secret
 
 .PHONY: kube
 kube:
@@ -37,7 +40,7 @@ kube:
 		echo "Setting up region: $$region with cluster name: $$clusterName"; \
 		$(MAKE) kube-gke region=$$region clusterName=$$clusterName; \
 	done
-
+#FIXME: run the sub-make directly on the gke makefile to avoid variable clashes
 
 .PHONY: gcp-firewall
 gcp-firewall:
@@ -107,6 +110,5 @@ gcp-register-backup-repo:
 	echo "Stopping port-forwarding..."; \
 	kill $$PID
 
-.PHONY: all
-all: kube gcp-firewall gcp-dns-chaining gcp-bucket gcp-gcs-secret
-
+include $(root)/google/include/kubernetes-gke.mk
+include $(root)/include/camunda.mk

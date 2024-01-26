@@ -33,6 +33,7 @@ globalChartValues ?= ../camunda-values.yaml
 regionalChartValues ?= camunda-values.yaml
 chartValues ?= $(globalChartValues) -f $(regionalChartValues)
 
+# The all target MUST be the first target in the file so that it is invoked when `make` is called without a goal
 .PHONY: all
 all: use-kube namespace prepare-elastic-backup-key camunda external-urls
 
