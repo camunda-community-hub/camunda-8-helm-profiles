@@ -70,11 +70,20 @@ zeebe:
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_CLASSNAME
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_ARGS_URL
-      value: "http://elasticsearch-master-headless.us-east1.svc.cluster.local:9200"
+      value: "http://elasticsearch-master-hl.us-east1.svc.cluster.local:9200"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_CLASSNAME
       value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_URL
-      value: "http://elasticsearch-master-headless.europe-west1.svc.cluster.local:9200"
+      value: "http://elasticsearch-master-hl.europe-west1.svc.cluster.local:9200"
+    # Enable JSON logging for Google Cloud Stackdriver
+    - name: ZEEBE_LOG_APPENDER
+      value: Stackdriver
+    - name: ZEEBE_LOG_STACKDRIVER_SERVICENAME
+      value: zeebe
+    - name: ZEEBE_LOG_STACKDRIVER_SERVICEVERSION
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
   pvcSize: 1Gi
 
   resources:
