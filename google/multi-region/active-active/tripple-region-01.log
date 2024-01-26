@@ -1,0 +1,15 @@
+Cluster size: 6
+Partitions count: 6
+Replication factor: 3
+Gateway version: 8.4.0
+Brokers:
+  Broker 0 - camunda-zeebe-0.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 1 : Follower, Healthy
+    Partition 5 : Follower, Healthy
+    Partition 6 : Follower, Healthy
+  Broker 3 - camunda-zeebe-1.camunda-zeebe.us-east1.svc:26501
+    Version: 8.4.0
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 4 : Follower, Healthy
