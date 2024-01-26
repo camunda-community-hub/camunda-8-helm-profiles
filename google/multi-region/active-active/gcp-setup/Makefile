@@ -23,7 +23,7 @@ regions ?= us-east1-c europe-west1-b
 clusters ?= manus-region-0 manus-region-1
 regions_clusters ?= "us-east1-c;manus-region-0" "europe-west1-b;manus-region-1"
 # Firewall rule name
-firewallRule ?= zeebe-between-clusters-manu
+firewallRule ?= zeebe-between-clusters-manu2
 # Brokers per Region
 brokersPerRegion = 4
 # Bucket Name for GCP
@@ -47,8 +47,8 @@ gcp-firewall:
 	for region_cluster in $(regions_clusters); do \
 		region=$$(echo $$region_cluster | cut -d';' -f1); \
 		clusterName=$$(echo $$region_cluster | cut -d';' -f2); \
-		networkTag=$$(gcloud compute instances describe $$(kubectl get nodes -o name --output jsonpath={.items[0].metadata.name} --context gke_$(project)_"$$region"_"$$clusterName") --zone $$region --format="get(tags.items)"); \
-		ipRange=$$(gcloud container clusters describe $$clusterName --zone $$region --format='value(clusterIpv4Cidr)'); \
+		networkTag=$$(gcloud compute instances describe $$(kubectl get nodes -o name --output jsonpath={.items[0].metadata.name} --context gke_$(project)_"$$region"_"$$clusterName") --format="get(tags.items)"); \
+		ipRange=$$(gcloud container clusters describe $$clusterName --region $$region --format='value(clusterIpv4Cidr)'); \
 		if [ -z "$$networkTags" ]; then \
 			networkTags=$$networkTag; \
 		else \
