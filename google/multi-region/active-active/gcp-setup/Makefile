@@ -50,8 +50,14 @@ gcp-firewall:
 	for region_cluster in $(regions_clusters); do \
 		region=$$(echo $$region_cluster | cut -d';' -f1); \
 		clusterName=$$(echo $$region_cluster | cut -d';' -f2); \
-		networkTag=$$(gcloud compute instances describe $$(kubectl get nodes -o name --output jsonpath={.items[0].metadata.name} --context gke_$(project)_"$$region"_"$$clusterName") --format="get(tags.items)"); \
-		ipRange=$$(gcloud container clusters describe $$clusterName --region $$region --format='value(clusterIpv4Cidr)'); \
+		nodeName=$$(kubectl get nodes -o name --output jsonpath={.items[0].metadata.name} --context gke_$(project)_"$$region"_"$$clusterName"); \
+		echo Nodename $$nodeName; \
+		zone=$$(kubectl get node $$nodeName -o jsonpath="{.metadata.labels['topology\.gke\.io/zone']}" --context gke_$(project)_"$$region"_"$$clusterName"); \
+		echo Zone $$zone;\
+		networkTag=$$(gcloud compute instances describe $$nodeName --zone $$zone --project $(project) --format="get(tags.items)" ); \
+		echo NetworkTag $$networkTag; \
+		ipRange=$$(gcloud container clusters describe $$clusterName --region $$region --project $(project) --format='value(clusterIpv4Cidr)'); \
+		echo IPrange $$ipRange;\
 		if [ -z "$$networkTags" ]; then \
 			networkTags=$$networkTag; \
 		else \
@@ -63,7 +69,7 @@ gcp-firewall:
 			ipRanges=$$ipRanges,$$ipRange; \
 		fi; \
 	done; \
-	gcloud compute firewall-rules create $(firewallRule) --direction=INGRESS --priority=999 --network=default --action=ALLOW --rules=tcp:9600,tcp:26501,tcp:26502,tcp:9300,tcp:9200,udp:26502,udp:9300,udp:9200 --source-ranges=$$ipRanges --target-tags=$$networkTags
+	gcloud compute firewall-rules create $(firewallRule) --direction=INGRESS --priority=999 --network=default --action=ALLOW --rules=tcp:9600,tcp:26501,tcp:26502,tcp:9300,tcp:9200,udp:26502,udp:9300,udp:9200 --source-ranges=$$ipRanges --target-tags=$$networkTags --project $(project)
 
 .PHONY: gcp-dns-chaining
 gcp-dns-chaining:
