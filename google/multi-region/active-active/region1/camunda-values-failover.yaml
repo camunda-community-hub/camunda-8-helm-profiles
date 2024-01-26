@@ -1,6 +1,7 @@
 global:
   multiregion:
     installationType: failOver
+    # id of the region that has failed and should be impersonated
     regionId: 0
 operate:
   enabled: false
