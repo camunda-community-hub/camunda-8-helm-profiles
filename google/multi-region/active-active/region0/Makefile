@@ -48,10 +48,10 @@ external-urls: use-kube external-urls-no-ingress
 
 ### <--- End of setup --->
 
-.PHONY: fail-over-region1 # Create temporary brokers that impersonate half of the ones lost in region 1 to backfill and restore quorum
-fail-over-region1: chartValues +=  -f $(failoverChartValues)
-fail-over-region1: namespace = $(region)-failover
-fail-over-region1: use-kube namespace camunda
+.PHONY: fail-over # Create temporary brokers that impersonate half of the ones lost from the other region to backfill and restore quorum
+fail-over: chartValues +=  -f $(failoverChartValues)
+fail-over: namespace = $(region)-failover
+fail-over: use-kube namespace camunda
 # TODO connect to existing elastic in current region
 # TODO importers
 
@@ -60,9 +60,9 @@ fail-back: use-kube namespace prepare-elastic-backup-key
 	  --set global.multiregion.installationType=failBack \
 	  --set operate.enabled=false \
 	  --set tasklist.enabled=false
-
 # TODO what if something is running
 # require clean-camunda but without deleting PVCs or with because its dirty
+
 fail-back-with-cluster-running: use-kube
 	kubectl delete pod camunda-zeebe-0 -n $(namespace)
 	kubectl delete pod camunda-zeebe-2 -n $(namespace)
@@ -71,15 +71,15 @@ fail-back-to-normal: use-kube update
 	kubectl delete pod camunda-zeebe-0 -n $(namespace)
 	kubectl delete pod camunda-zeebe-2 -n $(namespace)
 
-#: Remove Camunda from cluster
+.PHONY: clean # Uninstall Camunda from cluster and delete its disks
 clean: use-kube clean-camunda
 
 .PHONY: clean-kube
 clean-kube: clean-metrics clean-kube-gke
 
-#: Delete temporary brokers that impersonated half of the ones lost in region 1
-clean-fail-over-region1: namespace = $(region)-failover
-clean-fail-over-region1: clean
+.PHONY: clean-fail-over # Delete temporary brokers that impersonated half of the ones lost in region 1
+clean-fail-over: namespace = $(region)-failover
+clean-fail-over: clean
 
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
