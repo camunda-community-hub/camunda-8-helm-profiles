@@ -9,4 +9,4 @@ tasklist:
 zeebe:
   env:
     - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_URL
-      value: "http://elasticsearch-master-headless.us-east1-failover.svc.cluster.local:9200"
+      value: "http://elasticsearch-master-hl.us-east1-failover.svc.cluster.local:9200"
