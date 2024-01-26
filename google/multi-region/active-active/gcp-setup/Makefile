@@ -7,7 +7,7 @@
 project ?= camunda-researchanddevelopment
 # GCP regions (see: https://cloud.withgoogle.com/region-picker/)
 # and GKE cluster names
-regions_clusters ?= "us-east1;falko-region-0" "europe-west1;falko-region-1"
+regions_clusters ?= "us-east1;falko-region-0" "europe-west1;falko-region-1" "australia-southeast1;falko-region-2"
 # GCP machine type
 machineType ?= n2-standard-2
 minSize ?= 1
