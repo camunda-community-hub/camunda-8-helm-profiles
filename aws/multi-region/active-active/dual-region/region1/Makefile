@@ -10,7 +10,7 @@ clusterName ?= useast2-region-1
 peerClusterName ?= uswest2-region-0
 clusterVersion ?= 1.28
 cidrBlock ?= 88.100.0.0\/16
-publicAccess ?= TRUE
+publicAccess ?= true
 
 # machineType ?= t3.medium
 machineType ?= c6i.4xlarge
