@@ -70,16 +70,190 @@ restart-ebs-csi-controller:
 # 6. Restart ebs-csi-controller  if required
 	kubectl rollout restart deployment ebs-csi-controller -n kube-system
 
+.PHONY: describe-vpcs
+describe-vpcs:
+	aws ec2 describe-vpcs --region $(region)
+
+## ============= create and accept peering connection from region 0 to region 1 ====================
+# get the ids of both vpcs
+.PHONY: get-vpcs-ids
+get-vpcs-ids:
+	$(eval vpc_id := $(shell aws ec2 describe-vpcs --region $(region) --query 'Vpcs[0].VpcId' --output text))
+	@echo "VPC ID: $(vpc_id)"
+	$(eval peer_vpc_id := $(shell aws ec2 describe-vpcs --region $(peerRegion) --query 'Vpcs[0].VpcId' --output text))
+	@echo "PEER VPC ID: $(peer_vpc_id)"
+
+# create peering connection between regions
+.PHONY: create-peering-connection
+create-peering-connection: get-vpcs-ids
+	aws ec2 create-vpc-peering-connection --vpc-id $(vpc_id) --peer-vpc-id $(peer_vpc_id) --peer-region $(peerRegion) --region $(region)
+
+.PHONY: get-peering-connection-id
+get-peering-connection-id:
+	# $(eval peering_connection_id := $(shell aws ec2 describe-vpc-peering-connections --filters Name=status-code,Values=pending-acceptance --region $(region) --query 'VpcPeeringConnections[0].VpcPeeringConnectionId' --output text))
+	$(eval peering_connection_id := $(shell aws ec2 describe-vpc-peering-connections --region $(region) --query 'VpcPeeringConnections[0].VpcPeeringConnectionId' --output text))
+	@echo "PEERING CONNECTION ID: $(peering_connection_id)"
+
+# accept peering connection between regions
+.PHONY: accept-peering-connection
+accept-peering-connection: get-peering-connection-id
+	aws ec2 accept-vpc-peering-connection --vpc-peering-connection-id $(peering_connection_id)
+
+#descirbe route tables
+.PHONY: describe-route-table
+describe-route-table:
+	aws ec2 describe-route-tables --region $(region) --output json
+
+	## ============= update route tables in region 0 with cidr from region 1 ====================
+# get route table ids region
+.PHONY: get-route-table-ids-region-0
+get-route-table-ids-region-0:
+	$(eval route_table_ids := $(shell aws ec2 describe-route-tables --region $(region) --output json | jq '.RouteTables[].RouteTableId'))
+	@echo "Route table IDs: $(route_table_ids)"
+
+# get destination cidr block
+.PHONY: get-destination_cidr_block
+get-destination_cidr_block-region-1:
+	$(eval destination_cidr_block := $(shell aws ec2 describe-vpcs --region $(peerRegion) --query 'Vpcs[0].CidrBlock' --output text))
+	@echo "destination_cidr_block: $(destination_cidr_block)"
+
+# update route tables
+.PHONY: update-route-tables-region
+update-route-tables-region: get-peering-connection-id get-route-table-ids-region-0 get-destination_cidr_block-region-1
+	@$(foreach route_table_id,$(route_table_ids),aws ec2 create-route --route-table-id $(route_table_id) --destination-cidr-block $(destination_cidr_block) --vpc-peering-connection-id $(peering_connection_id) --region $(region);)
+
+## ============= update route tables in region 1 with cidr from region 0 ====================
+# get route table ids region_1
+# .PHONY: get-route-table-ids-region-1
+# get-route-table-ids-region-1:
+# 	$(eval route_table_ids := $(shell aws ec2 describe-route-tables --region $(region_1) --output json | jq '.RouteTables[].RouteTableId'))
+# 	@echo "Route table IDs: $(route_table_ids)"
+
+# get destination cidr block region 0
+# .PHONY: get-destination_cidr_block-region-0
+# get-destination_cidr_block-region-0:
+# 	$(eval destination_cidr_block := $(shell aws ec2 describe-vpcs --region $(region) --query 'Vpcs[0].CidrBlock' --output text))
+# 	@echo "destination_cidr_block: $(destination_cidr_block)"
+
+# update route tables
+# .PHONY: update-route-tables-region_1
+# update-route-tables-region_1: get-peering-connection-id get-route-table-ids-region-1 get-destination_cidr_block-region-0
+# 	@$(foreach route_table_id,$(route_table_ids),aws ec2 create-route --route-table-id $(route_table_id) --destination-cidr-block $(destination_cidr_block) --vpc-peering-connection-id $(peering_connection_id) --region $(region_1);)
+
+## ============= update security groups ====================
+# get security groups ids for VPC
+# NOTE: I get all the rules for the VPC. We only really need to update the rules for the subnets that have nodes
+.PHONY: get-vpc-security-group-ids
+get-vpc-security-group-ids: get-vpcs-ids
+	$(eval security_group_ids := $(shell aws ec2 get-security-groups-for-vpc --region $(region) --vpc-id $(vpc_id) --output json | jq '.SecurityGroupForVpcs[].GroupId'))
+	@echo "Security Group IDs: $(security_group_ids)"
+
+# add inbound VPC security group rule
+.PHONY: add-inbound-vpc-security-group-rule
+add-inbound-vpc-security-group-rule: get-destination_cidr_block get-vpc-security-group-ids
+	@$(foreach group_id,$(security_group_ids), \
+	aws ec2 authorize-security-group-ingress --region $(region) \
+    --group-id $(group_id) \
+    --protocol all \
+    --port all \
+    --cidr $(destination_cidr_block) \
+		;)
+
+# add outbound VPC security group rule
+.PHONY: add-outbound-vpc-security-group-rule
+add-outbound-vpc-security-group-rule: get-destination_cidr_block get-vpc-security-group-ids
+	@$(foreach group_id,$(security_group_ids), \
+	aws ec2 authorize-security-group-egress --region $(region) \
+    --group-id $(group_id) \
+    --protocol all \
+    --port all \
+    --cidr $(destination_cidr_block) \
+		;)
+
+# update all inbond and outbound security group rules region 0
+.PHONY: update-security-group-rules
+update-security-group-rules: get-vpc-security-group-ids add-inbound-vpc-security-group-rule add-outbound-vpc-security-group-rule
+
+## ============= update security groups reion-1 ====================
+# get security groups ids for VPC -region-1
+# NOTE: I get all the rules for the VPC. We only really need to update the rules for the subnets that have nodes
+# .PHONY: get-vpc-security-group-ids-region-1
+# get-vpc-security-group-ids-region-1: get-vpcs-ids
+# 	$(eval security_group_ids := $(shell aws ec2 get-security-groups-for-vpc --region $(region_1) --vpc-id $(peer_vpc_id) --output json | jq '.SecurityGroupForVpcs[].GroupId'))
+# 	@echo "Security Group IDs: $(security_group_ids)"
+
+# add inbound VPC security group rule -region-1
+# .PHONY: add-inbound-vpc-security-group-rule-region-1
+# add-inbound-vpc-security-group-rule-region-1: get-destination_cidr_block-region-0 get-vpc-security-group-ids-region-1
+	# @$(foreach group_id,$(security_group_ids), \
+	# aws ec2 authorize-security-group-ingress --region $(region_1) \
+  #   --group-id $(group_id) \
+  #   --protocol all \
+  #   --port all \
+  #   --cidr $(destination_cidr_block) \
+	# 	;)
+
+# add outbound VPC security group rule -region-1
+# .PHONY: add-outbound-vpc-security-group-rule-region-1
+# add-outbound-vpc-security-group-rule-region-1: get-destination_cidr_block-region-0 get-vpc-security-group-ids-region-1
+# 	@$(foreach group_id,$(security_group_ids), \
+# 	aws ec2 authorize-security-group-egress --region $(region_1) \
+#     --group-id $(group_id) \
+#     --protocol all \
+#     --port all \
+#     --cidr $(destination_cidr_block) \
+# 		;)
+
+# update all inbond and outbound security group rules region 1
+# .PHONY: update-seurity-group-rules-region-1
+# update-seurity-group-rules-region-1: get-vpc-security-group-ids-region-1 add-inbound-vpc-security-group-rule-region-1 add-outbound-vpc-security-group-rule-region-1
+
+## ============ Update CorDNS with endpoints from peer cluster =================
+
+#get coredns enpoints for cluster using kubectl
+.PHONY: get-coredns-endpoints
+get-coredns-endpoints:
+	$(eval coredns_endpoints := $(shell kubectl get endpoints kube-dns --namespace=kube-system -o json | jq '.subsets[].addresses[].ip'))
+	@echo "CoreDNS Endpoints: $(coredns_endpoints)"
+
+# edit coredns configmap
+.PHONY: edit-coredns-configmap
+edit-coredns-configmap:
+	-rm ./coredns.yaml
+	sed "s/<REGION>/$(peerRegion)/g; s/<ENDPOINTS>/$(coredns_endpoints)/g;" $(root)/aws/include/coredns.tpl.yaml > coredns.yaml
+
+# replace coredns configmap
+.PHONY: replace-coredns-configmap
+replace-coredns-configmap: use-kube-peer get-coredns-endpoints use-kube edit-coredns-configmap
+	kubectl replace -n kube-system -f coredns.yaml
+
+## ========Setup Cluster(s)=======================================================
+
 .PHONY: kube-aws
-kube-aws: cluster.yaml
-	eksctl create cluster -f cluster.yaml
+kube-aws: cluster.yaml create-cluster-aws apply-storageclass
+	# eksctl create cluster -f cluster.yaml
 	rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml
+	# kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
+	# kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+	# kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
+.PHONY: kube-aws-dual-region
+kube-aws: multi-region-cluster.yaml create-cluster-aws apply-storageclass
+
+.PHONY: create-cluster-aws
+	eksctl create cluster -f cluster.yaml
+
+.PHONY: apply-storageclass
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
 	kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
+multi-region-cluster.yaml:
+	-rm -f $(root)/aws/multi-region/active-active/dual-region/$(region)/cluster.yaml
+	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR CLUSTER VERSION>/$(clusterVersion)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g; s/<CIDR BLOCK>/$(cidrBlock)/g; s/<PUBLIC ACCESS>/$(publicAccess)/g;" $(root)/aws/include/multi-region-cluster.tpl.yaml > cluster.yaml
+
 .PHONY: kube
-kube: kube-aws install-ebs-csi-controller-addon oidc-provider metrics
+kube: kube-aws install-ebs-csi-controller-addon oidc-provider
 
 .PHONY: kube-upgrade
 kube-upgrade:
@@ -101,9 +275,17 @@ delete-iam-role: detach-role-policy-mapping
 clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
 	eksctl delete cluster --name $(clusterName) --region $(region)
 
+.PHONY: clean-kube-region-aws
+clean-kube-region-aws: use-kube delete-iam-role
+	eksctl delete cluster --name $(clusterName) --region $(region)
+
 .PHONY: use-kube
 use-kube:
 	eksctl utils write-kubeconfig -c $(clusterName) --region $(region)
+
+.PHONY: use-kube-peer
+use-kube-peer:
+	eksctl utils write-kubeconfig -c $(peerClusterName) --region $(peerRegion)
 
 .PHONY: urls
 urls:
