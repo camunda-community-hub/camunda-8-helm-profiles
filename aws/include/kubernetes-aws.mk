@@ -11,6 +11,10 @@ clean-cluster-yaml:
 oidc-provider:
 	eksctl utils associate-iam-oidc-provider --cluster $(clusterName) --approve --region $(region)
 
+.PHONY: install-eks-cni-addon
+install-eks-cni-addon:
+	aws eks create-addon --cluster-name $(clusterName) --addon-name vpc-cni --addon-version v1.16.2-eksbuild.1 --region $(region)
+
 .PHONY: install-ebs-csi-controller-addon
 install-ebs-csi-controller-addon:
 ifeq "1.23" "$(word 1, $(sort 1.23 $(clusterVersion)))"
@@ -87,6 +91,8 @@ get-vpcs-ids:
 .PHONY: create-peering-connection
 create-peering-connection: get-vpcs-ids
 	aws ec2 create-vpc-peering-connection --vpc-id $(vpc_id) --peer-vpc-id $(peer_vpc_id) --peer-region $(peerRegion) --region $(region)
+	@echo "waiting 20 seconds";
+	@sleep 20;
 
 .PHONY: get-peering-connection-id
 get-peering-connection-id:
@@ -99,27 +105,36 @@ get-peering-connection-id:
 accept-peering-connection: get-peering-connection-id
 	aws ec2 accept-vpc-peering-connection --vpc-peering-connection-id $(peering_connection_id)
 
+.PHONY: create-dual-region-peering
+create-dual-region-peering: create-peering-connection accept-peering-connection
+
+#delete peering connection
+.PHONY: delete-peering-connection
+delete-peering-connection: get-peering-connection-id
+	-aws ec2 delete-vpc-peering-connection --vpc-peering-connection-id $(peering_connection_id)
+
+
+## ============= update route tables in region 0 with cidr from region 1 ====================
 #descirbe route tables
 .PHONY: describe-route-table
 describe-route-table:
 	aws ec2 describe-route-tables --region $(region) --output json
 
-	## ============= update route tables in region 0 with cidr from region 1 ====================
 # get route table ids region
-.PHONY: get-route-table-ids-region-0
-get-route-table-ids-region-0:
+.PHONY: get-route-table-ids
+get-route-table-ids:
 	$(eval route_table_ids := $(shell aws ec2 describe-route-tables --region $(region) --output json | jq '.RouteTables[].RouteTableId'))
 	@echo "Route table IDs: $(route_table_ids)"
 
 # get destination cidr block
-.PHONY: get-destination_cidr_block
-get-destination_cidr_block-region-1:
+.PHONY: get-destination-cidr-block
+get-destination-cidr-block:
 	$(eval destination_cidr_block := $(shell aws ec2 describe-vpcs --region $(peerRegion) --query 'Vpcs[0].CidrBlock' --output text))
 	@echo "destination_cidr_block: $(destination_cidr_block)"
 
 # update route tables
-.PHONY: update-route-tables-region
-update-route-tables-region: get-peering-connection-id get-route-table-ids-region-0 get-destination_cidr_block-region-1
+.PHONY: update-route-tables
+update-route-tables: get-peering-connection-id get-route-table-ids get-destination-cidr-block
 	@$(foreach route_table_id,$(route_table_ids),aws ec2 create-route --route-table-id $(route_table_id) --destination-cidr-block $(destination_cidr_block) --vpc-peering-connection-id $(peering_connection_id) --region $(region);)
 
 ## ============= update route tables in region 1 with cidr from region 0 ====================
@@ -150,7 +165,7 @@ get-vpc-security-group-ids: get-vpcs-ids
 
 # add inbound VPC security group rule
 .PHONY: add-inbound-vpc-security-group-rule
-add-inbound-vpc-security-group-rule: get-destination_cidr_block get-vpc-security-group-ids
+add-inbound-vpc-security-group-rule: get-destination-cidr-block get-vpc-security-group-ids
 	@$(foreach group_id,$(security_group_ids), \
 	aws ec2 authorize-security-group-ingress --region $(region) \
     --group-id $(group_id) \
@@ -161,7 +176,7 @@ add-inbound-vpc-security-group-rule: get-destination_cidr_block get-vpc-security
 
 # add outbound VPC security group rule
 .PHONY: add-outbound-vpc-security-group-rule
-add-outbound-vpc-security-group-rule: get-destination_cidr_block get-vpc-security-group-ids
+add-outbound-vpc-security-group-rule: get-destination-cidr-block get-vpc-security-group-ids
 	@$(foreach group_id,$(security_group_ids), \
 	aws ec2 authorize-security-group-egress --region $(region) \
     --group-id $(group_id) \
@@ -208,7 +223,7 @@ update-security-group-rules: get-vpc-security-group-ids add-inbound-vpc-security
 # .PHONY: update-seurity-group-rules-region-1
 # update-seurity-group-rules-region-1: get-vpc-security-group-ids-region-1 add-inbound-vpc-security-group-rule-region-1 add-outbound-vpc-security-group-rule-region-1
 
-## ============ Update CorDNS with endpoints from peer cluster =================
+## ============ Update CoreDNS with endpoints from peer cluster =================
 
 #get coredns enpoints for cluster using kubectl
 .PHONY: get-coredns-endpoints
@@ -226,6 +241,7 @@ edit-coredns-configmap:
 .PHONY: replace-coredns-configmap
 replace-coredns-configmap: use-kube-peer get-coredns-endpoints use-kube edit-coredns-configmap
 	kubectl replace -n kube-system -f coredns.yaml
+	kubectl get configmap coredns -n kube-system -o yaml
 
 ## ========Setup Cluster(s)=======================================================
 
@@ -238,10 +254,13 @@ kube-aws: cluster.yaml create-cluster-aws apply-storageclass
 	# kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
 .PHONY: kube-aws-dual-region
-kube-aws: multi-region-cluster.yaml create-cluster-aws apply-storageclass
+kube-aws-dual-region: multi-region-cluster.yaml create-cluster-aws apply-storageclass
 
 .PHONY: create-cluster-aws
+create-cluster-aws:
 	eksctl create cluster -f cluster.yaml
+	@echo "waiting 20 seconds";
+	@sleep 20;
 
 .PHONY: apply-storageclass
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
@@ -254,6 +273,9 @@ multi-region-cluster.yaml:
 
 .PHONY: kube
 kube: kube-aws install-ebs-csi-controller-addon oidc-provider
+
+.PHONY: kube-dual-region
+kube-dual-region: kube-aws-dual-region install-ebs-csi-controller-addon oidc-provider install-eks-cni-addon
 
 .PHONY: kube-upgrade
 kube-upgrade:
@@ -276,7 +298,7 @@ clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
 	eksctl delete cluster --name $(clusterName) --region $(region)
 
 .PHONY: clean-kube-region-aws
-clean-kube-region-aws: use-kube delete-iam-role
+clean-kube-region-aws: use-kube delete-iam-role delete-peering-connection
 	eksctl delete cluster --name $(clusterName) --region $(region)
 
 .PHONY: use-kube

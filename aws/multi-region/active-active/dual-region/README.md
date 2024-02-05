@@ -36,9 +36,9 @@ The physical region name will be used as a Kubernetes namespace.
 
 ```sh
 cd region0
-make kube
+make kube-dual-region
 cd ../region1
-make kube
+make kube-dual-region
 cd ..
 ```
 
