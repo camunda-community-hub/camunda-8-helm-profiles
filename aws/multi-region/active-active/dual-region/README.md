@@ -68,7 +68,7 @@ You can check the status of the Zeebe cluster using:
 ```sh
 make port-zeebe
 ```
-Inseperate terminal run
+In separate terminal run
 ```sh
 zbctl --address localhost:26500 --insecure status
 ```
@@ -108,23 +108,4 @@ Brokers:
     Partition 2 : Follower, Healthy
     Partition 3 : Follower, Healthy
     Partition 4 : Follower, Healthy
-```
-
-##### Operate
-
-Operate has a defect for now and if the zeebe brokers negotiation takes too long, Operate will look "healthy" but will not start the importer. You may need to delete the operate pod to force its recreation once the zeebe cluster is healthy.
-
-
-##### Elasticsearch
-
-Elastic doesn't support a dual active active setup. You would need a tie breaker in a 3rd region : https://www.elastic.co/guide/en/elasticsearch/reference/current/high-availability-cluster-design-large-clusters.html#high-availability-cluster-design-two-zones
-Cross Cluster Replication is an Active-Passive setup that doesn't fit the current requirement.
-
-So the current approach would be to have 2 ES clusters in each region with their own Operate,Tasklist, Optimize on top of it. In case of disaster (loosing a region), procedure would be to pause the exporters & then start the failOver.
-Once the failback is started, resume the exporters.
-
-You can check the status of the Elasticsearch cluster using:
-
-```sh
-make elastic-nodes
 ```
