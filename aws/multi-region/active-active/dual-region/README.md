@@ -1,30 +1,18 @@
 # Multi-Region Active-Active Setup for Camunda 8
 
-Note: This Helm profile uses a [slightly-modified version of Camunda's Helm chart](https://github.com/camunda-consulting/camunda-platform-helm-multi-region/tree/main) (a [pull request](https://github.com/camunda/camunda-platform-helm/pull/1006) is pending).
-
 ## Prerequisite: Kubernetes Cross-Cluster Communication
 
-A multi-region setup in Kubernetes really means a multi-cluster setup and that comes with a networking challenge: How to manage connectivity between my pods across different Kubernetes clusters? You should setup proper firewall rules and correctly route traffic among the pods. For that you have many options:
-* ["DNS Chainging" with kube-dns](https://youtu.be/az4BvMfYnLY?si=RmauCqchHwsmCDZZ&t=2004): That's the option we took in this example. We setup kube-dns automatically through a [python script](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/main/google/multi-region/active-active/setup-zeebe.py) to route traffic to the distant cluster based on the namespace. This requires to have different namespaces in each cluster.
-* [Istio](https://medium.com/@danielepolencic/scaling-kubernetes-to-multiple-clusters-and-regionss-491813c3c8cd) ([video](https://youtu.be/_8FNsvoECPU?si=dUOFwaaUxRroj8MP))
-* [Skupper](https://medium.com/@shailendra14k/deploy-the-skupper-networks-89800323925c#:~:text=Skupper%20creates%20a%20service%20network,secure%20communication%20across%20Kubernetes%20clusters.)
-* [Linkerd multi-cluster communication](https://linkerd.io/2.14/features/multicluster/)
-* [Google Kubernetes Engine (GKE) Fleet Management](https://cloud.google.com/kubernetes-engine/docs/fleets-overview)
-* [Azure Kubernetes Fleet Manager](https://azure.microsoft.com/en-us/products/kubernetes-fleet-manager)
-* etc.
+A multi-region setup in Kubernetes really means a multi-cluster setup and that comes with a networking challenge:
 
 ## Special Case: Dual-Region Active-Active
-
-
 
 ### Initial Setup
 
 ### Prepare installation
 
-You should clone this repository as well as the [second one](https://github.com/camunda-consulting/camunda-platform-helm-multi-region/tree/main) locally.
-This repository references the first one in the makefile of each region : https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/d9168169ffe368a817e67c8cd70217ace1071285/google/multi-region/active-active/region0/Makefile#L29. So depending on how you clone these repositories you may want to change that line.
+You should clone this repository.
 
-The installation configurations are available at the beginning of these makefiles (clustername, region, project, machine type, etc). For this example, we decided to name our namespaces as our regions for an easier readability. You may want to change this. In such a case and if you want to use setup-zeebe.py to configure kube-dns,  this script should be updated accordingly.
+The installation configurations are available at the beginning of these makefiles (clustername, region, project, machine type, etc). For this example, we decided to name our namespaces as our regions for an easier readability.
 
 #### Prepare Kubernetes Clusters
 NOTE: this needs to be done in both regions
