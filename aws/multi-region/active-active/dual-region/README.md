@@ -48,7 +48,19 @@ make networking-rules
 #### Installing Camunda
 NOTE: this needs to be done in both regions
 
-IMPORTANT: Before you run the install. See the preconfigured values files [region0/camunda-values.yaml](region0/camunda-values.yaml) and [region1/camunda-values.yaml](region1/camunda-values.yaml) adjust the following properties as needed for your cluster.
+IMPORTANT: Before you run the install. See the preconfigured values files [region0/camunda-values.yaml](region0/camunda-values.yaml) and [region1/camunda-values.yaml](region1/camunda-values.yaml) adjust the default properties as needed for your cluster, if you've changed regions or zones [us-west-2, us-east-2] or if you've added zeebe nodes to the cluster.
+
+```
+- name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
+  value: "camunda-zeebe-0.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.us-east-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-east-2.svc.cluster.local:26502"
+
+- name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL
+  value: "http://camunda-elasticsearch.us-west-2.svc.cluster.local:9200"
+
+- name: ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS
+  value: "camunda-zeebe-0.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.us-east-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-east-2.svc.cluster.local:26502"
+
+```
 
 Run the install command
 
