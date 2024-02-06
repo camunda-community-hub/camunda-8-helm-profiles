@@ -18,9 +18,12 @@ and adjust `region`, `peerRegion`, `cidrBlock`, `publicAccess`, `clusterName` an
 These properties will configure the cluster for each region.
 The physical region name will be used as a Kubernetes namespace.
 
+The following command will generate the cluster.yaml for the region, create the cluster, apply the storage class, install the CSI addon, install the CNI addon, configure the OIDC provider
+
 ```sh
 cd region0
 make kube
+
 cd ../region1
 make kube
 cd ..
@@ -29,19 +32,26 @@ cd ..
 #### Create and accept peering connection
 NOTE: this only needs to be done in one region
 
-Create peering connection
+The following command will create peering connection. The peering connection will be applied to both VPC's
+
 Do this only in region 0
 
 ```sh
+cd region0
+
 make peering-connection
 ```
 
 #### Configure IP routing, Update Firewall Rules, Configure CoreDNS
 NOTE: this needs to be done in both regions
 
-update all inbond and outbound security group rules, replace coredns configmap in the cluster
+The following command will add routes to the peering connection in both VPC's, update all inbound and outbound security group rules, replace coredns configmap in the cluster
 
 ```sh
+cd region0
+make networking-rules
+
+cd ../region1
 make networking-rules
 ````
 
@@ -61,12 +71,12 @@ IMPORTANT: Before you run the install. See the preconfigured values files [regio
   value: "camunda-zeebe-0.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.us-east-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-east-2.svc.cluster.local:26502"
 
 ```
-
 Run the install command
 
 ```sh
 cd region0
 make
+
 cd ../region1
 make
 ```
