@@ -137,24 +137,6 @@ get-destination-cidr-block:
 update-route-tables: get-peering-connection-id get-route-table-ids get-destination-cidr-block
 	@$(foreach route_table_id,$(route_table_ids),aws ec2 create-route --route-table-id $(route_table_id) --destination-cidr-block $(destination_cidr_block) --vpc-peering-connection-id $(peering_connection_id) --region $(region);)
 
-## ============= update route tables in region 1 with cidr from region 0 ====================
-# get route table ids region_1
-# .PHONY: get-route-table-ids-region-1
-# get-route-table-ids-region-1:
-# 	$(eval route_table_ids := $(shell aws ec2 describe-route-tables --region $(region_1) --output json | jq '.RouteTables[].RouteTableId'))
-# 	@echo "Route table IDs: $(route_table_ids)"
-
-# get destination cidr block region 0
-# .PHONY: get-destination_cidr_block-region-0
-# get-destination_cidr_block-region-0:
-# 	$(eval destination_cidr_block := $(shell aws ec2 describe-vpcs --region $(region) --query 'Vpcs[0].CidrBlock' --output text))
-# 	@echo "destination_cidr_block: $(destination_cidr_block)"
-
-# update route tables
-# .PHONY: update-route-tables-region_1
-# update-route-tables-region_1: get-peering-connection-id get-route-table-ids-region-1 get-destination_cidr_block-region-0
-# 	@$(foreach route_table_id,$(route_table_ids),aws ec2 create-route --route-table-id $(route_table_id) --destination-cidr-block $(destination_cidr_block) --vpc-peering-connection-id $(peering_connection_id) --region $(region_1);)
-
 ## ============= update security groups ====================
 # get security groups ids for VPC
 # NOTE: I get all the rules for the VPC. We only really need to update the rules for the subnets that have nodes
@@ -189,40 +171,6 @@ add-outbound-vpc-security-group-rule: get-destination-cidr-block get-vpc-securit
 .PHONY: update-security-group-rules
 update-security-group-rules: get-vpc-security-group-ids add-inbound-vpc-security-group-rule add-outbound-vpc-security-group-rule
 
-## ============= update security groups reion-1 ====================
-# get security groups ids for VPC -region-1
-# NOTE: I get all the rules for the VPC. We only really need to update the rules for the subnets that have nodes
-# .PHONY: get-vpc-security-group-ids-region-1
-# get-vpc-security-group-ids-region-1: get-vpcs-ids
-# 	$(eval security_group_ids := $(shell aws ec2 get-security-groups-for-vpc --region $(region_1) --vpc-id $(peer_vpc_id) --output json | jq '.SecurityGroupForVpcs[].GroupId'))
-# 	@echo "Security Group IDs: $(security_group_ids)"
-
-# add inbound VPC security group rule -region-1
-# .PHONY: add-inbound-vpc-security-group-rule-region-1
-# add-inbound-vpc-security-group-rule-region-1: get-destination_cidr_block-region-0 get-vpc-security-group-ids-region-1
-	# @$(foreach group_id,$(security_group_ids), \
-	# aws ec2 authorize-security-group-ingress --region $(region_1) \
-  #   --group-id $(group_id) \
-  #   --protocol all \
-  #   --port all \
-  #   --cidr $(destination_cidr_block) \
-	# 	;)
-
-# add outbound VPC security group rule -region-1
-# .PHONY: add-outbound-vpc-security-group-rule-region-1
-# add-outbound-vpc-security-group-rule-region-1: get-destination_cidr_block-region-0 get-vpc-security-group-ids-region-1
-# 	@$(foreach group_id,$(security_group_ids), \
-# 	aws ec2 authorize-security-group-egress --region $(region_1) \
-#     --group-id $(group_id) \
-#     --protocol all \
-#     --port all \
-#     --cidr $(destination_cidr_block) \
-# 		;)
-
-# update all inbond and outbound security group rules region 1
-# .PHONY: update-seurity-group-rules-region-1
-# update-seurity-group-rules-region-1: get-vpc-security-group-ids-region-1 add-inbound-vpc-security-group-rule-region-1 add-outbound-vpc-security-group-rule-region-1
-
 ## ============ Update CoreDNS with endpoints from peer cluster =================
 
 #get coredns enpoints for cluster using kubectl
@@ -242,6 +190,7 @@ edit-coredns-configmap:
 replace-coredns-configmap: use-kube-peer get-coredns-endpoints use-kube edit-coredns-configmap
 	kubectl replace -n kube-system -f coredns.yaml
 	kubectl get configmap coredns -n kube-system -o yaml
+	-rm coredns.yaml
 
 ## ========Setup Cluster(s)=======================================================
 

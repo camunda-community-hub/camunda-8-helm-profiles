@@ -36,9 +36,9 @@ The physical region name will be used as a Kubernetes namespace.
 
 ```sh
 cd region0
-make kube-dual-region
+make kube
 cd ../region1
-make kube-dual-region
+make kube
 cd ..
 ```
 
@@ -49,56 +49,22 @@ Create peering connection
 Do this only in region 0
 
 ```sh
-make create-peering-connection
+make peering-connection
 ```
 
-Accept peering connection between regions
-Do this only in region 0
-
-```sh
-make accept-peering-connection
-```
-
-#### Configure IP routing
+#### Configure IP routing, Update Firewall Rules, Configure CoreDNS
 NOTE: this needs to be done in both regions
-
-update route tables
-```sh
-make update-route-tables-region
-```
-
-#### Update Firewall Rules
-NOTE: this needs to be done in both regions
-
 update all inbond and outbound security group rules
-```sh
-make update-security-group-rules
-```
-
-#### Configure CoreDNS
-NOTE: this needs to be done in both regions
-
 replace coredns configmap in the cluster
+
 ```sh
-make replace-coredns-configmap
+make networking-rules
 ````
 
 #### Installing Camunda
 NOTE: this needs to be done in both regions
 
 IMPORTANT: Before you run the install. See the preconfigured values files [region0/camunda-values.yaml](region0/camunda-values.yaml) and [region1/camunda-values.yaml](region1/camunda-values.yaml) adjust the following properties as needed for your cluster.
-
-```
-- name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
-  value: "camunda-zeebe-0.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.us-east-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-east-2.svc.cluster.local:26502"
-
-- name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL
-  value: "http://camunda-elasticsearch.us-west-2.svc.cluster.local:9200"
-
-- name: ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS
-  value: "camunda-zeebe-0.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-west-2.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.us-east-2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.us-east-2.svc.cluster.local:26502"
-
-```
 
 Run the install command
 
@@ -116,7 +82,11 @@ make
 You can check the status of the Zeebe cluster using:
 
 ```sh
-make zbctl-status
+make port-zeebe
+```
+Inseperate terminal run
+```sh
+zbctl --address localhost:26500 --insecure status
 ```
 
 The output should look something like this
