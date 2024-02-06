@@ -8,16 +8,12 @@ A multi-region setup in Kubernetes really means a multi-cluster setup and that c
 
 ### Initial Setup
 
-### Prepare installation
-
-You should clone this repository.
-
-The installation configurations are available at the beginning of these makefiles (clustername, region, project, machine type, etc). For this example, we decided to name our namespaces as our regions for an easier readability.
+Clone this repository.
 
 #### Prepare Kubernetes Clusters
 NOTE: this needs to be done in both regions
 
-Edit [region0/Makefile](region0/Makefile) and [region1/Makefile](region1/Makefile)
+The installation configurations are available at the beginning of the makefiles. You may want to change the defaults edit [region0/Makefile](region0/Makefile) and [region1/Makefile](region1/Makefile)
 and adjust `region`, `peerRegion`, `cidrBlock`, `publicAccess`, `clusterName` and `peerClusterName`.
 These properties will configure the cluster for each region.
 The physical region name will be used as a Kubernetes namespace.
@@ -42,8 +38,8 @@ make peering-connection
 
 #### Configure IP routing, Update Firewall Rules, Configure CoreDNS
 NOTE: this needs to be done in both regions
-update all inbond and outbound security group rules
-replace coredns configmap in the cluster
+
+update all inbond and outbound security group rules, replace coredns configmap in the cluster
 
 ```sh
 make networking-rules
