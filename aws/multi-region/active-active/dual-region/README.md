@@ -26,7 +26,6 @@ make kube
 
 cd ../region1
 make kube
-cd ..
 ```
 
 #### Create and accept peering connection
@@ -97,37 +96,38 @@ zbctl --address localhost:26500 --insecure status
 
 The output should look something like this
 (Note how brokers alternate between two Kubernetes namespaces
-`europe-west4-b` and `us-east1-b` that represent the physical regions,
+`us-west-2` and `us-east-2` that represent the physical regions,
 in which they are hosted.):
 
 ```sh
 Cluster size: 4
 Partitions count: 4
 Replication factor: 4
-Gateway version: 8.2.8
+Gateway version: 8.4.1
 Brokers:
-  Broker 0 - camunda-zeebe-0.camunda-zeebe.europe-west4-b.svc:26501
-    Version: 8.2.8
+  Broker 0 - camunda-zeebe-0.camunda-zeebe.us-west-2.svc:26501
+    Version: 8.4.1
     Partition 1 : Leader, Healthy
-    Partition 6 : Leader, Healthy
-    Partition 7 : Leader, Healthy
-    Partition 8 : Leader, Healthy
-  Broker 1 - camunda-zeebe-0.camunda-zeebe.us-east1-b.svc:26501
-    Version: 8.2.8
-    Partition 1 : Follower, Healthy
     Partition 2 : Follower, Healthy
-    Partition 7 : Follower, Healthy
-    Partition 8 : Follower, Healthy
-  Broker 2 - camunda-zeebe-1.camunda-zeebe.europe-west4-b.svc:26501
-    Version: 8.2.8
-    Partition 1 : Follower, Healthy
-    Partition 2 : Leader, Healthy
-    Partition 3 : Leader, Healthy
-    Partition 8 : Follower, Healthy
-  Broker 3 - camunda-zeebe-1.camunda-zeebe.us-east1-b.svc:26501
-    Version: 8.2.8
+    Partition 3 : Follower, Healthy
+    Partition 4 : Leader, Healthy
+  Broker 1 - camunda-zeebe-0.camunda-zeebe.us-east-2.svc:26501
+    Version: 8.4.1
     Partition 1 : Follower, Healthy
     Partition 2 : Follower, Healthy
     Partition 3 : Follower, Healthy
     Partition 4 : Follower, Healthy
+  Broker 2 - camunda-zeebe-1.camunda-zeebe.us-west-2.svc:26501
+    Version: 8.4.1
+    Partition 1 : Follower, Healthy
+    Partition 2 : Leader, Healthy
+    Partition 3 : Leader, Healthy
+    Partition 4 : Follower, Healthy
+  Broker 3 - camunda-zeebe-1.camunda-zeebe.us-east-2.svc:26501
+    Version: 8.4.1
+    Partition 1 : Follower, Healthy
+    Partition 2 : Follower, Healthy
+    Partition 3 : Follower, Healthy
+    Partition 4 : Follower, Healthy
+
 ```
