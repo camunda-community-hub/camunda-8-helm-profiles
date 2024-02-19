@@ -1,7 +1,7 @@
 zeebe:
   env:
   - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_INDEX_NUMBEROFREPLICAS
-    value: "2"
+    value: "1"
 
 identity:
   keycloak:
@@ -20,12 +20,12 @@ connectors:
 operate:
   env:
   - name: CAMUNDA_OPERATE_ELASTICSEARCH_NUMBEROFREPLICAS
-    value: "2"
+    value: "1"
 
 tasklist:
   env:
   - name: CAMUNDA_TASKLIST_ELASTICSEARCH_NUMBEROFREPLICAS
-    value: "2"
+    value: "1"
 
 postgresql:  ## https://github.com/bitnami/charts/tree/main/bitnami/postgresql-ha ?
   enabled: true
