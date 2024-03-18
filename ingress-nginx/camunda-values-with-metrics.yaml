@@ -11,9 +11,6 @@ global:
     tls:
       enabled: true
       secretName: "tls-secret"
-  image:
-    tag: latest
-    # pullPolicy: Always
   identity:
     auth:
       publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
@@ -97,9 +94,9 @@ zeebe-gateway:
       value: "true"
 
 zeebe:
-  clusterSize: 1
-  partitionCount: 1
-  replicationFactor: 1
+  clusterSize: 3
+  partitionCount: 3
+  replicationFactor: 3
   pvcSize: 10Gi
 
   resources:
@@ -113,20 +110,6 @@ zeebe:
     - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
       value: "true"
 
-elasticsearch:
-  enabled: true
-  imageTag: 7.17.3
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "512M"
-    limits:
-      cpu: "1000m"
-      memory: "2Gi"
 
 
 

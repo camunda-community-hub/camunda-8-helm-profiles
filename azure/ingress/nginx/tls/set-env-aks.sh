@@ -1,18 +1,16 @@
-export certEmail=david.paroulek@camunda.com
-export clusterName=dave01
-export resourceGroup=dave01-rg
+export certEmail="david.paroulek@camunda.com"
+export clusterName="xxx"
+export resourceGroup="xxx-rg"
 
-export camundaVersion=8.4.1
-export camundaHelmVersion=9.0.1
+export camundaVersion=latest
+export camundaHelmVersion=9.3.0
 
-export dnsLabel=dave01
-export baseDomainName=aks.c8sm.com
-#export baseDomainName=eastus.cloudapp.azure.com
-export dnsManagedZone=aks
+export dnsLabel="xxx"
+export baseDomainName="aks.c8sm.com"
+export dnsManagedZone="aks"
 
-export region=eastus
-export namespace=camunda-eastus
-export namespace2=camunda-canadacentral
+export region="eastus"
+export namespace="camunda"
 
 export machineType=Standard_A8_v2
 export minSize=1
@@ -31,5 +29,5 @@ export serviceCidr="10.0.1.0/24"
 export dnsServiceIp="10.0.1.10"
 export dnsLBIp="20.104.45.90"
 
-export regions=2
+export regions=1
 export regionId=0
