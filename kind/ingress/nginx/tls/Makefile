@@ -3,22 +3,25 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-certEmail ?=
+certEmail ?= paul.lungu@camunda.com
 
 service ?= zeebe-gateway
 # TLS secret name
-secret_name ?= zeebe-gateway-secret
+secretName ?= tls-secret
 # Cert Signing Reqest (CSR) signer name
 signerName ?= 127.0.0.1.nip.io\/pdiddy
+
+# fully qualified domain name
+fqdn ?= 127.0.0.1.nip.io
 
 # ------------------------------------
 # Camunda Enterprise Docker Registry Login
 
-camundaDockerRegistrySecretName ?= camunda-docker-registry
+camundaDockerRegistrySecretName ?= camunda-docker-registry-secret
 camundaDockerRegistryUrl ?= registry.camunda.cloud
-camundaDockerRegistryUsername ?= YOUR_EE_USERNAME
-camundaDockerRegistryPassword ?= YOUR_EE_PASSWORD
-camundaDockerRegistryEmail ?= YOUR_EE_EMAIL
+camundaDockerRegistryUsername ?=
+camundaDockerRegistryPassword ?=
+camundaDockerRegistryEmail ?=
 
 
 # ------------------------------------
@@ -38,12 +41,13 @@ chart ?= camunda/camunda-platform
 chartValues ?= $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 
 .PHONY: def
-def: ingress-nginx-kind cert-manager letsencrypt-prod camunda-all
+def: ingress-nginx-kind cert-manager letsencrypt-prod camunda-cfssl
 
 .PHONY: camunda-all
 camunda-all: camunda-values-nginx-localhost.yaml namespace \
 	create-docker-registry-secret \
 	camunda \
+	kube-create-secret \
 	annotate-ingress-tls \
   external-urls
 
@@ -52,6 +56,7 @@ camunda-cfssl: camunda-values-nginx-localhost.yaml namespace \
 	create-docker-registry-secret \
 	create-zeebe-gateway-certs \
 	camunda \
+	kube-create-secret \
 	annotate-ingress-tls \
 	annotate-ingress-proxy-buffer-size \
 	external-urls
@@ -69,7 +74,8 @@ kube: kube-kind
 # 4 create camunda-values-nginx-localhost.yaml with localhost ip
 camunda-values-nginx-localhost.yaml:
 	-rm -Rf $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
-	sed "s/YOUR_HOSTNAME/127.0.0.1.nip.io/g;" $(root)/kind/ingress/nginx/tls/camunda-values.yaml > $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
+	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/REGISTRY_SECRET/$(camundaDockerRegistrySecretName)/g; s/SECRET_NAME/$(secretName)/g;" $(root)/kind/ingress/nginx/tls/camunda-values.yaml > $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
+	# sed "s/YOUR_HOSTNAME/127.0.0.1.nip.io/g;" $(root)/kind/ingress/nginx/tls/camunda-values.yaml > $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 
 # 5 helm install camunda from camunda.mk with own tls config, combined ingress
 # .PHONY: camunda

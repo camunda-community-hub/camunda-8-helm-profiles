@@ -10,7 +10,7 @@ global:
     host: "YOUR_HOSTNAME"
     tls:
       enabled: true
-      secretName: "tls-secret"
+      secretName: SECRET_NAME
   image:
     tag: latest
     # tag: 8.3.0-alpha6
@@ -65,7 +65,7 @@ webModeler:
   image:
     pullSecrets:
       # replace with the name of the previously created secret
-      - name: camunda-docker-registry
+      - name: REGISTRY_SECRET
   restapi:
     mail:
       smtpHost: smtp.example.com
@@ -110,8 +110,7 @@ zeebe-gateway:
       nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
     tls:
       enabled: true
-      secretName: tls-secret
-      # secretName: "zeebe-gateway-secret"
+      secretName: SECRET_NAME
   replicas: 1
   resources:
     requests:
