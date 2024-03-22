@@ -1,17 +1,72 @@
+.PHONY: create-resource-group
+create-resource-group:
+	az group create --name $(resourceGroup) --location $(region)
+
+.PHONY: create-vnet
+create-vnet:
+	az network vnet create \
+	  --name $(clusterName)-vnet \
+	  --resource-group $(resourceGroup) \
+	  --address-prefix $(addressPrefix) \
+	  -o none
+#	  --subnet-name $(subnetName) \
+#	  --subnet-prefixes $(subnetPrefix)
+
+.PHONY: create-node-subnet
+create-node-subnet:
+	az network vnet subnet create \
+	  -g $(resourceGroup) \
+	  --vnet-name $(clusterName)-vnet \
+	  --name $(clusterName)-node-subnet \
+	  --address-prefixes $(nodeSubnetPrefix) \
+	  -o none
+
+.PHONY: create-pod-subnet
+create-pod-subnet:
+	az network vnet subnet create \
+	  -g $(resourceGroup) \
+	  --vnet-name $(clusterName)-vnet \
+	  --name $(clusterName)-pod-subnet \
+	  --address-prefixes $(podSubnetPrefix) \
+	  -o none
+
+# NOT WORKING YET! If you create the peering thru the ui, it works, but the following doesn't work yet:
+#.PHONY: create-vnet-peering
+#create-vnet-peering:
+#	$(eval result := $(shell az network vnet show --resource-group $(remoteResourceGroup) --name $(remoteVnetName) | jq -r '.id'))
+#	az network vnet peering create --name $(vnetPeeringName) \
+# 	  --remote-vnet $(result) \
+# 	  --resource-group $(resourceGroup) \
+# 	  --vnet-name $(clusterName)-vnet \
+# 	  --allow-forwarded-traffic true \
+# 	  --allow-vnet-access true
+
 .PHONY: kube-aks
 kube-aks:
-	az group create --name $(resourceGroup) --location $(region)
+	$(eval NodeSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(clusterName)-vnet --name $(clusterName)-node-subnet | jq -r '.id'))
+	$(eval PodSubnetResult := $(shell az network vnet subnet show --resource-group $(resourceGroup) --vnet-name $(clusterName)-vnet --name $(clusterName)-pod-subnet | jq -r '.id'))
 	az aks create \
-      --resource-group $(resourceGroup) \
-      --name $(clusterName) \
-      --node-vm-size $(machineType) \
-      --node-count 1 \
-      --vm-set-type VirtualMachineScaleSets \
-      --enable-cluster-autoscaler \
-      --min-count $(minSize) \
-      --max-count $(maxSize) \
-      --enable-managed-identity \
-      --generate-ssh-keys
+	--resource-group $(resourceGroup) \
+	 --name $(clusterName) \
+	 --node-vm-size $(machineType) \
+	 --node-count 1 \
+	 --network-plugin azure \
+	 --max-pods 250 \
+	 --vnet-subnet-id $(NodeSubnetResult) \
+	 --pod-subnet-id $(PodSubnetResult) \
+	 --enable-cluster-autoscaler \
+	 --min-count $(minSize) \
+	 --max-count $(maxSize) \
+	 --service-cidr $(serviceCidr) \
+     --dns-service-ip $(dnsServiceIp) \
+#	 --enable-managed-identity \
+#	 --generate-ssh-keys
+#	 --pod-cidr $(podCidr) \
+#	 --service-cidr $(serviceCidr) \
+#	 --dns-service-ip $(dnsServiceIp) \
+#	 --network-plugin azure \
+#	 --network-plugin-mode overlay
+
 	kubectl config unset clusters.$(clusterName)
 	kubectl config unset users.clusterUser_$(resourceGroup)_$(clusterName)
 	az aks get-credentials --resource-group $(resourceGroup) --name $(clusterName)
