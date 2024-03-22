@@ -30,9 +30,11 @@ global:
        redirectUrl: "https://YOUR_HOSTNAME/optimize"
      webModeler:
        redirectUrl: "https://YOUR_HOSTNAME/webmodeler"
+     console:
+       redirectUrl: "https://YOUR_HOSTNAME/console"
 
 connectors:
-  enabled: false
+  enabled: true
 
 operate:
   contextPath: "/operate"
@@ -91,6 +93,21 @@ webModeler:
     #     mountPath: /camunda/cert/signed-client.crt
     #     subPath: signed-client.crt
     #     readOnly: true
+
+console:
+  enabled: true
+  contextPath: "/console"
+  image:
+    pullSecrets:
+      # replace with the name of the previously created secret
+      - name: REGISTRY_SECRET
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+    limits:
+      cpu: "512m"
+      memory: "1024Mi"
 
 postgresql:
   enabled: true

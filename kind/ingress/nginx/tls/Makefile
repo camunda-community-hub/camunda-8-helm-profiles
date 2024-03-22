@@ -3,7 +3,7 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-certEmail ?= paul.lungu@camunda.com
+certEmail ?= SOME_EMAIL
 
 service ?= zeebe-gateway
 # TLS secret name
@@ -19,10 +19,9 @@ fqdn ?= 127.0.0.1.nip.io
 
 camundaDockerRegistrySecretName ?= camunda-docker-registry-secret
 camundaDockerRegistryUrl ?= registry.camunda.cloud
-camundaDockerRegistryUsername ?=
-camundaDockerRegistryPassword ?=
-camundaDockerRegistryEmail ?=
-
+camundaDockerRegistryUsername ?= USERNAME
+camundaDockerRegistryPassword ?= PASSWORD
+camundaDockerRegistryEmail ?= SOME_EMAIL
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -105,6 +104,7 @@ external-urls:
 	@echo https://127.0.0.1.nip.io/tasklist
 	@echo https://127.0.0.1.nip.io/optimize
 	@echo https://127.0.0.1.nip.io/webmodeler
+	@echo https://127.0.0.1.nip.io/console
 	@echo zbctl status --address 127.0.0.1.nip.io:443
 
 .PHONY: setup-keycloak
@@ -126,3 +126,4 @@ include $(root)/include/cert-manager.mk
 include $(root)/kind/include/kubernetes-kind.mk
 include $(root)/keycloak/keycloak.mk
 include $(root)/cfssl/cfssl-certs.mk
+include $(root)/metrics/metrics.mk

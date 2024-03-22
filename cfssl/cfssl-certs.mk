@@ -56,9 +56,9 @@ kube-create-client-cert:
 
 .PHONY: kube-create-secret
 kube-create-secret:
-	-kubectl delete secret $(secret_name)
-	kubectl create secret tls $(secret_name) --cert ./certs/ca-signed-server.pem --key ./certs/server-key.pem -n $(namespace)
-	kubectl get secret $(secret_name) -n $(namespace) -o json
+	-kubectl delete secret $(secretName)
+	kubectl create secret tls $(secretName) --cert ./certs/ca-signed-server.pem --key ./certs/server-key.pem -n $(namespace)
+	kubectl get secret $(secretName) -n $(namespace) -o json
 
 .PHONY: clean-certs
 clean-certs:
