@@ -22,17 +22,16 @@ kube-gke:
 	  --maintenance-window=4:00 \
 	  --release-channel=regular \
 	  --cluster-version=latest
-	gcloud container clusters list
-	kubectl apply -f $(root)/google/include/ssd-storageclass-gke.yaml
-	gcloud config set project $(project)
+	gcloud container clusters list --filter "name=$(clusterName)" --location $(region) --project $(project)
 	gcloud container clusters get-credentials $(clusterName) --region $(region)
+	kubectl apply -f $(root)/google/include/ssd-storageclass-gke.yaml
 
 .PHONY: node-pool # create an additional Kubernetes node pool
 node-pool:
 	gcloud beta container node-pools create "pool-c3-standard-8" \
 	  --project $(project) \
-	  --cluster $(clusterName) \
 	  --region $(region) \
+	  --cluster $(clusterName) \
 	  --machine-type "c3-standard-8" \
 	  --disk-type "pd-ssd" \
 	  --spot \
@@ -56,7 +55,8 @@ clean-kube-gke: use-kube
 #	-kubectl delete pvc --all
 	@echo "Please check the console if all PVCs have been deleted: https://console.cloud.google.com/compute/disks?authuser=0&project=$(project)&supportedpurview=project"
 	gcloud container clusters delete $(clusterName) --region $(region) --async --quiet
-	gcloud container clusters list
+	gcloud container clusters list --filter "name=$(clusterName)" --location $(region) --project $(project)
+	kubectl config delete-context gke_$(project)_$(region)_$(clusterName)
 
 .PHONY: use-kube
 use-kube:

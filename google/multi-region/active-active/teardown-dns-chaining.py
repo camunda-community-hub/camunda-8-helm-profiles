@@ -10,8 +10,8 @@ from subprocess import call
 # To get the names of your kubectl "contexts" for each of your clusters, run:
 #   kubectl config get-contexts
 contexts = {
-    'europe-west4-b': 'gke_camunda-researchanddevelopment_europe-west4-b_cdame-region-0',
-    'us-east1-b': 'gke_camunda-researchanddevelopment_us-east1-b_cdame-region-1',
+    'us-east1': 'gke_camunda-researchanddevelopment_us-east1_falko-region-0',
+    'europe-west1': 'gke_camunda-researchanddevelopment_europe-west1_falko-region-1',
 }
 
 certs_dir = './certs'
@@ -20,11 +20,11 @@ generated_files_dir = './generated'
 
 # ------------------------------------------------------------------------------
 
-# Delete each cluster's special zone-scoped namespace, which transitively
+# Delete each cluster's special region-scoped namespace, which transitively
 # deletes all resources that were created in the namespace, along with the few
 # other resources we created that weren't in that namespace
-for zone, context in contexts.items():
-    call(['kubectl', 'delete', 'namespace', zone, '--context', context])
+for region, context in contexts.items():
+    call(['kubectl', 'delete', 'namespace', region, '--context', context])
     # call(['kubectl', 'delete', 'secret', 'cockroachdb.client.root', '--context', context])
     # call(['kubectl', 'delete', '-f', 'external-name-svc.yaml', '--context', context])
     call(['kubectl', 'delete', '-f', 'dns-lb.yaml', '--context', context])
