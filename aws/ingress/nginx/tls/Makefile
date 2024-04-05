@@ -33,6 +33,15 @@ baseDomainName ?= upgradingdave.com
 dnsManagedZone ?= aws
 
 # ------------------------------------
+# Camunda Enterprise Docker Registry Login
+
+camundaDockerRegistrySecretName ?= camunda-docker-registry
+camundaDockerRegistryUrl ?= registry.camunda.cloud
+camundaDockerRegistryUsername ?= YOUR_EE_USERNAME
+camundaDockerRegistryPassword ?= YOUR_EE_PASSWORD
+camundaDockerRegistryEmail ?= YOUR_EE_EMAIL
+
+# ------------------------------------
 # The following variables should not be changed except for advanced use cases
 ifeq ($(OS),Windows_NT)
     root ?= $(CURDIR)/../../../..
