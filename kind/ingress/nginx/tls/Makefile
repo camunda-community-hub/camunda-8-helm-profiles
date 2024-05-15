@@ -3,7 +3,7 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-certEmail ?= SOME_EMAIL
+certEmail ?= EMAIL
 
 service ?= zeebe-gateway
 # TLS secret name
@@ -21,7 +21,7 @@ camundaDockerRegistrySecretName ?= camunda-docker-registry-secret
 camundaDockerRegistryUrl ?= registry.camunda.cloud
 camundaDockerRegistryUsername ?= USERNAME
 camundaDockerRegistryPassword ?= PASSWORD
-camundaDockerRegistryEmail ?= SOME_EMAIL
+camundaDockerRegistryEmail ?= EMAIL
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -40,10 +40,10 @@ chart ?= camunda/camunda-platform
 chartValues ?= $(root)/kind/ingress/nginx/tls/camunda-values-nginx-localhost.yaml
 
 .PHONY: def
-def: ingress-nginx-kind cert-manager letsencrypt-prod camunda-cfssl
+def: kube
 
-.PHONY: camunda-all
-camunda-all: camunda-values-nginx-localhost.yaml namespace \
+.PHONY: camunda-letsencrypt
+camunda-all: ingress-nginx-kind cert-manager letsencrypt-prod camunda-values-nginx-localhost.yaml namespace \
 	create-docker-registry-secret \
 	camunda \
 	kube-create-secret \
@@ -51,7 +51,7 @@ camunda-all: camunda-values-nginx-localhost.yaml namespace \
   external-urls
 
 .PHONY: camunda-cfssl
-camunda-cfssl: camunda-values-nginx-localhost.yaml namespace \
+camunda-cfssl: ingress-nginx-kind camunda-values-nginx-localhost.yaml namespace \
 	create-docker-registry-secret \
 	create-zeebe-gateway-certs \
 	camunda \
@@ -127,3 +127,4 @@ include $(root)/kind/include/kubernetes-kind.mk
 include $(root)/keycloak/keycloak.mk
 include $(root)/cfssl/cfssl-certs.mk
 include $(root)/metrics/metrics.mk
+include $(root)/metrics/kibana.mk
