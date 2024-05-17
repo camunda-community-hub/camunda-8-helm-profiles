@@ -1,0 +1,208 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "YOUR_HOSTNAME"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  identity:
+    auth:
+      publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
+      operate:
+        redirectUrl: "https://YOUR_HOSTNAME/operate"
+      tasklist:
+        redirectUrl: "https://YOUR_HOSTNAME/tasklist"
+      optimize:
+        redirectUrl: "https://YOUR_HOSTNAME/optimize"
+      connectors:
+        redirectUrl: "https://YOUR_HOSTNAME/connectors"
+      webModeler:
+        redirectUrl: "https://YOUR_HOSTNAME/modeler"
+
+operate:
+  contextPath: "/operate"
+  env:
+    - name: CAMUNDA_OPERATE_ZEEBE_SECURE
+      value: "true"
+    - name: CAMUNDA_OPERATE_ZEEBE_CERTIFICATEPATH
+      value: /usr/local/tasklist/config/ca.crt
+    - name: CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS
+      value: camunda-zeebe-gateway.camunda.svc.cluster.local:26500
+  extraVolumeMounts:
+    - name: certificate
+      mountPath: /usr/local/tasklist/config/ca.crt
+      subPath: ca.crt
+  extraVolumes:
+    - name: certificate
+      secret:
+        secretName: k8s-cert
+        items:
+          - key: ca.crt
+            path: ca.crt
+        defaultMode: 420
+
+tasklist:
+  contextPath: "/tasklist"
+  env:
+    - name: CAMUNDA_TASKLIST_ZEEBE_SECURE
+      value: "true"
+    - name: CAMUNDA_TASKLIST_ZEEBE_CERTIFICATEPATH
+      value: /usr/local/tasklist/config/ca.crt
+    - name: CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS
+      value: camunda-zeebe-gateway.camunda.svc.cluster.local:26500
+  extraVolumeMounts:
+    - name: certificate
+      mountPath: /usr/local/tasklist/config/ca.crt
+      subPath: ca.crt
+  extraVolumes:
+    - name: certificate
+      secret:
+        secretName: k8s-cert
+        items:
+          - key: ca.crt
+            path: ca.crt
+        defaultMode: 420
+
+optimize:
+  contextPath: "/optimize"
+
+connectors:
+  enabled: true
+  inbound:
+    mode: oauth
+  contextPath: "/connectors"
+
+#  env:
+#    - name: CAMUNDA_OPERATE_CLIENT_USERNAME
+#      value: demo
+#    - name: CAMUNDA_OPERATE_CLIENT_PASSWORD
+#      value: demo
+
+webModeler:
+  enabled: true
+  contextPath: "/modeler"
+  image:
+    pullSecrets:
+      - name: camunda-docker-registry
+  restapi:
+    mail:
+      fromAddress: YOUR_EMAIL
+  env:
+    - name: PLAY_ENABLED
+      value: true
+
+postgresql:
+  enabled: true
+
+prometheusServiceMonitor:
+  enabled: true
+
+identity:
+  contextPath: "/identity"
+  fullURL: "https://YOUR_HOSTNAME/identity"
+
+  keycloak:
+    extraEnvVars:
+      - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+        value: "true"
+      - name: KEYCLOAK_FRONTEND_URL
+        value: "https://YOUR_HOSTNAME/auth"
+
+zeebe-gateway:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "YOUR_HOSTNAME"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2048Mi"
+      cpu: "1000m"
+  env:
+    - name: ZEEBE_GATEWAY_MONITORING_ENABLED
+      value: "true"
+    - name: ZEEBE_GATEWAY_SECURITY_ENABLED
+      value: "true"
+    - name: ZEEBE_GATEWAY_SECURITY_CERTIFICATECHAINPATH
+      value: /usr/local/zeebe/config/tls.crt
+    - name: ZEEBE_GATEWAY_SECURITY_PRIVATEKEYPATH
+      value: /usr/local/zeebe/config/tls.key
+  extraVolumeMounts:
+    - name: certificate
+      mountPath: /usr/local/zeebe/config/tls.crt
+      subPath: tls.crt
+    - name: key
+      mountPath: /usr/local/zeebe/config/tls.key
+      subPath: tls.key
+  extraVolumes:
+    - name: certificate
+      secret:
+        secretName: k8s-cert
+        items:
+          - key: tls.crt
+            path: tls.crt
+        defaultMode: 420
+    - name: key
+      secret:
+        secretName: k8s-cert
+        items:
+          - key: tls.key
+            path: tls.key
+        defaultMode: 420
+
+zeebe:
+  clusterSize: 3
+  partitionCount: 3
+  replicationFactor: 3
+  pvcSize: 10Gi
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+  env:
+  #    - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
+  #      value: "true"
+  #    - name: ZEEBE_BROKER_NETWORK_SECURITY_ENABLED
+  #      value: "true"
+  #    - name: ZEEBE_BROKER_NETWORK_SECURITY_CERTIFICATECHAINPATH
+  #      value: /usr/local/zeebe/config/tls.crt
+  #    - name: ZEEBE_BROKER_NETWORK_SECURITY_PRIVATEKEYPATH
+  #      value: /usr/local/zeebe/config/tls.key
+  extraVolumeMounts:
+    - name: certificate
+      mountPath: /usr/local/zeebe/config/tls.crt
+      subPath: tls.crt
+    - name: key
+      mountPath: /usr/local/zeebe/config/tls.key
+      subPath: tls.key
+  extraVolumes:
+    - name: certificate
+      secret:
+        secretName: k8s-cert
+        items:
+          - key: tls.crt
+            path: tls.crt
+        defaultMode: 420
+    - name: key
+      secret:
+        secretName: k8s-cert
+        items:
+          - key: tls.key
+            path: tls.key
+        defaultMode: 420
