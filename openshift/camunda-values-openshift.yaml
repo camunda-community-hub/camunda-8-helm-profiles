@@ -1,0 +1,130 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+# This is a very small cluster useful for running locally and for development
+
+global:
+  identity:
+    auth:
+      publicIssuerUrl: "https://keycloak-camunda.apps-crc.testing/auth/realms/camunda-platform"
+      identity:
+        redirectUrl: "https://identity-camunda.apps-crc.testing"
+      operate:
+        redirectUrl: "https://operate-camunda.apps-crc.testing"
+      tasklist:
+        redirectUrl: "https://tasklist-camunda.apps-crc.testing"
+      optimize:
+        redirectUrl: "https://optimize-camunda.apps-crc.testing"
+      webModeler:
+        redirectUrl: "https://modeler-camunda.apps-crc.testing"
+      console:
+        redirectUrl: "https://console-camunda.apps-crc.testing"
+
+operate:
+  enabled: true
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "1Gi"
+
+tasklist:
+  enabled: true
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "1Gi"
+
+identity:
+  enabled: true
+  fullURL: "https://identity-camunda.apps-crc.testing"
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "1Gi"
+
+identityKeycloak:
+  enabled: true
+  containerSecurityContext:
+    fsGroup: "@@null@@"
+    runAsUser: "@@null@@"
+  podSecurityContext:
+    fsGroup: "@@null@@"
+    runAsUser: "@@null@@"
+
+identityPostgres:
+  enabled: true
+
+optimize:
+  enabled: false
+
+connectors:
+  enabled: false
+
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  affinity:
+    podAntiAffinity: null
+  pvcSize: 10Gi
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+
+zeebe-gateway:
+  replicas: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "1Gi"
+
+elasticsearch:
+  enabled: true
+  securityContext:
+    runAsUser: "@@null@@"
+# Dave Changed
+  sysctlImage:
+    enabled: false
+  podSecurityContext:
+    fsGroup: "@@null@@"
+    runAsUser: "@@null@@"
+  master:
+    masterOnly: false
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "512M"
+      limits:
+        cpu: "1000m"
+        memory: "2Gi"
+    persistence:
+      size: "8Gi"
+# Dave Added
+    containerSecurityContext:
+      enabled: false
+  data:
+    replicaCount: 0
+  coordinating:
+    replicaCount: 0
+  ingest:
+    replicaCount: 0
+
