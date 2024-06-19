@@ -1,0 +1,17 @@
+elasticsearch:
+  initScripts:
+    init-keystore.sh: |
+      #!/bin/bash
+      set -e
+      echo "Adding credentials file to Elasticsearch keystore..."
+      elasticsearch-keystore add-file gcs.client.default.credentials_file /gcp/key/gcs_backup_key.json
+      echo "..done adding credentials file to Elasticsearch keystore"
+
+  extraVolumes:
+    - name: gcs-backup-key
+      secret:
+        secretName: gcs-backup-key
+
+  extraVolumeMounts:
+    - mountPath: /gcp/key
+      name: gcs-backup-key
