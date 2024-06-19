@@ -11,6 +11,9 @@ global:
     tls:
       enabled: true
       secretName: "tls-secret"
+  image:
+    tag: CAMUNDA_VERSION
+    # pullPolicy: Always
   identity:
     auth:
       publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
@@ -24,6 +27,11 @@ global:
         redirectUrl: "https://YOUR_HOSTNAME/connectors"
       webModeler:
         redirectUrl: "https://YOUR_HOSTNAME/modeler"
+  multiregion:
+    # number of regions that this Camunda Platform instance is stretched across
+    regions: REGIONS
+    # unique id of the region. Should start at 0 for easy computation. With 2 regions, you would have region 0 and 1.
+    regionId: REGION_ID
 
 operate:
   contextPath: "/operate"
@@ -59,8 +67,8 @@ webModeler:
 postgresql:
   enabled: true
 
-prometheusServiceMonitor:
-  enabled: true
+#prometheusServiceMonitor:
+#  enabled: true
 
 identity:
   contextPath: "/identity"
@@ -92,11 +100,15 @@ zeebe-gateway:
   env:
     - name: ZEEBE_GATEWAY_MONITORING_ENABLED
       value: "true"
+    - name: ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS
+      value: "camunda-zeebe-0.camunda-zeebe.camunda-eastus.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.camunda-eastus.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.camunda-canadacentral.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.camunda-canadacentral.svc.cluster.local:26502"
+    - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "500ms"
 
 zeebe:
-  clusterSize: 3
-  partitionCount: 3
-  replicationFactor: 3
+  clusterSize: 4
+  partitionCount: 4
+  replicationFactor: 4
   pvcSize: 10Gi
 
   resources:
@@ -109,6 +121,31 @@ zeebe:
   env:
     - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
       value: "true"
+    - name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
+      value: "camunda-zeebe-0.camunda-zeebe.NAMESPACE1.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.NAMESPACE1.svc.cluster.local:26502, camunda-zeebe-0.camunda-zeebe.NAMESPACE2.svc.cluster.local:26502, camunda-zeebe-1.camunda-zeebe.NAMESPACE2.svc.cluster.local:26502"
+    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_CLASSNAME
+      value: "io.camunda.zeebe.exporter.ElasticsearchExporter"
+    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_URL
+      value: "http://camunda-elasticsearch-master-hl.NAMESPACE2.svc.cluster.local:9200"
+    - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH2_ARGS_INDEX_PREFIX
+      value: "zeebe-record"
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "500ms"
+
+#elasticsearch:
+#  enabled: true
+#  imageTag: 7.17.3
+#  replicas: 1
+#  minimumMasterNodes: 1
+#  # Allow no backup for single node setups
+#  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+#  resources:
+#    requests:
+#      cpu: "100m"
+#      memory: "512M"
+#    limits:
+#      cpu: "1000m"
+#      memory: "2Gi"
 
 
 

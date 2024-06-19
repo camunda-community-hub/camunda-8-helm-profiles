@@ -44,5 +44,6 @@ google/multi-region/active-active/generated
 **/tasklist-service-webapp.yaml
 **/tasklist-tasklist-ingress.yaml
 **/tasklist-camunda-ingress.yaml
+**/corednsms.yaml
 
 

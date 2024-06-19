@@ -107,20 +107,20 @@ zeebe:
       cpu: "512m"
       memory: "2Gi"
 
-elasticsearch:
-  enabled: true
-  imageTag: 7.17.3
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "512M"
-    limits:
-      cpu: "1000m"
-      memory: "2Gi"
+#elasticsearch:
+#  enabled: true
+#  imageTag: 7.17.3
+#  replicas: 1
+#  minimumMasterNodes: 1
+#  # Allow no backup for single node setups
+#  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+#  resources:
+#    requests:
+#      cpu: "100m"
+#      memory: "512M"
+#    limits:
+#      cpu: "1000m"
+#      memory: "2Gi"
 
 
 
