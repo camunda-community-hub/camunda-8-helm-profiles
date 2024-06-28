@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: set-logging-levels
+spec:
+  template:
+    spec:
+      containers:
+        - name: es-snapshot
+          image: curlimages/curl
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              #!/bin/sh
+              
+              # Update zeebe broker logging
+              curl "http://camunda-zeebe-gateway:9600/actuator/loggers/io.camunda.zeebe" -i -X POST -H 'Content-Type: application/json' -d '{"configuredLevel":"error"}'
+              
+              # Update zeebe broker logging 
+              curl "http://camunda-zeebe-0.camunda-zeebe:9600/actuator/loggers/io.camunda.zeebe" -i -X POST -H 'Content-Type: application/json' -d '{"configuredLevel":"error"}'
+              curl "http://camunda-zeebe-1.camunda-zeebe:9600/actuator/loggers/io.camunda.zeebe" -i -X POST -H 'Content-Type: application/json' -d '{"configuredLevel":"error"}'
+              curl "http://camunda-zeebe-1.camunda-zeebe:9600/actuator/loggers/io.camunda.zeebe" -i -X POST -H 'Content-Type: application/json' -d '{"configuredLevel":"error"}'              
+              
+              # Update operate logging
+              curl "http://camunda-operate:80/actuator/loggers/io.camunda.zeebe" -i -X POST -H 'Content-Type: application/json' -d '{"configuredLevel":"error"}'
+
+              # Update tasklist logging
+              curl "http://camunda-tasklist:80/actuator/loggers/io.camunda.zeebe" -i -X POST -H 'Content-Type: application/json' -d '{"configuredLevel":"error"}'
+              
+              # Update elasticsearch logging
+              curl "$elasticsearch_endpoint/_cluster/settings" -X PUT -H 'Content-Type: application/json' -d '
+              {
+                 "persistent": {
+                    "logger.org.elasticsearch.discovery": "${level}"
+                 }
+              }'
+              
+              echo "Logging level set to $level"
+      restartPolicy: OnFailure
