@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: camunda-platform
+        app.kubernetes.io/component: operate
+        app.kubernetes.io/instance: camunda
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: camunda-platform
+        app.kubernetes.io/part-of: camunda-platform
+        app.kubernetes.io/version: 8.5.2
+        helm.sh/chart: camunda-platform-10.1.1
+        webapp: operate-webapp
+    spec:
+      containers:
+        - env:
+            - name: CAMUNDA_IDENTITY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: operate-secret
+                  name: camunda-operate-identity-secret
+            - name: ZEEBE_CLIENT_ID
+              value: zeebe
+            - name: ZEEBE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: zeebe-secret
+                  name: camunda-zeebe-identity-secret
+            - name: ZEEBE_AUTHORIZATION_SERVER_URL
+              value: http://camunda-keycloak:80/auth/realms/camunda-platform/protocol/openid-connect/token
+            - name: ZEEBE_TOKEN_AUDIENCE
+              value: zeebe-api
+            - name: ZEEBE_CLIENT_CONFIG_PATH
+              value: /tmp/zeebe_auth_cache
+            - name: LOGGING_LEVEL_IO_CAMUNDA
+              value: ERROR
+            - name: CAMUNDA_OPERATE_IMPORTERENABLED
+              value: "FALSE"
+            - name: CAMUNDA_OPERATE_ARCHIVERENABLED
+              value: "FALSE"
+          envFrom:
+            - configMapRef:
+                name: camunda-camunda-platform-identity-env-vars
+          image: camunda/operate:8.5.3
+          imagePullPolicy: IfNotPresent
+          name: operate
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /operate/actuator/health/readiness
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+            requests:
+              cpu: 600m
+              memory: 400Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /usr/local/operate/config/application.yml
+              name: config
+              subPath: application.yml
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /camunda
+              name: camunda
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1001
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: camunda-operate
+      serviceAccountName: camunda-operate
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 484
+            name: camunda-operate-configuration
+          name: config
+        - emptyDir: {}
+          name: tmp
+        - emptyDir: {}
+          name: camunda
+  selector:
+    matchLabels:
+      webapp: operate-webapp
+metadata:
+  name: operate-webapp

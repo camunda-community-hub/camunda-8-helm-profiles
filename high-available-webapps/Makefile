@@ -25,14 +25,57 @@ all: camunda await-zeebe scale-operate scale-tasklist scale-optimize await-ident
 .PHONY: clean
 clean: clean-operate clean-tasklist clean-optimize clean-camunda
 
-.PHONY: scale-operate
-scale-operate:
+.PHONY: scale-operate-webapp
+scale-operate-webapp:
 	kubectl get deployment $(release)-operate -n $(namespace) -o yaml > operate_template.yaml
 	yq eval 'del(.status, .metadata, .spec.template.metadata.annotations, .spec.template.metadata.creationTimestamp,  .spec.selector)' -i operate_template.yaml
 	yq eval '.metadata.name = "operate-webapp" | .spec.selector.matchLabels.webapp = "operate-webapp" | .spec.template.metadata.labels.webapp = "operate-webapp" | .spec.replicas = $(replicas)' -i operate_template.yaml
 	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "FALSE"}]' operate_template.yaml -i
 	kubectl apply -f operate_template.yaml
 	rm operate_template.yaml
+
+.PHONY: scale-operate-webapp-yaml
+scale-operate-webapp-yaml:
+	kubectl get deployment $(release)-operate -n $(namespace) -o yaml > operate_template.yaml
+	yq eval 'del(.status, .metadata, .spec.template.metadata.annotations, .spec.template.metadata.creationTimestamp,  .spec.selector)' -i operate_template.yaml
+	yq eval '.metadata.name = "operate-webapp" | .spec.selector.matchLabels.webapp = "operate-webapp" | .spec.template.metadata.labels.webapp = "operate-webapp" | .spec.replicas = $(replicas)' -i operate_template.yaml
+	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "FALSE"}]' operate_template.yaml -i
+#	kubectl apply -f operate_template.yaml
+#	rm operate_template.yaml
+
+.PHONY: scale-operate-importer0
+scale-operate-importer0:
+#	kubectl delete deployment $(release)-operate -n $(namespace)
+	kubectl get deployment $(release)-operate -n $(namespace) -o yaml > operate_template-import0.yaml
+	yq eval 'del(.status, .metadata, .spec.template.metadata.annotations, .spec.template.metadata.creationTimestamp,  .spec.selector)' -i operate_template-import0.yaml
+	yq eval '.metadata.name = "operate-import0" | .spec.selector.matchLabels.webapp = "operate-import0" | .spec.template.metadata.labels.webapp = "operate-import0" | .spec.replicas = 1' -i operate_template-import0.yaml
+	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_CURRENTNODEID", "value": "0"} ]' operate_template-import0.yaml -i
+#	kubectl apply -f operate_template.yaml
+#	rm operate_template.yaml
+
+.PHONY: scale-operate-importer1
+scale-operate-importer1:
+#	kubectl delete deployment $(release)-operate -n $(namespace)
+	kubectl get deployment $(release)-operate -n $(namespace) -o yaml > operate_template-import1.yaml
+	yq eval 'del(.status, .metadata, .spec.template.metadata.annotations, .spec.template.metadata.creationTimestamp,  .spec.selector)' -i operate_template-import1.yaml
+	yq eval '.metadata.name = "operate-import1" | .spec.selector.matchLabels.webapp = "operate-import1" | .spec.template.metadata.labels.webapp = "operate-import0" | .spec.replicas = 1' -i operate_template-import1.yaml
+	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_CURRENTNODEID", "value": "1"} ]' operate_template-import1.yaml -i
+#	kubectl apply -f operate_template.yaml
+#	rm operate_template.yaml
+
+.PHONY: scale-operate-importer2
+scale-operate-importer2:
+#	kubectl delete deployment $(release)-operate -n $(namespace)
+	kubectl get deployment $(release)-operate -n $(namespace) -o yaml > operate_template-import2.yaml
+	yq eval 'del(.status, .metadata, .spec.template.metadata.annotations, .spec.template.metadata.creationTimestamp,  .spec.selector)' -i operate_template-import2.yaml
+	yq eval '.metadata.name = "operate-import2" | .spec.selector.matchLabels.webapp = "operate-import2" | .spec.template.metadata.labels.webapp = "operate-import0" | .spec.replicas = 1' -i operate_template-import2.yaml
+	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_CURRENTNODEID", "value": "2"} ]' operate_template-import2.yaml -i
+#	kubectl apply -f operate_template.yaml
+#	rm operate_template.yaml
+
+# CAMUNDA_OPERATE_CLUSTERNODE_PARTITIONIDS
+# CAMUNDA_OPERATE_CLUSERNODE_NODECOUNT
+# CAMUNDA_OPERATE_CLUSERNODE_CURRENTNODEID
 
 .PHONY: scale-tasklist
 scale-tasklist:
