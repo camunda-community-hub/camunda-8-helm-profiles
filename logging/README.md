@@ -106,7 +106,16 @@ connectors:
       io.camunda.zeebe.client: ERROR
 ```
 
+## Elasticsearch
 
+### Via Helm
+
+```yaml
+elasticsearch:
+  
+  extraConfig:
+    logger.org.elasticsearch: ERROR 
+```
 
 
 
