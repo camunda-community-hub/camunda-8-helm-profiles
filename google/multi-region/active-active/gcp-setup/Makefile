@@ -38,7 +38,7 @@ kube:
 		region=$$(echo $$region_cluster | cut -d';' -f1); \
 		clusterName=$$(echo $$region_cluster | cut -d';' -f2); \
 		echo "Setting up region: $$region with cluster name: $$clusterName"; \
-		$(MAKE) kube-gke region=$$region clusterName=$$clusterName; \
+		$(MAKE) kube-gke metrics region=$$region clusterName=$$clusterName; \
 	done
 #FIXME: run the sub-make directly on the gke makefile to avoid variable clashes
 #TODO: add metrics & clean-metrics
@@ -119,3 +119,4 @@ gcp-register-backup-repo:
 
 include $(root)/google/include/kubernetes-gke.mk
 include $(root)/include/camunda.mk
+include $(root)/metrics/metrics.mk
