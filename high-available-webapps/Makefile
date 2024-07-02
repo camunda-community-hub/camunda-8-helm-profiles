@@ -60,7 +60,7 @@ scale-operate-importer0-yaml:
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_WEBAPPENABLED") )' operate_template-import0.yaml -i
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_IMPORTERENABLED") )' operate_template-import0.yaml -i
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_ARCHIVERENABLED") )' operate_template-import0.yaml -i
-	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_CURRENTNODEID", "value": "0"} ]' operate_template-import0.yaml -i
+	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSTERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSTERNODE_CURRENTNODEID", "value": "0"} ]' operate_template-import0.yaml -i
 
 .PHONY: scale-operate-importer0
 scale-operate-importer0: scale-operate-importer0-yaml
@@ -76,7 +76,7 @@ scale-operate-importer1-yaml:
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_WEBAPPENABLED") )' operate_template-import1.yaml -i
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_IMPORTERENABLED") )' operate_template-import1.yaml -i
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_ARCHIVERENABLED") )' operate_template-import1.yaml -i
-	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_CURRENTNODEID", "value": "1"} ]' operate_template-import1.yaml -i
+	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSTERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSTERNODE_CURRENTNODEID", "value": "1"} ]' operate_template-import1.yaml -i
 
 .PHONY: scale-operate-importer1
 scale-operate-importer1: scale-operate-importer1-yaml
@@ -92,7 +92,7 @@ scale-operate-importer2-yaml:
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_WEBAPPENABLED") )' operate_template-import2.yaml -i
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_IMPORTERENABLED") )' operate_template-import2.yaml -i
 	yq eval 'del (.spec.template.spec.containers[0].env.[] | select(.name == "CAMUNDA_OPERATE_ARCHIVERENABLED") )' operate_template-import2.yaml -i
-	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSERNODE_CURRENTNODEID", "value": "2"} ]' operate_template-import2.yaml -i
+	yq eval '.spec.template.spec.containers[0].env += [{"name": "CAMUNDA_OPERATE_WEBAPPENABLED", "value": "FALSE"}, {"name": "CAMUNDA_OPERATE_IMPORTERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_ARCHIVERENABLED", "value": "TRUE"}, {"name": "CAMUNDA_OPERATE_CLUSTERNODE_NODECOUNT", "value": "3"}, {"name": "CAMUNDA_OPERATE_CLUSTERNODE_CURRENTNODEID", "value": "2"} ]' operate_template-import2.yaml -i
 
 .PHONY: scale-operate-importer2
 scale-operate-importer2: scale-operate-importer2-yaml
