@@ -89,7 +89,15 @@ Not currently possible to configure logging verbosity from Helm Charts
 
 ## Optimize
 
-TODO
+### Via Helm
+
+```yaml
+optimize: 
+
+  env:
+    - name: OPTIMIZE_LOG_LEVEL
+      value: ERROR 
+```
 
 ## Connectors
 
