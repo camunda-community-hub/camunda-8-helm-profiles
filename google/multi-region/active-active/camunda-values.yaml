@@ -13,7 +13,7 @@ global:
   # Camunda reserves the right to limit support if no review was done prior to launch or the review showed significant risks.
   multiregion:
     # number of regions that this Camunda Platform instance is stretched across
-    regions: 2
+    regions: 3
   identity:
     auth:
       # Disable the Identity authentication
@@ -55,9 +55,9 @@ connectors:
       value: demo
 
 zeebe:
-  clusterSize: 8
-  partitionCount: 8
-  replicationFactor: 4
+  clusterSize: 6
+  partitionCount: 6
+  replicationFactor: 3
   env:
     - name: ZEEBE_BROKER_DATA_SNAPSHOTPERIOD
       value: "5m"

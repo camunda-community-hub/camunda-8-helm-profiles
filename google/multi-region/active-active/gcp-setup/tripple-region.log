@@ -1,0 +1,174 @@
+~/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup$ make
+for region_cluster in "us-east1;falko-region-0" "europe-west1;falko-region-1" "australia-southeast1;falko-region-2"; do \
+        region=$(echo $region_cluster | cut -d';' -f1); \
+        clusterName=$(echo $region_cluster | cut -d';' -f2); \
+        echo "Setting up region: $region with cluster name: $clusterName"; \
+        make kube-gke region=$region clusterName=$clusterName; \
+done
+Setting up region: us-east1 with cluster name: falko-region-0
+make[1]: Entering directory '/home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup'
+gcloud config set project camunda-researchanddevelopment
+Updated property [core/project].
+gcloud container clusters create falko-region-0 \
+  --region us-east1 \
+  --num-nodes=1 \
+  --enable-autoscaling --max-nodes=24 --min-nodes=1 \
+  --enable-ip-alias \
+  --machine-type=n2-standard-2 \
+  --disk-type "pd-ssd" \
+  --spot \
+  --maintenance-window=4:00 \
+  --release-channel=regular \
+  --cluster-version=latest
+Creating cluster falko-region-0 in us-east1... Cluster is being health-checked (master
+ is healthy)...done.                                                                  
+Created [https://container.googleapis.com/v1/projects/camunda-researchanddevelopment/zones/us-east1/clusters/falko-region-0].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/us-east1/falko-region-0?project=camunda-researchanddevelopment
+kubeconfig entry generated for falko-region-0.
+NAME            LOCATION  MASTER_VERSION      MASTER_IP      MACHINE_TYPE   NODE_VERSION        NUM_NODES  STATUS
+falko-region-0  us-east1  1.28.3-gke.1286000  35.185.110.83  n2-standard-2  1.28.3-gke.1286000  3          RUNNING
+gcloud container clusters list --filter "name=falko-region-0" --location us-east1 --project camunda-researchanddevelopment
+NAME            LOCATION  MASTER_VERSION      MASTER_IP      MACHINE_TYPE   NODE_VERSION        NUM_NODES  STATUS
+falko-region-0  us-east1  1.28.3-gke.1286000  35.185.110.83  n2-standard-2  1.28.3-gke.1286000  3          RUNNING
+gcloud container clusters get-credentials falko-region-0 --region us-east1
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for falko-region-0.
+kubectl apply -f /home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup/../../../../google/include/ssd-storageclass-gke.yaml
+storageclass.storage.k8s.io/ssd created
+make[1]: Leaving directory '/home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup'
+Setting up region: europe-west1 with cluster name: falko-region-1
+make[1]: Entering directory '/home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup'
+gcloud config set project camunda-researchanddevelopment
+Updated property [core/project].
+gcloud container clusters create falko-region-1 \
+  --region europe-west1 \
+  --num-nodes=1 \
+  --enable-autoscaling --max-nodes=24 --min-nodes=1 \
+  --enable-ip-alias \
+  --machine-type=n2-standard-2 \
+  --disk-type "pd-ssd" \
+  --spot \
+  --maintenance-window=4:00 \
+  --release-channel=regular \
+  --cluster-version=latest
+ERROR: (gcloud.container.clusters.create) ResponseError: code=409, message=Already exists: projects/camunda-researchanddevelopment/locations/europe-west1/clusters/falko-region-1.
+make[1]: *** [/home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup/../../../../google/include/kubernetes-gke.mk:14: kube-gke] Error 1
+make[1]: Leaving directory '/home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup'
+Setting up region: australia-southeast1 with cluster name: falko-region-2
+make[1]: Entering directory '/home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup'
+gcloud config set project camunda-researchanddevelopment
+Updated property [core/project].
+gcloud container clusters create falko-region-2 \
+  --region australia-southeast1 \
+  --num-nodes=1 \
+  --enable-autoscaling --max-nodes=24 --min-nodes=1 \
+  --enable-ip-alias \
+  --machine-type=n2-standard-2 \
+  --disk-type "pd-ssd" \
+  --spot \
+  --maintenance-window=4:00 \
+  --release-channel=regular \
+  --cluster-version=latest
+Creating cluster falko-region-2 in australia-southeast1... Cluster is being health-checked (master is healthy)...done
+.
+Created [https://container.googleapis.com/v1/projects/camunda-researchanddevelopment/zones/australia-southeast1/clusters/falko-region-2].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/australia-southeast1/falko-region-2?project=camunda-researchanddevelopment
+kubeconfig entry generated for falko-region-2.
+NAME            LOCATION              MASTER_VERSION      MASTER_IP     MACHINE_TYPE   NODE_VERSION        NUM_NODES  STATUS
+falko-region-2  australia-southeast1  1.28.3-gke.1286000  35.189.13.53  n2-standard-2  1.28.3-gke.1286000  3          RUNNING
+gcloud container clusters list --filter "name=falko-region-2" --location australia-southeast1 --project camunda-researchanddevelopment
+NAME            LOCATION              MASTER_VERSION      MASTER_IP     MACHINE_TYPE   NODE_VERSION        NUM_NODES  STATUS
+falko-region-2  australia-southeast1  1.28.3-gke.1286000  35.189.13.53  n2-standard-2  1.28.3-gke.1286000  3          RUNNING
+gcloud container clusters get-credentials falko-region-2 --region australia-southeast1
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for falko-region-2.
+kubectl apply -f /home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup/../../../../google/include/ssd-storageclass-gke.yaml
+storageclass.storage.k8s.io/ssd created
+make[1]: Leaving directory '/home/falko/git/camunda-8-helm-profiles/google/multi-region/active-active/gcp-setup'
+set -e; \
+ipRanges=""; \
+networkTags=""; \
+for region_cluster in "us-east1;falko-region-0" "europe-west1;falko-region-1" "australia-southeast1;falko-region-2"; do \
+        region=$(echo $region_cluster | cut -d';' -f1); \
+        clusterName=$(echo $region_cluster | cut -d';' -f2); \
+        nodeName=$(kubectl get nodes -o name --output jsonpath={.items[0].metadata.name} --context gke_camunda-researchanddevelopment_"$region"_"$clusterName"); \
+        echo Nodename $nodeName; \
+        zone=$(kubectl get node $nodeName -o jsonpath="{.metadata.labels['topology\.gke\.io/zone']}" --context gke_camunda-researchanddevelopment_"$region"_"$clusterName"); \
+        echo Zone $zone;\
+        networkTag=$(gcloud compute instances describe $nodeName --zone $zone --project camunda-researchanddevelopment --format="get(tags.items)" ); \
+        echo NetworkTag $networkTag; \
+        ipRange=$(gcloud container clusters describe $clusterName --region $region --project camunda-researchanddevelopment --format='value(clusterIpv4Cidr)'); \
+        echo IPrange $ipRange;\
+        if [ -z "$networkTags" ]; then \
+                networkTags=$networkTag; \
+        else \
+                networkTags=$networkTags,$networkTag; \
+        fi; \
+        if [ -z "$ipRanges" ]; then \
+                ipRanges=$ipRange; \
+        else \
+                ipRanges=$ipRanges,$ipRange; \
+        fi; \
+done; \
+gcloud compute firewall-rules create falko-camunda-multi-region --direction=INGRESS --priority=999 --network=default --action=ALLOW --rules=tcp:9600,tcp:26501,tcp:26502,tcp:9300,tcp:9200,udp:26502,udp:9300,udp:9200 --source-ranges=$ipRanges --target-tags=$networkTags --project camunda-researchanddevelopment
+Nodename gke-falko-region-0-default-pool-9af98d72-5swz
+Zone us-east1-d
+NetworkTag gke-falko-region-0-ae6a74dd-node
+IPrange 10.64.0.0/14
+Nodename gke-falko-region-1-default-pool-35e0b9f9-9mqp
+Zone europe-west1-b
+NetworkTag gke-falko-region-1-e7d2089b-node
+IPrange 10.16.0.0/14
+Nodename gke-falko-region-2-default-pool-309b5010-kqnh
+Zone australia-southeast1-c
+NetworkTag gke-falko-region-2-8ff53a98-node
+IPrange 10.12.0.0/14
+Creating firewall...⠹Created [https://www.googleapis.com/compute/v1/projects/camunda-researchanddevelopment/global/firewalls/falko-camunda-multi-region].
+Creating firewall...done.                                                                                            
+NAME                        NETWORK  DIRECTION  PRIORITY  ALLOW                                                                       DENY  DISABLED
+falko-camunda-multi-region  default  INGRESS    999       tcp:9600,tcp:26501,tcp:26502,tcp:9300,tcp:9200,udp:26502,udp:9300,udp:9200        False
+python3 ../setup-dns-chaining.py camunda-researchanddevelopment '"us-east1;falko-region-0" "europe-west1;falko-region-1" "australia-southeast1;falko-region-2"' 4
+No resources found in default namespace.
+NAME                                                  READY   STATUS    RESTARTS   AGE
+metrics-grafana-74c4589df6-n749t                      3/3     Running   0          3h56m
+metrics-kube-prometheus-st-operator-c5887c699-pdkbr   1/1     Running   0          45h
+metrics-kube-state-metrics-789cccff8-4t7kh            1/1     Running   0          3h56m
+metrics-prometheus-node-exporter-bcgxj                1/1     Running   0          3h55m
+metrics-prometheus-node-exporter-tpts5                1/1     Running   0          45h
+metrics-prometheus-node-exporter-x79qz                1/1     Running   0          42h
+metrics-prometheus-node-exporter-x8mqv                1/1     Running   0          45h
+prometheus-metrics-kube-prometheus-st-prometheus-0    2/2     Running   0          45h
+No resources found in default namespace.
+service/kube-dns-lb created
+service/kube-dns-lb unchanged
+service/kube-dns-lb created
+Waiting for DNS load balancer IP in us-east1...
+Waiting for DNS load balancer IP in us-east1...
+Waiting for DNS load balancer IP in us-east1...
+DNS endpoint for region us-east1: 34.148.177.137
+DNS endpoint for region europe-west1: 8.34.209.179
+Waiting for DNS load balancer IP in australia-southeast1...
+Waiting for DNS load balancer IP in australia-southeast1...
+DNS endpoint for region australia-southeast1: 34.87.255.152
+{'europe-west1.svc.cluster.local': ['8.34.209.179'], 'europe-west1-failover.svc.cluster.local': ['8.34.209.179'], 'australia-southeast1.svc.cluster.local': ['34.87.255.152'], 'australia-southeast1-failover.svc.cluster.local': ['34.87.255.152']}
+Warning: resource configmaps/kube-dns is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+configmap/kube-dns configured
+pod "kube-dns-54594c4b9-h4xxn" deleted
+pod "kube-dns-54594c4b9-mzsqd" deleted
+{'us-east1.svc.cluster.local': ['34.148.177.137'], 'us-east1-failover.svc.cluster.local': ['34.148.177.137'], 'australia-southeast1.svc.cluster.local': ['34.87.255.152'], 'australia-southeast1-failover.svc.cluster.local': ['34.87.255.152']}
+configmap/kube-dns configured
+pod "kube-dns-54594c4b9-5dbpl" deleted
+pod "kube-dns-54594c4b9-kv594" deleted
+{'us-east1.svc.cluster.local': ['34.148.177.137'], 'us-east1-failover.svc.cluster.local': ['34.148.177.137'], 'europe-west1.svc.cluster.local': ['8.34.209.179'], 'europe-west1-failover.svc.cluster.local': ['8.34.209.179']}
+Warning: resource configmaps/kube-dns is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+configmap/kube-dns configured
+pod "kube-dns-54594c4b9-8zdgq" deleted
+pod "kube-dns-54594c4b9-wtvls" deleted
+camunda-zeebe-0.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.us-east1.svc.cluster.local:26502,camunda-zeebe-0.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.europe-west1.svc.cluster.local:26502,camunda-zeebe-0.camunda-zeebe.australia-southeast1.svc.cluster.local:26502,camunda-zeebe-1.camunda-zeebe.australia-southeast1.svc.cluster.local:26502,camunda-zeebe-2.camunda-zeebe.australia-southeast1.svc.cluster.local:26502,camunda-zeebe-3.camunda-zeebe.australia-southeast1.svc.cluster.local:26502
+http://elasticsearch-master-headless.us-east1.svc.cluster.local:9200
+http://elasticsearch-master-headless.europe-west1.svc.cluster.local:9200
+http://elasticsearch-master-headless.australia-southeast1.svc.cluster.local:9200
+gcloud storage buckets create gs://falko-elasticsearch-backup --project camunda-researchanddevelopment
+Creating gs://falko-elasticsearch-backup/...
+ERROR: (gcloud.storage.buckets.create) HTTPError 409: The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again.
+make: *** [Makefile:82: gcp-bucket] Error 1
