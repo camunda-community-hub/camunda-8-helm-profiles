@@ -1,0 +1,11 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = camunda-keycloak.camunda.svc.cluster.local
+DNS.2 = camunda-identity.camunda.svc.cluster.local
+DNS.3 = camunda-zeebe.camunda.svc.cluster.local
+DNS.4 = camunda-tasklist.camunda.svc.cluster.local
+DNS.5 = camunda-operate.camunda.svc.cluster.local

@@ -4,6 +4,14 @@ set-config:
 	crc config set disk-size 100
 	crc config set memory 20480
 
+.PHONY: kube
+kube: set-config
+	crc setup
+
+.PHONY: clean-kube
+clean-kube:
+	-crc delete
+
 .PHONY: config-view
 config-view:
 	crc config view
@@ -44,6 +52,15 @@ camunda: namespace
 	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds \
 	  --post-renderer bash --post-renderer-args $(root)/openshift/patch.sh \
 	  --version $(camundaHelmVersion)
+
+.PHONY: camunda-template
+camunda-template: namespace
+	@echo "Attempting to install camunda using chartValues: $(chartValues)"
+	helm repo add camunda https://helm.camunda.io
+	helm repo update
+	helm template --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds \
+	  --post-renderer bash --post-renderer-args $(root)/openshift/patch.sh \
+	  --version $(camundaHelmVersion) --output-dir .
 
 .PHONY: updateNoAuth
 updateNoAuth:
@@ -102,6 +119,9 @@ zeebe-password:
 	@echo Zeebe Identity password: $(zeebePassword)
 
 camunda-values-openshift.yaml:
-#	cp $(root)/openshift/values-dev.yaml $(chartValues)
-	cp $(root)/openshift/values-identity.yaml $(chartValues)
+	cp $(root)/openshift/values/values-identity-reencrypt.yaml $(chartValues)
+
+.PHONY: keycloak-secret
+keycloak-secret:
+	kubectl create secret generic keycloak-tls-secret --from-file=$(root)/openshift/certs/keycloak.truststore.jks --from-file=$(root)/openshift/certs/keycloak.keystore.jks
 

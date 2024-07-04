@@ -1,0 +1,11 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = keycloak-camunda.apps-crc.testing
+DNS.2 = identity-camunda.apps-crc.testing
+DNS.3 = zeebe-camunda.apps-crc.testing
+DNS.4 = tasklist-camunda.apps-crc.testing
+DNS.5 = operate-camunda.apps-crc.testing

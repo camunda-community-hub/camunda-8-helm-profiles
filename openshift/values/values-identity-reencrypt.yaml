@@ -3,7 +3,7 @@
 # For changes and documentation, use your favorite diff tool to compare it with:
 # https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
 
-# This is a very small cluster useful for running locally and for development
+# This is a cluster with identity and keycloak enabled
 
 global:
   identity:
@@ -55,6 +55,11 @@ identity:
 
 identityKeycloak:
   enabled: true
+  tls:
+    enabled: true
+    existingSecret: "keycloak-tls-secret"
+    keystorePassword: "changeit"
+    truststorePassword: "changeit"
   containerSecurityContext:
     fsGroup: "@@null@@"
     runAsUser: "@@null@@"
@@ -86,7 +91,7 @@ zeebe:
       cpu: "512m"
       memory: "2Gi"
 
-zeebe-gateway:
+zeebeGateway:
   replicas: 1
   resources:
     requests:
@@ -100,7 +105,6 @@ elasticsearch:
   enabled: true
   securityContext:
     runAsUser: "@@null@@"
-# Dave Changed
   sysctlImage:
     enabled: false
   podSecurityContext:
@@ -118,7 +122,6 @@ elasticsearch:
         memory: "2Gi"
     persistence:
       size: "8Gi"
-# Dave Added
     containerSecurityContext:
       enabled: false
   data:
@@ -127,4 +130,3 @@ elasticsearch:
     replicaCount: 0
   ingest:
     replicaCount: 0
-
