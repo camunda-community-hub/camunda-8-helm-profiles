@@ -1,0 +1,99 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: camunda-keycloak
+  namespace: camunda
+  labels:
+    app: camunda-platform
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/name: camunda-platform
+    app.kubernetes.io/part-of: camunda-platform
+spec:
+  host: keycloak-camunda.apps-crc.testing
+  to:
+    kind: Service
+    name: camunda-keycloak
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+  alternateBackends: []
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: camunda-identity
+  namespace: camunda
+  labels:
+    app: camunda-platform
+    app.kubernetes.io/component: identity
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/name: camunda-platform
+    app.kubernetes.io/part-of: camunda-platform
+spec:
+  host: identity-camunda.apps-crc.testing
+  to:
+    kind: Service
+    name: camunda-identity
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+  alternateBackends: []
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: camunda-operate
+  namespace: camunda
+  labels:
+    app: camunda-platform
+    app.kubernetes.io/component: operate
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/name: camunda-platform
+    app.kubernetes.io/part-of: camunda-platform
+spec:
+  host: operate-camunda.apps-crc.testing
+  to:
+    kind: Service
+    name: camunda-operate
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+  alternateBackends: []
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: camunda-tasklist
+  namespace: camunda
+  labels:
+    app: camunda-platform
+    app.kubernetes.io/component: tasklist
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/name: camunda-platform
+    app.kubernetes.io/part-of: camunda-platform
+spec:
+  host: tasklist-camunda.apps-crc.testing
+  to:
+    kind: Service
+    name: camunda-tasklist
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+  alternateBackends: []

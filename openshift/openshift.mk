@@ -125,3 +125,6 @@ camunda-values-openshift.yaml:
 keycloak-secret:
 	kubectl create secret generic keycloak-tls-secret --from-file=$(root)/openshift/certs/keycloak.truststore.jks --from-file=$(root)/openshift/certs/keycloak.keystore.jks
 
+.PHONY: netshoot
+netshoot:
+	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -n $(namespace)
