@@ -118,7 +118,10 @@ zeebe-password:
 	$(eval zeebePassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 --decode))
 	@echo Zeebe Identity password: $(zeebePassword)
 
+# Uncomment whichever values file is appropriate for your use case
 camunda-values-openshift.yaml:
+#	cp $(root)/openshift/values/values-dev.yaml $(chartValues)
+#	cp $(root)/openshift/values/values-identity-edge.yaml $(chartValues)
 	cp $(root)/openshift/values/values-identity-reencrypt.yaml $(chartValues)
 
 .PHONY: keycloak-secret

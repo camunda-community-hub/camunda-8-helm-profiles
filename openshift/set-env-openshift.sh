@@ -1,6 +1,6 @@
 
 export userName=kubeadmin
-export userSecret="g8qSc-cWMXI-65C2D-dqSCi"
+export userSecret="xxx"
 
 export camundaVersion=8.5.4
 export camundaHelmVersion=10.2.0

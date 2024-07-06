@@ -1,14 +1,11 @@
 # Helm Profiles for Camunda 8 on Openshift
 
-This folder contains scripts to use as reference for installing Camunda in Openshift 
-
-Here are the steps to setup a Camunda Local environment. Of course, your environment will differ slightly. Feel free to 
-adjust these scripts as needed. 
+This folder contains scripts to use as a reference for installing Camunda in a Openshift Local environment. Of course, every 
+environment will differ slightly and these scripts should be adjusted as needed. 
 
 ## Create a Openshift Cluster
 
-There are several options for provisioning an Openshift Kubernetes Cluster. This is outside the scope of this document, 
-but one option is to use [Instal Openshift Local](https://developers.redhat.com/products/openshift-local/overview). 
+[Instal Openshift Local](https://developers.redhat.com/products/openshift-local/overview). 
 
 ## Make
 
@@ -34,7 +31,7 @@ Run `make set-config` to set disk size and memory. These are the settings that w
 
 ## Restart Environment
 
-Run `make restart` to ensure the config changes are applied. I've found that openshift can be delicate. It sometimes takes several restarts to get a successfully running environment. 
+Run `make restart` to ensure the config changes are applied. I've found that it sometimes takes several restarts to get a successfully running environment. 
 
 ## Access Web Console
 
@@ -42,7 +39,14 @@ Run `make console` to open a browser and navigate to the Openshift Web Console.
 
 ## Install Camunda
 
-Run `make camunda-values-openshift.yaml` to generate a values.yaml file. Edit the file for your requirements. 
+There are several example `values.yaml` files inside the [values](values) directory: 
+
+- [values-dev.yaml](values/values-dev.yaml) provides a minimum environment without authentication disabled
+- [values-identity-edge.yaml](values/values-identity-edge.yaml) provides a full environment suitable for use with Edge Routes
+- [values-identity-reencrypt.yaml](values/values-identity-reencrypt.yaml) provides a full environment suitable for Re-encrypt Routes
+
+If you'd like to use make, see the Make target named `camunda-values-openshift.yaml`. This target will simply copy one of those files into 
+the `openshift` directory and rename it to `camunda-values-openshift.yaml`.
 
 Run `make camunda` to install camunda using `camunda-values-openshift.yaml`. 
 
