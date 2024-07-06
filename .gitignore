@@ -45,5 +45,6 @@ google/multi-region/active-active/generated
 **/tasklist-tasklist-ingress.yaml
 **/tasklist-camunda-ingress.yaml
 **/operate-ingress.yaml
+**/camunda-values-openshift.yaml
 
 
