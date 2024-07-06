@@ -54,11 +54,20 @@ Run `make clean-camunda` to remove the camunda installation.
 
 Remember to manually delete the PVs via the web console. 
 
+# How to Configure Re-encrypt Routes
 
+## Keycloak tls
 
+https://github.com/bitnami/charts/tree/main/bitnami/keycloak#keycloak-parameters
 
+Here a link to steps to create a K8s secret with everything needed:
 
+https://github.com/bitnami/charts/blob/b5074584ed43b0ac54ec9883a12da274ee64b6e0/bitnami/keycloak/values.yaml#L151
 
+Create a certificate containing key and cert:
 
+```shell
+kubectl create secret generic keycloak-tls-secret --from-file=./keycloak.truststore.jks --from-file=./keycloak.keystore.jks
+```
 
-
+See the `IdentityKeycloak` section inside [values-identity-reencrypt.yaml](values/values-identity-reencrypt.yaml)
