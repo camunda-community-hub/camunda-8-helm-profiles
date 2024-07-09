@@ -45,6 +45,12 @@ tasklist:
 identity:
   enabled: true
   fullURL: "https://identity-camunda.apps-crc.testing"
+  startupProbe:
+    scheme: HTTPS
+  readinessProbe:
+    scheme: HTTPS
+  livenessProbe:
+    scheme: HTTPS
   resources:
     requests:
       cpu: "250m"
@@ -53,14 +59,8 @@ identity:
       cpu: "512m"
       memory: "1Gi"
   env:
-    - name: SERVER_PORT
-      value: "8443"
-    - name: SERVER_SSL_KEYSTORE
-      value: "/usr/local/certificates/keycloak.keystore.jks"
-    - name: SERVER_SSL_KEYSTOREPASSWORD
-      value: "changeit"
     - name: JAVA_TOOL_OPTIONS
-      value: "-Djavax.net.ssl.trustStore=/usr/local/certificates/keycloak.truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
+      value: "-Djavax.net.ssl.trustStore=/usr/local/certificates/keycloak.truststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Dserver.port=8443 -Dserver.ssl.key-store=/usr/local/certificates/keycloak.keystore.jks -Dserver.ssl.key-store-password=changeit"
   extraVolumes:
     - name: "keycloak-tls-secret"
       secret:
