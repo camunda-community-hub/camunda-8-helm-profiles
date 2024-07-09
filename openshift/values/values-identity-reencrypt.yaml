@@ -52,6 +52,22 @@ identity:
     limits:
       cpu: "512m"
       memory: "1Gi"
+  env:
+    - name: SERVER_PORT
+      value: "8443"
+    - name: SERVER_SSL_KEYSTORE
+      value: "/usr/local/certificates/keycloak.keystore.jks"
+    - name: SERVER_SSL_KEYSTOREPASSWORD
+      value: "changeit"
+    - name: JAVA_TOOL_OPTIONS
+      value: "-Djavax.net.ssl.trustStore=/usr/local/certificates/keycloak.truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
+  extraVolumes:
+    - name: "keycloak-tls-secret"
+      secret:
+        secretName: "keycloak-tls-secret"
+  extraVolumeMounts:
+    - name: "keycloak-tls-secret"
+      mountPath: "/usr/local/certificates"
 
 identityKeycloak:
   enabled: true
