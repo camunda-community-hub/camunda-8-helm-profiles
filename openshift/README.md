@@ -67,9 +67,11 @@ Remember to manually delete the PVs via the web console.
 
 You'll need the following for each service to be exposed via Re-encrypt Routes: 
 
-1. A "backend" certificate and corresponding private key. These will be added to a java keystore and used to encrypt traffice between the Red Hat Ingress and the kubernetes Services. This example uses a single [backend.test.crt](certs/backend.test.crt) and [dave.test.key](certs/dave.test.key) to encrypt traffic to backend k8s services
-2. A "frontend" certificate and corresponding private key. These are used to configure the Re-encrypt route used by Openshift.
-3. The public CA certificate used to issue the certs mentioned above.
+1. A "backend" certificate and corresponding private key. These will be added to a java keystore and used to serve encrypted traffic from the backend kubernetes services (such as keycloak, identity, tasklist, operate, etc). This example uses a single [backend.test.crt](certs/backend.test.crt) and [dave.test.key](certs/dave.test.key) to encrypt traffic to backend k8s services
+2. A "frontend" certificate and corresponding private key. These are used encrypt traffic from the browser to the Openshift Ingress. This example uses a single [frontend.test.crt](certs/frontend.test.crt) and [dave.test.key](certs/dave.test.key)
+3. The public CA certificate used to issue the certs mentioned above. This example uses [myCA.pem](certs/myCA.pem)
+4. A keystore containing the backend cert and key. This example uses [keycloak.keystore.jks](certs/keycloak.keystore.jks)
+5. A truststore containing the public CA cert. This is used so clients trust the backend certs. This example uses [keycloak.truststore.jks](certs/keycloak.truststore.jks)
 
 ## Keycloak
 
