@@ -45,7 +45,7 @@ namespace:
 	-oc config set-context --current --namespace=$(namespace)
 
 .PHONY: camunda
-camunda: namespace
+camunda: namespace keystore-secret tls-secret
 	@echo "Attempting to install camunda using chartValues: $(chartValues)"
 	helm repo add camunda https://helm.camunda.io
 	helm repo update
@@ -70,7 +70,7 @@ updateNoAuth:
 	  --version $(camundaHelmVersion)
 
 .PHONY: update
-update:
+update: namespace keystore-secret tls-secret
 	helm repo update camunda
 	CONSOLE_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-console-identity-secret" -o jsonpath="{.data.console-secret}" | base64 --decode) \
 	TASKLIST_SECRET=$$(kubectl get secret --namespace $(namespace) "$(release)-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode); \
@@ -124,10 +124,20 @@ camunda-values-openshift.yaml:
 #	cp $(root)/openshift/values/values-identity-edge.yaml $(chartValues)
 	cp $(root)/openshift/values/values-identity-reencrypt.yaml $(chartValues)
 
-.PHONY: keycloak-secret
-keycloak-secret:
-	kubectl create secret generic keycloak-tls-secret --from-file=$(root)/openshift/certs/keycloak.truststore.jks --from-file=$(root)/openshift/certs/keycloak.keystore.jks
+.PHONY: keystore-secret
+keystore-secret:
+	-kubectl -n $(namespace) delete secret "keystore-secret"
+	kubectl -n $(namespace) create secret generic keystore-secret --from-file=$(root)/openshift/certs/keycloak.truststore.jks --from-file=$(root)/openshift/certs/keycloak.keystore.jks
+
+.PHONY: tls-secret
+tls-secret:
+	-kubectl -n $(namespace) delete secret "tls-secret"
+	kubectl create secret tls tls-secret --cert=$(root)/openshift/certs/backend.test.crt --key=$(root)/openshift/certs/dave.test.key
 
 .PHONY: netshoot
 netshoot:
 	kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -n $(namespace)
+
+.PHONY: port-operate
+port-operate:
+	kubectl port-forward svc/$(release)-operate 8443:443 -n $(namespace)
