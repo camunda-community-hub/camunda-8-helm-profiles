@@ -12,5 +12,5 @@ DNS.5 = camunda-operate.camunda.svc.cluster.local
 DNS.6 = camunda-zeebe-gateway.camunda.svc.cluster.local
 DNS.7 = camunda-keycloak
 DNS.8 = camunda-identity
-DNS.8 = camunda-zeebe-gateway
-DNS.9 = camunda-zeebe
+DNS.9 = camunda-zeebe-gateway
+DNS.10 = camunda-zeebe
