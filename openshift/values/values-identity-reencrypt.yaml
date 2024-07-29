@@ -24,6 +24,8 @@ global:
 
 operate:
   enabled: true
+  readinessProbe:
+    scheme: HTTPS
   resources:
     requests:
       cpu: "250m"
@@ -31,6 +33,39 @@ operate:
     limits:
       cpu: "512m"
       memory: "1Gi"
+  env:
+    - name: SERVER_PORT
+      value: '8443'
+    - name: SERVER_SSL_CERTIFICATE
+      value: "/usr/local/ca/tls.crt"
+    - name: SERVER_SSL_CERTIFICATEPRIVATEKEY
+      value: "/usr/local/ca/tls.key"
+    - name: SERVER_SSL_TRUSTCERTIFICATE
+      value: "/usr/local/ca/tls.crt"
+    - name: SERVER_HTTP2_ENABLED
+      value: 'true'
+    - name: JAVA_TOOL_OPTIONS
+      value: >-
+        -Djavax.net.ssl.trustStore=/usr/local/certificates/keycloak.truststore.jks
+        -Djavax.net.ssl.trustStorePassword=changeit
+    - name: CAMUNDA_OPERATE_ZEEBE_SECURE
+      value: "true"
+    - name: CAMUNDA_OPERATE_ZEEBE_CERTIFICATEPATH
+      value: "/usr/local/ca/tls.crt"
+    - name: CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS
+      value: "camunda-zeebe-gateway:26500"
+  extraVolumes:
+    - name: "keystore-secret"
+      secret:
+        secretName: "keystore-secret"
+    - name: "tls-secret"
+      secret:
+        secretName: "tls-secret"
+  extraVolumeMounts:
+    - name: "keystore-secret"
+      mountPath: "/usr/local/certificates"
+    - name: "tls-secret"
+      mountPath: "/usr/local/ca"
 
 tasklist:
   enabled: true
