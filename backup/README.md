@@ -4,11 +4,11 @@
 
 # Camunda Backup Script
 
-[This page](https://docs.camunda.io/docs/self-managed/operational-guides/backup-restore/backup-and-restore/) provides a list of steps necessary to create a backup of a Camunda Self Managed environment. These steps require [cluster level elasticsearch privileges](https://docs.camunda.io/docs/self-managed/concepts/elasticsearch-privileges/)
+[This page](https://docs.camunda.io/docs/self-managed/operational-guides/backup-restore/backup-and-restore/) provides a list of steps necessary to create a backup of a Camunda Self Managed environment. These steps require [cluster level Elasticsearch privileges](https://docs.camunda.io/docs/self-managed/concepts/elasticsearch-privileges/)
 
-In some cases, because of Security Policies, it is not possible to grant the Camunda applications the elastic search cluster level access necessary to run the bakcup steps.  
+In some cases, because of Security Policies, it is not possible to grant the Camunda applications the elastic search cluster level access necessary to run the backup steps.  
 
-As a possible work around to this problem, this directory contains a [backup.sh](backup.sh) script that is possible to run from outside a Camunda Kubernetes Cluster.
+As a possible workaround to this problem, this directory contains a [backup.sh](backup.sh) script that is possible to run from outside a Camunda Kubernetes Cluster.
 
 # Prerequisites
 
@@ -45,6 +45,18 @@ Create a Kubernetes Secret to store your AWS key and secret from the access key 
 
 # Configure Elasticsearch S3 Plugin and Client
 
+## How to verify Elasticsearch is configured
+
+Open a shell to one of your elasticsearch pods and run the following command: `elasticsearch-keystore list`. If you see `s3.client.*` keys defined, then this is probably good to go. 
+
+```shell
+camunda-elasticsearch-master-0> elasticsearch-keystore list
+bootstrap.password
+keystore.seed
+s3.client.default.access_key
+s3.client.default.secret_key
+```
+
 ## Create Secret
 
 Create a k8s secret containing your S3 bucket client id and secret:
@@ -54,6 +66,9 @@ kubectl create secret generic aws-credentials  \
  --from-literal=key=xxx \
  --from-literal=secret=xxx
 ```
+
+Or, feel free to use the make target: 
+`make create-aws-credentials-secret` which is located inside [backup.mk](backup.mk). Note you'll need to set env variables for `awsKey` and `awsSecret`. 
 
 ## Configure ES to know how to communicate with S3
 
@@ -173,5 +188,14 @@ zeebe:
           key: secret
 ```
 
+# Run the backup script
 
+1. Port forward to the elasticsearch service
+
+```shell
+kubectl port-forward svc/camunda-elasticsearch 9200:9200 -n CAMUNDA_NAMESPACE
+```
+2. Edit `backup.sh` and update keys
+
+3. Run backup.sh
 
