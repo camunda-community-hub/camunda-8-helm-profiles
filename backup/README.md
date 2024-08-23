@@ -195,7 +195,13 @@ zeebe:
 ```shell
 kubectl port-forward svc/camunda-elasticsearch 9200:9200 -n CAMUNDA_NAMESPACE
 ```
-2. Edit `backup.sh` and update keys
 
-3. Run backup.sh
+2. Port forward to zeebe gateway service
+
+```shell
+kubectl port-forward svc/camunda-zeebe-gateway 9600:9600 -n CAMUNDA_NAMESPACE
+```
+
+
+4. Run backup.sh
 
