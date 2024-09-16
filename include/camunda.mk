@@ -1,15 +1,18 @@
 .PHONY: camunda
-camunda: namespace
+camunda: chart namespace
 	@echo "Attempting to install camunda using chartValues: $(chartValues)"
-	helm repo add camunda https://helm.camunda.io
-	helm repo update camunda
-	helm search repo $(chart)
 	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
 # List Helm Chart versions + Camunda Platform versions
 .PHONY: versions
 versions:
 	helm search repo camunda -l
+
+.PHONY: chart
+chart:
+	helm repo add camunda https://helm.camunda.io
+	helm repo update camunda
+	helm search repo $(chart)
 
 .PHONY: namespace
 namespace:
@@ -18,7 +21,7 @@ namespace:
 
 # Generates templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
 .PHONY: template
-template:
+template: chart
 	helm template $(release) $(chart) -f $(chartValues) --skip-crds --output-dir .
 	@echo "To apply the templates use: kubectl apply -f camunda-platform --recursive -n $(namespace)"
 
