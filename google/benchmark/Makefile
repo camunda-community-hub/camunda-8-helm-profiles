@@ -5,11 +5,11 @@
 
 project ?= camunda-researchanddevelopment
 region ?= europe-west1-b# see: https://cloud.withgoogle.com/region-picker/
-clusterName ?= falko-benchmark-16
+clusterName ?= falko-benchmark
 # Azure provides temporary dns names such as:  MY_DOMAIN_NAME.region.cloudapp.azure.com
 # However GCP does not. DNS names will be configured using https://nip.io
 # dnsLabel ?= MY_DOMAIN_NAME
-machineType ?= n1-standard-16
+machineType ?= n1-standard-1
 minSize ?= 1
 maxSize ?= 256
 # gcpClientId ?= GCP_CLIENT_ID # see: https://chaos-mesh.org/docs/next/gcp-authentication/
