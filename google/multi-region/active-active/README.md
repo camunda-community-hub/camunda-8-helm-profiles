@@ -3,13 +3,14 @@
 Note: This Helm profile requires [version 8.3.2 (or later) of Camunda's Helm chart](https://github.com/camunda/camunda-platform-helm/releases/tag/camunda-platform-8.3.2).
 
 ## WARNING
-If you want Camunda enterprise support for your multi-region setup,
-you must have your configuration and run books reviewed by Camunda before going to production.
-Due to the complexity of operating multi-region setups and the dependencies on the underlying Kubernetes prerequisites,
-this is required for us to be able to assist you in the event of an outage.
-If you operate this incorrectly, you risk corrupting and losing all data, especially in the dual-region case.
-Consider three regions if possible. As soon as you begin planning a multi-region setup, please contact your customer success manager.
-Camunda reserves the right to restrict support if no review was performed prior to launch or if the review revealed significant risks.
+The provided Helm profiles are designed to demonstrate the technical feasibility of running Camunda 8 in a multi-region environment. However, these Helm profiles are not part of Camunda’s standard release process and are considered a community project.
+
+For current limitations and an official guide, please refer to the official documentation: [Camunda Multi-Region Setup Guide](https://docs.camunda.io/docs/self-managed/concepts/multi-region/dual-region/).
+
+
+Given the complexity of multi-region setups, we strongly recommend reaching out to your customer success manager or Camunda representative for expert guidance and a thorough review of your configuration. If the available options in the official documentation do not meet your multi-region needs, we advise submitting a feature request for further assistance.
+
+If your multi-region requirements are not met with the currently available options described in the official documentation, please raise a feature request.
 
 
 ## Prerequisite: Kubernetes Cross-Cluster Communication
