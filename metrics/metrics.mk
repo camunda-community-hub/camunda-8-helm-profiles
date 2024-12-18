@@ -7,6 +7,10 @@ metrics:
 	helm install metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 	kubectl apply -f $(root)/metrics/grafana-load-balancer.yml -n default
 
+.PHONY: update-metrics
+update-metrics:
+	helm upgrade metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
+
 .PHONY: clean-metrics
 clean-metrics:
 	-kubectl delete -f $(root)/metrics/grafana-load-balancer.yml -n default
