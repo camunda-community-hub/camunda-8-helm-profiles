@@ -29,16 +29,16 @@ kube-gke:
 
 .PHONY: node-pool # create an additional Kubernetes node pool
 node-pool:
-	gcloud beta container node-pools create "pool-c3-standard-8" \
+	gcloud beta container node-pools create "pool-c3d-standard-8" \
 	  --project $(project) \
 	  --cluster $(clusterName) \
 	  --region $(region) \
-	  --machine-type "c3-standard-8" \
+	  --machine-type "c3d-standard-8" \
 	  --disk-type "pd-ssd" \
 	  --spot \
 	  --num-nodes=0 \
 	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes "64" --location-policy "ANY" \
-	  --node-taints dedicated=high-performance:PreferNoSchedule
+	  --node-taints dedicated=high-performance:PreferNoSchedule \
 	  --enable-autoupgrade \
 	  --enable-autorepair \
 	  --max-surge-upgrade 0 --max-unavailable-upgrade 1
@@ -47,6 +47,7 @@ node-pool:
 #	  --disk-size "100" \
 #	  --metadata disable-legacy-endpoints=true \
 #	  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
+# C4 requires hyperdisk: gcloud beta container --project "camunda-researchanddevelopment" node-pools create "pool-c4-standard-8" --cluster "falko-benchmark" --zone "europe-west1-b" --node-version "1.30.3-gke.1969001" --machine-type "c4-standard-8" --image-type "COS_CONTAINERD" --disk-type "hyperdisk-balanced" --disk-size "100" --metadata disable-legacy-endpoints=true --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --spot --num-nodes "1" --enable-autoscaling --min-nodes "0" --max-nodes "256" --location-policy "ANY" --enable-autoupgrade --enable-autorepair --max-surge-upgrade 1 --max-unavailable-upgrade 0
 
 # original command suggested by Web Console:
 # gcloud beta container --project "camunda-researchanddevelopment" node-pools create "pool-c3-standard-8" --cluster "falko-benchmark-16" --zone "europe-west1-b" --node-version "1.27.3-gke.1700" --machine-type "c3-standard-8" --image-type "COS_CONTAINERD" --disk-type "pd-ssd" --disk-size "100" --metadata disable-legacy-endpoints=true --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --spot --enable-autoscaling --total-min-nodes "0" --total-max-nodes "64" --location-policy "ANY" --enable-autoupgrade --enable-autorepair --max-surge-upgrade 0 --max-unavailable-upgrade 1
