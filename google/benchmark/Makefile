@@ -56,11 +56,6 @@ chaos-mesh:
 chaos-experiment:
 	kubectl apply -f chaos-network-brokers.yaml -n default
 
-# Getting url for grafana is vendor specific
-.PHONY: url-grafana
-url-grafana:
-	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
-
 .PHONY: clean
 clean: clean-benchmark clean-chaos-experiment clean-camunda
 

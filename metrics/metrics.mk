@@ -28,6 +28,10 @@ port-grafana:
 port-prometheus:
 	kubectl port-forward svc/metrics-kube-prometheus-st-prometheus 9090:9090 -n default
 
+.PHONY: url-grafana
+url-grafana:
+	@echo http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}{.status.loadBalancer.ingress[0].hostname}')/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)
+
 .PHONY: open-grafana
 open-grafana:
-	xdg-open http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath={..ip})/d/zeebe-dashboard/zeebe?var-namespace=$(namespace) &
+	xdg-open http://$(shell kubectl get services metrics-grafana-loadbalancer -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}{.status.loadBalancer.ingress[0].hostname}')/d/zeebe-dashboard/zeebe?var-namespace=$(namespace) &
