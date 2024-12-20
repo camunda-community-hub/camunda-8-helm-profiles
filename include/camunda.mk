@@ -14,8 +14,11 @@ chart:
 	helm repo update camunda
 	helm search repo $(chart)
 
-helm-chart-version.yaml: chart
+.PHONY: chart-infos
+chart-infos:
 	helm search repo $(chart) --output yaml > helm-chart-version.yaml
+	helm show values $(chart) > helm-chart-default-values.yaml
+	helm show readme $(chart) > helm-chart-readme.md
 
 .PHONY: namespace
 namespace:
