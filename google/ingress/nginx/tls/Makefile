@@ -58,7 +58,7 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-nginx-all.yaml
 
 .PHONY: all
-all: ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-all.yaml create-docker-registry-secret camunda annotate-ingress-tls external-urls
+all: ingress-nginx cert-manager letsencrypt-prod camunda-values-nginx-with-metrics.yaml create-docker-registry-secret camunda annotate-ingress-tls external-urls
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
