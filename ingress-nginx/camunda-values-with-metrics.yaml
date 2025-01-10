@@ -11,12 +11,11 @@ global:
     tls:
       enabled: true
       secretName: "tls-secret"
-  image:
-    tag: latest
-    # pullPolicy: Always
   identity:
     auth:
       publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
+      identity:
+        recirectUrl: "https://YOUR_HOSTNAME/identity"
       operate:
         redirectUrl: "https://YOUR_HOSTNAME/operate"
       tasklist:
@@ -27,6 +26,8 @@ global:
         redirectUrl: "https://YOUR_HOSTNAME/connectors"
       webModeler:
         redirectUrl: "https://YOUR_HOSTNAME/modeler"
+      console:
+        redirectUrl: "https://YOUR_HOSTNAME/console"
 
 operate:
   contextPath: "/operate"
@@ -43,12 +44,6 @@ connectors:
     mode: oauth
   contextPath: "/connectors"
 
-#  env:
-#    - name: CAMUNDA_OPERATE_CLIENT_USERNAME
-#      value: demo
-#    - name: CAMUNDA_OPERATE_CLIENT_PASSWORD
-#      value: demo
-
 webModeler:
   enabled: true
   contextPath: "/modeler"
@@ -58,6 +53,13 @@ webModeler:
   restapi:
     mail:
       fromAddress: YOUR_EMAIL
+  env:
+    - name: PLAY_ENABLED
+      value: true
+
+console:
+  enabled: true
+  contextPath: "/console"
 
 postgresql:
   enabled: true
@@ -76,14 +78,22 @@ identity:
       - name: KEYCLOAK_FRONTEND_URL
         value: "https://YOUR_HOSTNAME/auth"
 
-zeebe-gateway:
+zeebeGateway:
+  contextPath: "/rest"
   ingress:
-    enabled: true
-    className: nginx
-    host: "YOUR_HOSTNAME"
-    tls:
+    grpc:
       enabled: true
-      secretName: "tls-secret"
+      host: "YOUR_HOSTNAME"
+      tls:
+        enabled: true
+        secretName: "tls-secret"
+    rest:
+      enabled: true
+      host: "YOUR_HOSTNAME"
+      path: "/rest"
+      tls:
+        enabled: true
+        secretName: "tls-secret"
   replicas: 1
   resources:
     requests:
@@ -95,11 +105,13 @@ zeebe-gateway:
   env:
     - name: ZEEBE_GATEWAY_MONITORING_ENABLED
       value: "true"
+    - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "500ms"
 
 zeebe:
-  clusterSize: 1
-  partitionCount: 1
-  replicationFactor: 1
+  clusterSize: 3
+  partitionCount: 3
+  replicationFactor: 3
   pvcSize: 10Gi
 
   resources:
@@ -112,21 +124,8 @@ zeebe:
   env:
     - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
       value: "true"
-
-elasticsearch:
-  enabled: true
-  imageTag: 7.17.3
-  replicas: 1
-  minimumMasterNodes: 1
-  # Allow no backup for single node setups
-  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "512M"
-    limits:
-      cpu: "1000m"
-      memory: "2Gi"
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "500ms"
 
 
 
