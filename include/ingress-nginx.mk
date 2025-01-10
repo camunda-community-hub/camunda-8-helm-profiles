@@ -43,7 +43,7 @@ fqdn: ingress-ip-from-service
 camunda-values-nginx-all.yaml: fqdn
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-all.yaml; \
 
-camunda-values-nginx-metrics.yaml: fqdn
+camunda-values-nginx-with-metrics.yaml: fqdn
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g;s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values-with-metrics.yaml > $(chartValues);
 
 .PHONY: clean-ingress
