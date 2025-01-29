@@ -1,0 +1,153 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+# Modeler Notes:
+# - Configure modeler redirect as a SPA (not a web type)
+# - set the accessTokenAcceptedVersion to 2 in the Azure App Registration Manifest
+
+global:
+  multitenancy:
+    enabled: true
+  ingress:
+    enabled: true
+    className: nginx
+    host: "YOUR_HOSTNAME"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  identity:
+    auth:
+      issuer: https://login.microsoftonline.com/ENTRA_TENANT_ID/v2.0
+      # this is used for container to container communication
+      issuerBackendUrl: https://login.microsoftonline.com/ENTRA_TENANT_ID/v2.0
+      tokenUrl: https://login.microsoftonline.com/ENTRA_TENANT_ID/oauth2/v2.0/token
+      jwksUrl: https://login.microsoftonline.com/ENTRA_TENANT_ID/discovery/v2.0/keys
+      type: "MICROSOFT"
+      publicIssuerUrl: https://login.microsoftonline.com/ENTRA_TENANT_ID/v2.0
+      identity:
+        clientId: ENTRA_APP_ID
+        existingSecret: "ENTRA_CLIENT_SECRET"
+        audience: ENTRA_APP_ID
+        #        initialClaimName:
+        initialClaimValue: ENTRA_ADMIN_USER_OID
+        redirectUrl: "https://YOUR_HOSTNAME/identity"
+      operate:
+        clientId: ENTRA_APP_ID
+        audience: ENTRA_APP_ID
+        existingSecret: "ENTRA_CLIENT_SECRET"
+        redirectUrl: "https://YOUR_HOSTNAME/operate"
+      tasklist:
+        clientId: ENTRA_APP_ID
+        audience: ENTRA_APP_ID
+        existingSecret: "ENTRA_CLIENT_SECRET"
+        redirectUrl: "https://YOUR_HOSTNAME/tasklist"
+      optimize:
+        clientId: ENTRA_APP_ID
+        audience: ENTRA_APP_ID
+        existingSecret: "ENTRA_CLIENT_SECRET"
+        redirectUrl: "https://YOUR_HOSTNAME/optimize"
+      zeebe:
+        clientId: ENTRA_APP_ID
+        audience: ENTRA_APP_ID
+        existingSecret: "ENTRA_CLIENT_SECRET"
+        tokenScope: ENTRA_APP_ID/.default
+      webModeler:
+        clientId: ENTRA_APP_ID
+        clientApiAudience: ENTRA_APP_ID
+        publicApiAudience: ENTRA_APP_ID
+        redirectUrl: "https://YOUR_HOSTNAME/modeler"
+      connectors:
+        clientId: ENTRA_APP_ID
+        audience: ENTRA_APP_ID
+        clientApiAudience: ENTRA_APP_ID
+        existingSecret: "ENTRA_CLIENT_SECRET"
+
+operate:
+  contextPath: "/operate"
+
+tasklist:
+  contextPath: "/tasklist"
+
+optimize:
+  contextPath: "/optimize"
+
+connectors:
+  enabled: true
+  inbound:
+    mode: oauth
+  contextPath: "/connectors"
+
+webModeler:
+  enabled: true
+  contextPath: "/modeler"
+  image:
+    pullSecrets:
+      - name: camunda-docker-registry
+  restapi:
+    mail:
+      fromAddress: YOUR_EMAIL
+  env:
+    - name: PLAY_ENABLED
+      value: true
+
+identityKeycloak:
+  enabled: false
+
+identityPostgresql:
+  enabled: true
+
+identity:
+  keycloak:
+    enabled: false
+  enabled: true
+  contextPath: "/identity"
+  fullURL: "https://YOUR_HOSTNAME/identity"
+  env:
+    - name: IDENTITY_AUDIENCE
+      value: ENTRA_APP_ID
+
+postgresql:
+  enabled: true
+
+prometheusServiceMonitor:
+  enabled: true
+
+zeebeGateway:
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2048Mi"
+      cpu: "1000m"
+  logLevel: debug
+  ingress:
+    enabled: true
+    className: nginx
+    host: "YOUR_HOSTNAME"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  env:
+    - name: ZEEBE_GATEWAY_MONITORING_ENABLED
+      value: "true"
+
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 10Gi
+  logLevel: debug
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+  env:
+    - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
+      value: "true"
