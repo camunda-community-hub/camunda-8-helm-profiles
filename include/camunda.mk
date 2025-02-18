@@ -140,7 +140,7 @@ clean-camunda: uninstall-camunda
 
 .PHONY: zeebe-logs
 zeebe-logs:
-	kubectl logs -f -n $(namespace) -l app.kubernetes.io/name=zeebe
+	kubectl logs -f -n $(namespace) -l app.kubernetes.io/component=zeebe-broker
 
 .PHONY: keycloak-logs
 keycloak-logs:
