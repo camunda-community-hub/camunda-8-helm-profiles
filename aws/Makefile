@@ -3,12 +3,12 @@
 # Already have a Cluster? Set these values to point to your existing environment
 # Otherwise, these values will be used to create a new Cluster
 
-region ?= us-east-1
-zones ?= ['us-east-1a', 'us-east-1b']
-clusterName ?= YOUR_CLUSTER_NAME
-clusterVersion ?= 1.25
+region ?= us-east-2
+zones ?= ['us-east-2a', 'us-east-2b', 'us-east-2c']
+clusterName ?= jothi-perf-test1
+clusterVersion ?= 1.31
 
-machineType ?= c6i.4xlarge
+machineType ?= t3.medium
 # TODO: Currently, auto scaling configuration using these scripts for AWS is not working
 # desiredSize is used as the starting size of the cluster
 desiredSize ?= 3
