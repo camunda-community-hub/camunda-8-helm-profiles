@@ -29,15 +29,15 @@ kube-gke:
 
 .PHONY: node-pool # create an additional Kubernetes node pool
 node-pool:
-	gcloud beta container node-pools create "pool-c3d-standard-8" \
+	gcloud beta container node-pools create "pool-$(machineType)" \
 	  --project $(project) \
 	  --cluster $(clusterName) \
 	  --region $(region) \
-	  --machine-type "c3d-standard-8" \
+	  --machine-type "$(machineType)" \
 	  --disk-type "pd-ssd" \
 	  --spot \
 	  --num-nodes=0 \
-	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes "64" --location-policy "ANY" \
+	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes $(maxSize) --location-policy "ANY" \
 	  --node-taints dedicated=high-performance:PreferNoSchedule \
 	  --enable-autoupgrade \
 	  --enable-autorepair \
