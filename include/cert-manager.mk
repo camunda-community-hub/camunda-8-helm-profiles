@@ -22,7 +22,7 @@ letsencrypt-prod:
 #TODO: succeeds, but does not seem to have right effect
 .PHONY: letsencrypt-prod-patch
 letsencrypt-prod-patch:
-	kubectl patch ClusterIssuer letsencrypt --type json -p '[{"op": "replace", "path": "/spec/acme/sever", "value":"$(prodserver)"}]'
+	kubectl patch ClusterIssuer letsencrypt --type json -p '[{"op": "replace", "path": "/spec/acme/server", "value":"$(prodserver)"}]'
 	kubectl describe ClusterIssuer letsencrypt | grep letsencrypt.org
 
 .PHONY: annotate-remove-ingress-tls
