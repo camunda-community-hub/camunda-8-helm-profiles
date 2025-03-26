@@ -28,7 +28,7 @@ kube-gke:
 	gcloud container clusters get-credentials $(clusterName) --region $(region)
 
 .PHONY: node-pool # create an additional Kubernetes node pool
-node-pool:
+node-pool: use-kube
 	gcloud beta container node-pools create "pool-$(machineType)" \
 	  --project $(project) \
 	  --cluster $(clusterName) \
@@ -52,12 +52,20 @@ node-pool:
 # original command suggested by Web Console:
 # gcloud beta container --project "camunda-researchanddevelopment" node-pools create "pool-c3-standard-8" --cluster "falko-benchmark-16" --zone "europe-west1-b" --node-version "1.27.3-gke.1700" --machine-type "c3-standard-8" --image-type "COS_CONTAINERD" --disk-type "pd-ssd" --disk-size "100" --metadata disable-legacy-endpoints=true --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --spot --enable-autoscaling --total-min-nodes "0" --total-max-nodes "64" --location-policy "ANY" --enable-autoupgrade --enable-autorepair --max-surge-upgrade 0 --max-unavailable-upgrade 1
 
+.PHONY: kube-nodes-allocatable
+kube-nodes-allocatable: use-kube
+	kubectl get nodes -o custom-columns=NAME:.metadata.name,CPU:.status.allocatable.cpu,MEMORY:.status.allocatable.memory
+
 .PHONY: clean-kube-gke
 clean-kube-gke: use-kube
 #	-kubectl delete pvc --all
 	@echo "Please check the console if all PVCs have been deleted: https://console.cloud.google.com/compute/disks?authuser=0&project=$(project)&supportedpurview=project"
 	gcloud container clusters delete $(clusterName) --region $(region) --async --quiet
 	gcloud container clusters list
+
+.PHONY: clean-node-pool
+clean-node-pool: use-kube
+	gcloud container node-pools delete "pool-$(machineType)" --cluster $(clusterName) --region $(region) --quiet
 
 .PHONY: use-kube
 use-kube:
