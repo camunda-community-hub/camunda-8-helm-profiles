@@ -1,7 +1,10 @@
 .PHONY: camunda
-camunda: chart namespace
-	@echo "Attempting to install camunda using chartValues: $(chartValues)"
-	helm install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
+camunda: chart namespace install
+
+.PHONY: install
+install:
+	@echo "Installing Camunda Platform using chartValues: $(chartValues)"
+	helm upgrade --install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
 # List Helm Chart versions + Camunda Platform versions
 .PHONY: versions
