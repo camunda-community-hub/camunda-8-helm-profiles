@@ -172,7 +172,7 @@ watch:
 
 .PHONY: watch-zeebe
 watch-zeebe:
-	kubectl get pods -w -n $(namespace) -l app.kubernetes.io/name=zeebe
+	kubectl get pods -w -n $(namespace) -l app.kubernetes.io/name=camunda-platform
 
 .PHONY: await-zeebe
 await-zeebe:
