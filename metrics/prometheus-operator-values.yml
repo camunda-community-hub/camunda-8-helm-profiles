@@ -8,7 +8,7 @@ grafana:
     existingSecret: grafana-admin-password
     userKey: admin-user
     passwordKey: admin-password
-  grafana.ini:
+  # grafana.ini:
     # auth.github:
     #   enabled: true
     #   allow_sign_up: true
