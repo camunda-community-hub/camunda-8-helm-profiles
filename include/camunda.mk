@@ -28,10 +28,9 @@ namespace:
 	-kubectl create namespace $(namespace)
 	-kubectl config set-context --current --namespace=$(namespace)
 
-# Generates templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
-.PHONY: template
+.PHONY: template # generate templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
 template: chart
-	helm template $(release) $(chart) -f $(chartValues) --skip-crds --output-dir .
+	helm template $(release) $(chart) --values $(chartValues) --skip-crds --output-dir .
 	@echo "To apply the templates use: kubectl apply -f camunda-platform --recursive -n $(namespace)"
 
 .PHONY: keycloak-password
@@ -141,6 +140,10 @@ uninstall-camunda:
 clean-camunda: uninstall-camunda
 	-kubectl delete namespace $(namespace)
 
+.PHONY: clean-template # delete the gerenated Helm templates
+clean-template:
+	rm -r camunda-platform
+
 .PHONY: zeebe-logs
 zeebe-logs:
 	kubectl logs -f -n $(namespace) -l app.kubernetes.io/component=zeebe-broker
@@ -243,3 +246,8 @@ external-urls-no-ingress:
 	@echo To access tasklist: make port-tasklist, then browse to: http://localhost:8082
 	@echo To access inbound connectors: make port-connectors, then browse to: http://localhost:8084/inbound
 	@echo To deploy to the cluster: make port-zeebe, then: zbctl status --address localhost:26500 --insecure
+
+.PHONY: help # print this help
+help:
+	@grep -oP '^\.PHONY: \K.*' $(root)/include/camunda.mk
+# TODO print only documented targets	@grep -oP '^\.PHONY: \K.*#.*' $(root)/include/camunda.mk
