@@ -1,8 +1,8 @@
 .PHONY: camunda
-camunda: chart namespace install
+camunda: chart namespace install-camunda
 
-.PHONY: install
-install:
+.PHONY: install-camunda
+install-camunda:
 	@echo "Installing Camunda Platform using chartValues: $(chartValues)"
 	helm upgrade --install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
@@ -249,5 +249,6 @@ external-urls-no-ingress:
 
 .PHONY: help # print this help
 help:
+	@grep -oP '^\.PHONY: \K.*' Makefile
 	@grep -oP '^\.PHONY: \K.*' $(root)/include/camunda.mk
 # TODO print only documented targets	@grep -oP '^\.PHONY: \K.*#.*' $(root)/include/camunda.mk
