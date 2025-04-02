@@ -1,29 +1,28 @@
-.PHONY: camunda
+.PHONY: camunda # download Helm chart, create namespace, install Camunda Platform
 camunda: chart namespace install-camunda
 
-.PHONY: install-camunda
+.PHONY: install-camunda # install Camunda Platform
 install-camunda:
 	@echo "Installing Camunda Platform using chartValues: $(chartValues)"
 	helm upgrade --install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
-# List Helm Chart versions + Camunda Platform versions
-.PHONY: versions
+.PHONY: versions # list Helm Chart versions + Camunda Platform versions
 versions:
 	helm search repo camunda -l
 
-.PHONY: chart
+.PHONY: chart # download the Camunda Platform Helm chart
 chart:
 	helm repo add camunda https://helm.camunda.io
 	helm repo update camunda
 	helm search repo $(chart)
 
-.PHONY: chart-infos
+.PHONY: chart-infos # store Camunda Platform Helm chart version, its values, and readme
 chart-infos:
 	helm search repo $(chart) --output yaml > helm-chart-version.yaml
 	helm show values $(chart) > helm-chart-default-values.yaml
 	helm show readme $(chart) > helm-chart-readme.md
 
-.PHONY: namespace
+.PHONY: namespace # create the Kubernetes namespace
 namespace:
 	-kubectl create namespace $(namespace)
 	-kubectl config set-context --current --namespace=$(namespace)
@@ -33,33 +32,33 @@ template: chart
 	helm template $(release) $(chart) --values $(chartValues) --skip-crds --output-dir .
 	@echo "To apply the templates use: kubectl apply -f camunda-platform --recursive -n $(namespace)"
 
-.PHONY: keycloak-password
+.PHONY: keycloak-password # get the Keycloak admin password
 keycloak-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode))
 	@echo KeyCloak Admin password: $(kcPassword)
 
-.PHONY: config-keycloak
+.PHONY: config-keycloak # configure Keycloak
 config-keycloak: keycloak-password
 	kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=keycloak --timeout=600s
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 	kubectl -n $(namespace) exec -it $(release)-keycloak-0 -- /opt/bitnami/keycloak/bin/kcadm.sh update realms/camunda-platform -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user admin --password $(kcPassword)
 
-.PHONY: zeebe-password
+.PHONY: zeebe-password # get the Zeebe Identity password
 zeebe-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-zeebe-identity-secret" -o jsonpath="{.data.zeebe-secret}" | base64 --decode))
 	@echo Zeebe Identity password: $(kcPassword)
 
-.PHONY: connectors-password
+.PHONY: connectors-password # get the Connectors Identity password
 connectors-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-connectors-identity-secret" -o jsonpath="{.data.connectors-secret}" | base64 --decode))
 	@echo Connectors Identity password: $(kcPassword)
 
-.PHONY: tasklist-password
+.PHONY: tasklist-password #	get the Tasklist Identity password
 tasklist-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-tasklist-identity-secret" -o jsonpath="{.data.tasklist-secret}" | base64 --decode))
 	@echo Tasklist Identity password: $(kcPassword)
 
-.PHONY: postgresql-password
+.PHONY: postgresql-password # get the Postgresql password
 postgresql-password:
 	$(eval kcPassword := $(shell kubectl get secret --namespace $(namespace) "$(release)-postgresql" -o jsonpath="{.data.postgres-password}" | base64 --decode))
 	@echo Postgresql password: $(kcPassword)
@@ -70,13 +69,13 @@ postgresql-password:
 #echo ${PGPASSWORD}
 #psql -p 5433 -h localhost
 
-.PHONY: docker-registry-password
+.PHONY: docker-registry-password # get the Docker Registry password
 docker-registry-password:
 	$(eval resultPassword := $(shell kubectl get secret --namespace $(namespace) $(camundaDockerRegistrySecretName) --output="jsonpath={.data.\\.dockerconfigjson}" | base64 --decode))
 	@echo Docker Registry Config Json: $(resultPassword)
 
 # https://docs.camunda.io/docs/next/self-managed/platform-deployment/helm-kubernetes/deploy/#create-image-pull-secret
-.PHONY: create-docker-registry-secret
+.PHONY: create-docker-registry-secret # create a Docker Registry secret
 create-docker-registry-secret: namespace
 	kubectl create secret docker-registry $(camundaDockerRegistrySecretName) \
 	  --docker-server="$(camundaDockerRegistryUrl)" \
@@ -249,6 +248,6 @@ external-urls-no-ingress:
 
 .PHONY: help # print this help
 help:
-	@grep -oP '^\.PHONY: \K.*' Makefile
-	@grep -oP '^\.PHONY: \K.*' $(root)/include/camunda.mk
+	@grep -oP '^\.PHONY: \K.*' Makefile | sed 's/#/\t/'
+	@grep -oP '^\.PHONY: \K.*' $(root)/include/camunda.mk | sed 's/#/\t/'
 # TODO print only documented targets	@grep -oP '^\.PHONY: \K.*#.*' $(root)/include/camunda.mk
