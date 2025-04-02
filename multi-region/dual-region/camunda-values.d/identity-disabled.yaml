@@ -1,0 +1,13 @@
+# disable Identity and all components that depend on it
+global:
+  identity:
+    auth:
+      # Disable the Identity authentication
+      # it will fall back to basic-auth: demo/demo as default user
+      enabled: false
+identity:
+    enabled: false
+identityKeycloak:
+    enabled: false
+optimize:
+    enabled: false

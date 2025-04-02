@@ -1,0 +1,74 @@
+# dual-region active-active Zeebe cluster with some tweaks for high network latency between regions
+global:
+  # Multiregion options for Zeebe
+  #
+  ## WARNING: Customers must develop and test the operational procedure described below in non-production environments based on the framework steps
+  # outlined by Camunda before applying them in production setups.
+  # Before advancing to production go-live, validating these procedures with Camunda is strongly recommended.
+  # Customers are solely responsible for detecting any regional failures and implementing the necessary operational procedure described.
+  #
+  # https://docs.camunda.io/docs/self-managed/concepts/multi-region/dual-region/
+  # https://docs.camunda.io/docs/self-managed/setup/deploy/amazon/amazon-eks/dual-region/#deploy-camunda-8-to-the-clusters
+  # https://docs.camunda.io/docs/self-managed/operational-guides/multi-region/dual-region-operational-procedure/
+  # https://docs.camunda.io/docs/next/self-managed/setup/deploy/openshift/redhat-openshift-dual-region/
+  multiregion:
+    # number of regions that this Camunda Platform instance is stretched across
+    regions: 2
+  identity:
+    auth:
+      # Disable the Identity authentication
+      # it will fall back to basic-auth: demo/demo as default user
+      enabled: false
+  elasticsearch:
+    disableExporter: true
+
+# disable components that are not (yet) or partially supported in dual-region setups
+# see: https://docs.camunda.io/docs/self-managed/concepts/multi-region/dual-region/#camunda-8-dual-region-limitations
+identity:
+    enabled: false
+identityKeycloak:
+    enabled: false
+optimize:
+    enabled: false
+connectors:
+    enabled: false
+
+zeebe:
+  # defines how each partition is replicated, the value defines the number of nodes
+  replicationFactor: 4
+  env:
+    - name: ZEEBE_BROKER_NETWORK_ADVERTISEDHOST
+      value: "$(K8S_NAME).$(K8S_NAMESPACE).svc"
+    - name: ZEEBE_BROKER_CLUSTER_INITIALCONTACTPOINTS
+      value:
+        camunda-zeebe-0.camunda-r0.svc:26502,
+        camunda-zeebe-1.camunda-r0.svc:26502,
+        camunda-zeebe-0.camunda-r1.svc:26502,
+        camunda-zeebe-1.camunda-r1.svc:26502
+    # - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_CLASSNAME
+    #   value: io.camunda.zeebe.exporter.ElasticsearchExporter
+    # - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION0_ARGS_URL
+    #   value: http://camunda-elasticsearch-master-hl.camunda-primary.svc.cluster.local:9200
+    # - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_CLASSNAME
+    #   value: io.camunda.zeebe.exporter.ElasticsearchExporter
+    # - name: ZEEBE_BROKER_EXPORTERS_ELASTICSEARCHREGION1_ARGS_URL
+    #   value: http://camunda-elasticsearch-master-hl.camunda-secondary.svc.cluster.local:9200
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: 500ms
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBEINTERVAL
+      value: 2s
+    - name: ZEEBE_BROKER_EXPERIMENTAL_RAFT_SNAPSHOTREQUESTTIMEOUT
+      value: 10s
+    - name: ZEEBE_BROKER_CLUSTER_MESSAGECOMPRESSION
+      value: GZIP
+    - name: ZEEBE_BROKER_BACKPRESSURE_AIMD_REQUESTTIMEOUT
+      value: 1s
+
+zeebeGateway:
+  env:
+    - name: ZEEBE_GATEWAY_CLUSTER_MESSAGECOMPRESSION
+      value: GZIP
+    - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: 500ms
+    - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBEINTERVAL
+      value: 2s

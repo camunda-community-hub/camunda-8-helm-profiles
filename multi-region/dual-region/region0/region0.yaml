@@ -1,0 +1,4 @@
+global:
+  multiregion:
+    # unique id of the region. MUST start at 0 for the computation to work correctly. With 2 regions, you would have region 0 and 1.
+    regionId: 0

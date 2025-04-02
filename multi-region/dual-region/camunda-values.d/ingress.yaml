@@ -1,0 +1,39 @@
+zeebeGateway:
+  ingress:
+    enabled: false
+    className: nginx
+    annotations:
+      ingress.kubernetes.io/rewrite-target: '/'
+      nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+      nginx.ingress.kubernetes.io/proxy-buffering: 'on'
+      nginx.ingress.kubernetes.io/proxy-buffer-size: '128k'
+    path: /
+    tls:
+      enabled: false
+      secretName: camunda-zeebe-gateway
+operate:
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      ingress.kubernetes.io/rewrite-target: '/'
+      nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+      nginx.ingress.kubernetes.io/proxy-buffering: 'on'
+      nginx.ingress.kubernetes.io/proxy-buffer-size: '128k'
+    path: /
+    tls:
+      enabled: false
+      secretName: camunda-operate
+optimize:
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      ingress.kubernetes.io/rewrite-target: '/'
+      nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+      nginx.ingress.kubernetes.io/proxy-buffering: 'on'
+      nginx.ingress.kubernetes.io/proxy-buffer-size: '128k'
+    path: /
+    tls:
+      enabled: false
+      secretName: camunda-optimize

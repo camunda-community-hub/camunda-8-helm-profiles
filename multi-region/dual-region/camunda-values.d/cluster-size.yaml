@@ -1,0 +1,9 @@
+zeebe:
+  # both should be multiples of the replication factor for a ballanced setup
+  clusterSize: 4
+  partitionCount: 1
+  pvcSize: 10Gi
+  pvcStorageClassName: "standard"
+
+zeebeGateway:
+  replicas: 1

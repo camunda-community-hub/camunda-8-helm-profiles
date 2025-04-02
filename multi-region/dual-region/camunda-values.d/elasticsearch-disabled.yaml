@@ -1,0 +1,12 @@
+# disable Elasticsearch and all components that depend on it
+global:
+  elasticsearch:
+    enabled: false
+optimize:
+  enabled: false
+tasklist:
+  enabled: false
+operate:
+  enabled: false
+elasticsearch:
+  enabled: false
