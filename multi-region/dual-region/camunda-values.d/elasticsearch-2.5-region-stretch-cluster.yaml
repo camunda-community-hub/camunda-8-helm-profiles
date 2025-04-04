@@ -3,14 +3,14 @@ elasticsearch:
     enabled: true
     type: LoadBalancer
     loadBalancerIP: <IP>
+  extraConfig: |
+    network.publish_host: <IP>
   security:
     enabled: false
   master:
     replicaCount: 1
     networkPolicy:
       enabled: false
-    extraConfig: |
-      network.publish_host: <IP>
     extraEnvVars:
     - name: ELASTICSEARCH_CLUSTER_MASTER_HOSTS
       # yamllint disable-line rule:line-length
