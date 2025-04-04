@@ -1,0 +1,28 @@
+elasticsearch:
+  service:
+    enabled: true
+    type: LoadBalancer
+    loadBalancerIP: <IP>
+  security:
+    enabled: false
+  master:
+    replicaCount: 1
+    networkPolicy:
+      enabled: false
+    extraConfig: |
+      network.publish_host: <IP>
+    extraEnvVars:
+    - name: ELASTICSEARCH_CLUSTER_MASTER_HOSTS
+      # yamllint disable-line rule:line-length
+      value: "camunda-r0-elasticsearch-master-0 camunda-r1-elasticsearch-master-0 camunda-r2-elasticsearch-master-0"
+    - name: ELASTICSEARCH_MINIMUM_MASTER_NODES
+      value: "2"
+    - name: ELASTICSEARCH_TOTAL_NODES
+      value: "3"
+    - name: ELASTICSEARCH_CLUSTER_HOSTS
+      value:
+        camunda-r0-elasticsearch-master-hl.camunda-r0.svc.cluster.local,
+        camunda-r1-elasticsearch-master-hl.camunda-r1.svc.cluster.local,
+        camunda-r2-elasticsearch-master-hl.camunda-r2.svc.cluster.local
+    - name: ELASTICSEARCH_ENABLE_REST_TLS
+      value: "false"
