@@ -133,8 +133,12 @@ camunda-values-ingress-aws.yaml: fqdn-aws
 camunda-values-nginx-tls-aws.yaml: fqdn-aws
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml;
 
-camunda-values-ingress-tls-aws-secure.yaml:
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values-nginx-tls-secure > ./camunda-values-ingress-tls-aws-secure.yaml;
+hostname-aws-lb:
+	$(eval hostname-aws-lb := $(shell  kubectl get service ingress-nginx-controller  -n ingress-nginx  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}'))
+	@echo "AWS LB hostname: $(hostname-aws-lb)"
+
+camunda-values-ingress-tls-aws-secure.yaml: hostname-aws-lb
+	sed "s/YOUR_HOSTNAME/$(hostname-aws-lb)/g;" $(root)/ingress-nginx/camunda-values-nginx-tls-secure.yaml > ./camunda-values-ingress-tls-aws-secure.yaml;
 
 camunda-values-with-metrics.yaml: fqdn-aws
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values-with-metrics.yaml > $(chartValues);

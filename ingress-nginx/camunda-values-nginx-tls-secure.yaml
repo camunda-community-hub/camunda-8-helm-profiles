@@ -11,9 +11,7 @@ global:
     tls:
       enabled: true
       secretName: "tls-secret"
-    #  image:
-    #    tag: latest
-    # pullPolicy: Always
+
   identity:
     auth:
       publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
@@ -59,40 +57,15 @@ operate:
         value: "/etc/tls/tls.crt"
 
   contextPath: "/operate"
-  extraInitContainers:
-    - name: import-certificate
-      image: openjdk:11 # Use the appropriate Java image
-      command: [ 'sh', '-c' ]
-      args:
-        - |
-          keytool -import -trustcacerts -keystore /tmp/custom-cacerts/gateway.jks -storetype jks -storepass changeit -noprompt -alias gateway -file /etc/gateway/tls.crt;
-      securityContext:
-        runAsUser: 1000 # UID of the non-root user
-        runAsGroup: 1000 # GID of the non-root user
-      volumeMounts:
-        - name: gateway-certificates
-          readOnly: true
-          mountPath: /etc/gateway/
-        - name: custom-cacerts
-          mountPath: /tmp/custom-cacerts
   extraVolumes:
-    - name: elastic-certificates
+    - name: tls-certificates
       secret:
-        secretName: my-ca-cert
-    - name: gateway-certificates
-      secret:
-        secretName: gateway-tls-secret
-    - name: custom-cacerts
-      emptyDir: { }
+        secretName: poc-cert
   extraVolumeMounts:
-    - name: elastic-certificates
+    - name: tls-certificates
       readOnly: true
       mountPath: /etc/tls/
-    - name: custom-cacerts
-      mountPath: /tmp/custom-cacerts
-    - name: gateway-certificates
-      readOnly: true
-      mountPath: /etc/gateway/
+
   env:
     - name: "CAMUNDA_OPERATE_ELASTICSEARCH_USERNAME"
       value: "elastic"
@@ -121,51 +94,22 @@ operate:
     - name: CAMUNDA_OPERATE_ZEEBE_SECURE
       value: "true"
     - name: CAMUNDA_OPERATE_ZEEBE_CERTIFICATEPATH
-      value: "/etc/gateway/tls.crt"
+      value: "/etc/tls/tls.crt"
     - name: CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS
       value: camunda-zeebe-gateway.camunda.svc.cluster.local:26500
-    - name: "JAVA_TOOL_OPTIONS"
-      value: "-Djavax.net.ssl.trustStore=/tmp/custom-cacerts/gateway.jks -Djavax.net.ssl.trustStorePassword=changeit"
-
 
 tasklist:
   #  nodeSelector:
   #    alpha.eksctl.io/nodegroup-name: c6i-2xlarge
   contextPath: "/tasklist"
-  initContainers:
-    - name: import-certificate
-      image: openjdk:11 # Use the appropriate Java image
-      command: [ 'sh', '-c' ]
-      args:
-        - |
-          keytool -import -trustcacerts -keystore /tmp/custom-cacerts/gateway.jks -storetype jks -storepass changeit -noprompt -alias gateway -file /etc/gateway/tls.crt;
-      securityContext:
-        runAsUser: 1000 # UID of the non-root user
-        runAsGroup: 1000 # GID of the non-root user
-      volumeMounts:
-        - name: gateway-certificates
-          readOnly: true
-          mountPath: /etc/gateway/
-        - name: custom-cacerts
-          mountPath: /tmp/custom-cacerts
   extraVolumes:
-    - name: elastic-certificates
+    - name: tls-certificates
       secret:
-        secretName: my-ca-cert
-    - name: gateway-certificates
-      secret:
-        secretName: gateway-tls-secret
-    - name: custom-cacerts
-      emptyDir: { }
+        secretName: poc-cert
   extraVolumeMounts:
-    - name: elastic-certificates
+    - name: tls-certificates
       readOnly: true
       mountPath: /etc/tls/
-    - name: custom-cacerts
-      mountPath: /tmp/custom-cacerts
-    - name: gateway-certificates
-      readOnly: true
-      mountPath: /etc/gateway/
   env:
     - name: "CAMUNDA_TASKLIST_ELASTICSEARCH_USERNAME"
       value: "elastic"
@@ -194,12 +138,9 @@ tasklist:
     - name: CAMUNDA_TASKLIST_ZEEBE_SECURE
       value: "true"
     - name: CAMUNDA_TASKLIST_ZEEBE_CERTIFICATEPATH
-      value: "/etc/gateway/tls.crt"
+      value: "/etc/tls/tls.crt"
     - name: CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS
       value: camunda-zeebe-gateway.camunda.svc.cluster.local:26500
-    - name: "JAVA_TOOL_OPTIONS"
-      value: "-Djavax.net.ssl.trustStore=/tmp/custom-cacerts/gateway.jks -Djavax.net.ssl.trustStorePassword=changeit"
-
 
 optimize:
   enabled: false
@@ -251,23 +192,13 @@ zeebe-gateway:
         secretName: "tls-secret"
   replicas: 1
   extraVolumes:
-    - name: elastic-certificates
+    - name: tls-certificates
       secret:
-        secretName: my-ca-cert
-    - name: gateway-certificates
-      secret:
-        secretName: gateway-tls-secret
-    - name: cert-chains
-      emptyDir: { }
+        secretName: poc-cert
   extraVolumeMounts:
-    - name: elastic-certificates
+    - name: tls-certificates
       readOnly: true
       mountPath: /etc/tls/
-    - name: gateway-certificates
-      readOnly: true
-      mountPath: /etc/gateway/
-    - name: cert-chains
-      mountPath: /etc/cert-chain/
   env:
     #cluster security - refer https://docs.camunda.io/docs/8.5/self-managed/zeebe-deployment/security/secure-cluster-communication/#broker
     - name: ZEEBE_GATEWAY_CLUSTER_SECURITY_ENABLED
@@ -280,9 +211,9 @@ zeebe-gateway:
     - name: ZEEBE_GATEWAY_SECURITY_ENABLED
       value: "true"
     - name: ZEEBE_GATEWAY_SECURITY_CERTIFICATECHAINPATH
-      value: "/etc/gateway/tls.crt"
+      value: "/etc/tls/tls.crt"
     - name: ZEEBE_GATEWAY_SECURITY_PRIVATEKEYPATH
-      value: "/etc/gateway/tls.key"
+      value: "/etc/tls/tls.key"
 
 zeebe:
   #  nodeSelector:
@@ -301,19 +232,19 @@ zeebe:
         runAsUser: 1000 # UID of the non-root user
         runAsGroup: 1000 # GID of the non-root user
       volumeMounts:
-        - name: elastic-certificates
+        - name: tls-certificates
           mountPath: "/etc/tls/"
           readOnly: true
         - name: custom-cacerts
           mountPath: /tmp/custom-cacerts
   extraVolumes:
-    - name: elastic-certificates
+    - name: tls-certificates
       secret:
-        secretName: my-ca-cert
+        secretName: poc-cert
     - name: custom-cacerts
       emptyDir: { }
   extraVolumeMounts:
-    - name: elastic-certificates
+    - name: tls-certificates
       readOnly: true
       mountPath: /etc/tls/
     - name: custom-cacerts
@@ -383,7 +314,7 @@ elasticsearch:
       emptyDir: { }
     - name: elastic-certificates
       secret:
-        secretName: my-ca-cert
+        secretName: poc-cert
 
   # for the generated cert
   extraVolumeMounts:
@@ -399,7 +330,6 @@ elasticsearch:
         - -c
         - |
           #!/usr/bin/env bash
-          
           
           elasticsearch-certutil cert \
             --name ${NODE_NAME} \

@@ -22,9 +22,9 @@ certEmail ?= jothikiruthika.viswanathan@camunda.com
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 ifeq ($(OS),Windows_NT)
-    root ?= $(CURDIR)/../../../..
+    root ?= $(CURDIR)/../../../../..
 else
-    root ?= $(shell pwd)/../../../..
+    root ?= $(shell pwd)/../../../../..
 endif
 
 # Camunda components will be installed into the following Kubernetes namespace
@@ -38,16 +38,13 @@ chart ?= camunda/camunda-platform
 chartValues ?= camunda-values-ingress-tls-aws-secure.yaml
 
 .PHONY: all
-all: ingress-nginx cert-manager letsencrypt-prod camunda-values-ingress-tls-aws-secure.yaml  camunda annotate-ingress-tls external-urls
+all: ingress-nginx cert-manager letsencrypt-prod camunda-values-ingress-tls-aws-secure.yaml generate-certs camunda annotate-ingress-tls external-urls
 
-# 0 kube from kubernetes-aws.mk: Create Kubernetes cluster.
-# 1 cert-manager from cert-manager.mk: create certificate manager for tls
-# 2 letsencrypt-staging/-prod from cert-manager.mk: create letsencrypt cert issuer
-# 3 create camunda-values-ingress-tls.yaml
-# 4 create camunda-values-aws.yaml with external ip from ingress controller's Loadbalancer
-# 5 helm install camunda from camunda.mk with own tls config, combined ingress
-# 6 annotate-ingress-tls from cert-manager.mk: add cluster-issuer annotation to nginx
-# 7 Show external URLs
+.PHONY: generate-certs
+generate-certs:
+	 kubectl create ns $(namespace)
+	 kubectl apply -f self-signed-cert.yaml -n $(namespace)
+
 .PHONY: external-urls
 external-urls: external-urls-all
 
