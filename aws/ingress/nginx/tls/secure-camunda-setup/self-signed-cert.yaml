@@ -1,0 +1,21 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: poc-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: poc-cert
+spec:
+  commonName: camunda-poc
+  isCA: true
+  issuerRef:
+    kind: Issuer
+    name: poc-issuer
+  secretName: poc-cert
+  dnsNames:
+    - camunda-zeebe-gateway.camunda.svc.cluster.local #this is required if the zeebeclients - tasklist, operate, java clients etc are connecting to zeebe form the same k8scluster
+    - localhost #this is needed to test in case of portforwarding
