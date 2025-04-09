@@ -5,7 +5,7 @@
 
 region ?= ap-southeast-1
 zones ?= ['ap-southeast-1a', 'ap-southeast-1b','ap-southeast-1c']
-clusterName ?= jothi-andig-tls
+clusterName ?= jothi-poc-tls
 clusterVersion ?= 1.31
 
 machineType ?= c6i.2xlarge
