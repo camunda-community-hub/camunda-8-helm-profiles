@@ -4,7 +4,7 @@ camunda: chart namespace install-camunda
 .PHONY: install-camunda # install Camunda Platform
 install-camunda:
 	@echo "Installing Camunda Platform using chartValues: $(chartValues)"
-	helm upgrade --version 10.5.2  --install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
+	helm upgrade --install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
 .PHONY: versions # list Helm Chart versions + Camunda Platform versions
 versions:
