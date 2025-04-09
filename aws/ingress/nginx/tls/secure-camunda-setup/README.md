@@ -16,7 +16,7 @@ This profile provide a reference to configure a secure version of the Camunda pl
 2. Secure communication among the brokers and gateway instances over TLS
 3. Secure Gateway - Client communication over TLS (This also implies that the Tasklist/Operate connectivity to the gateway needs to be on TLS)
 
-NOTE: If using self-signed certificates for TLS in development environments, the Certificate path must be provided for all Applications & in some cases adding these self-signed certificates to the trust store of the individual applications is necessary. These are provided in this example as well. 
+NOTE: If using self-signed certificates for TLS in development environments, the Certificate path must be provided for all camunda applications & in some cases adding these self-signed certificates to the trust store of the individual applications is necessary. These are provided in this example as well. 
 
 ## Installation
 
@@ -55,8 +55,14 @@ Once you have a EKS Cluster, run `make` to do the following:
 1. Set up a Kubernetes letsencrypt certificate manager
 2. Installs a Kubernetes Nginx Ingress Controller. A corresponding AWS Load Balancer is provisioned automatically
 3. Scripts used by the `Makefile` will attempt to find the ip address of the Load Balancer. This ip address is then used generate a `camunda-values-ingress-tls-aws-secure.yaml` file.
-4. Helm is used to install Camunda 8 using the `camunda-values-ingress-tls-aws-secure.yaml` file with the Load Balancer IP Address
-5. The ingress controller is annotated so that letsencrypt tls certificates are provisioned.
+4. A self-signed certificate is created using cert-manager. Refer the file `self-signed-cert.yaml` for details on how this is done.
+5. Helm is used to install Camunda 8 using the `camunda-values-ingress-tls-aws-secure.yaml` file with the Load Balancer IP Address 
+6. The ingress controller is annotated so that letsencrypt tls certificates are provisioned.
+
+NOTE: To connect to this zeebe instance from camunda clients, the self-signed certificate created by the secret can be exported to a .crt file and the same can be referred to in the zeebe.ca.certificate.path property in the application.properties or ZEEBE_CA_CERTIFICATE_PATH environment variable for the client. 
+
+`kubectl get secret poc-cert -n camunda  -o jsonpath='{.data.tls\.crt}' | base64 --decode > poc-certificate.crt
+export ZEEBE_CA_CERTIFICATE_PATH = /path/to/poc-certificate.crt`
 
 You can re-install this profile easily. First run `make clean` to remove all kubernetes objects created by `make`. Then, re-run `make` to re-install.
 
