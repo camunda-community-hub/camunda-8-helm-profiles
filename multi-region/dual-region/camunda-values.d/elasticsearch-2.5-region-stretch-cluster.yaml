@@ -2,9 +2,8 @@ elasticsearch:
   service:
     enabled: true
     type: LoadBalancer
-    loadBalancerIP: <IP>
-  extraConfig: |
-    network.publish_host: <IP>
+  extraConfig:
+    cluster.routing.allocation.awareness.attributes: region
   security:
     enabled: false
   master:

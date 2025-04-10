@@ -1,0 +1,21 @@
+# disable all Camunda Platform components and install only Elasticsearch
+global:
+  identity:
+    auth:
+      enabled: false
+zeebe:
+  enabled: false
+zeebeGateway:
+  enabled: false
+connectors:
+  enabled: false
+operate:
+  enabled: false
+tasklist:
+  enabled: false
+optimize:
+  enabled: false
+identity:
+  enabled: false
+identityKeycloak:
+  enabled: false
