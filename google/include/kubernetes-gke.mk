@@ -27,7 +27,7 @@ kube-gke:
 	gcloud container clusters get-credentials $(clusterName) --region $(region)
 
 .PHONY: node-pool # create an additional Kubernetes node pool
-node-pool: use-kube
+node-pool:
 	gcloud beta container node-pools create "pool-$(machineType)" \
 	  --project $(project) \
 	  --cluster $(clusterName) \
@@ -62,7 +62,7 @@ clean-kube-gke: use-kube
 	gcloud container clusters list
 
 .PHONY: clean-node-pool
-clean-node-pool: use-kube
+clean-node-pool:
 	gcloud container node-pools delete "pool-$(machineType)" --cluster $(clusterName) --region $(region) --quiet
 
 .PHONY: use-kube
