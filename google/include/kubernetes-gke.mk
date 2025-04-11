@@ -14,7 +14,7 @@ kube-gke:
 	gcloud container clusters create $(clusterName) \
 	  --region $(region) \
 	  --num-nodes=1 \
-	  --enable-autoscaling --max-nodes=$(maxSize) --min-nodes=$(minSize) \
+	  --enable-autoscaling --total-max-nodes=$(maxSize) --total-min-nodes=$(minSize) \
 	  --enable-ip-alias \
 	  --machine-type=$(machineType) \
 	  --disk-type "pd-ssd" \
