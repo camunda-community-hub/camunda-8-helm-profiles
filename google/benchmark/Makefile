@@ -10,8 +10,8 @@ clusterName ?= falko-benchmark
 # However GCP does not. DNS names will be configured using https://nip.io
 # dnsLabel ?= MY_DOMAIN_NAME
 #machineType ?= n1-standard-1
-machineType ?= n2-standard-4
-minSize ?= 1
+machineType ?= c4-standard-4
+minSize ?= 0
 maxSize ?= 256
 # gcpClientId ?= GCP_CLIENT_ID # see: https://chaos-mesh.org/docs/next/gcp-authentication/
 # gcpClientSecret ?= GCP_CLIENT_SECRET # see: https://chaos-mesh.org/docs/next/gcp-authentication/
