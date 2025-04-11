@@ -6,8 +6,8 @@ global:
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
 identity:
-    enabled: false
+  enabled: false
 identityKeycloak:
-    enabled: false
+  enabled: false
 optimize:
-    enabled: false
+  enabled: false

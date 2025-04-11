@@ -17,15 +17,17 @@ spec:
     spec:
       containers:
       - name: benchmark
-        image: berndruecker/camunda-8-benchmark:main
+        image: camundacommunityhub/camunda-8-benchmark:main
         imagePullPolicy: Always
         env:
           - name: JAVA_OPTIONS
             value: >-
-              -Dzeebe.client.broker.gateway-address=camunda-zeebe-gateway:26500
-              -Dzeebe.client.security.plaintext=true
+              -Dcamunda.client.mode=selfmanaged
+              -Dcamunda.client.zeebe.grpc-address=http://camunda-zeebe-gateway:26500            
+              -Dcamunda.client.zeebe.prefer-rest-over-grpc=false
               -Dzeebe.client.request-timeout=600s
               -Dzeebe.client.job.poll-interval=1ms
+              -Dzeebe.client.default-job-worker-stream-enabled=true
               -Dzeebe.client.worker.max-jobs-active=2000
               -Dbenchmark.startPiPerSecond=5
               -Dbenchmark.maxBackpressurePercentage=1.0
@@ -44,7 +46,7 @@ spec:
             memory: 4Gi
           requests:
             cpu: 1
-            memory: 4Gi
+            memory: 1Gi
         volumeMounts:
         - name: payload
           mountPath: payload.json
