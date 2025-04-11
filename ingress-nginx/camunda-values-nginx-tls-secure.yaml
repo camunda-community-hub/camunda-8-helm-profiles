@@ -76,10 +76,10 @@ operate:
   extraVolumes:
     - name: tls-certificates
       secret:
-        secretName: poc-cert
+        secretName: poc-cert #secret used at the gateway to enable client-gateway communication. In this example this is also the same secret used for ES as well
     - name: keycloak-ssl-certificates
       secret:
-        secretName: tls-secret
+        secretName: tls-secret #secret used in the ingress to setup keycloak routing
         items:
           - key: tls.crt
             path: tls.crt
@@ -153,10 +153,10 @@ tasklist:
   extraVolumes:
     - name: tls-certificates
       secret:
-        secretName: poc-cert
+        secretName: poc-cert #secret used at the gateway to enable client-gateway communication. In this example this is also the same secret used for ES as well
     - name: keycloak-ssl-certificates
       secret:
-        secretName: tls-secret
+        secretName: tls-secret #secret used in the ingress to setup keycloak routing
         items:
           - key: tls.crt
             path: tls.crt
