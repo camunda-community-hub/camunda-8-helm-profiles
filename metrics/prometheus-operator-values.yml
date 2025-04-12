@@ -62,8 +62,8 @@ prometheus:
         cpu: 8
         memory: 24Gi
       requests:
-        cpu: 7
-        memory: 24Gi
+        cpu: 1
+        memory: 4Gi
     retention: 90d
     shards: null
     storageSpec:
