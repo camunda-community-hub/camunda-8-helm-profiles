@@ -48,11 +48,6 @@ generate-certs:
 .PHONY: external-urls
 external-urls: external-urls-all
 
-# Getting url for grafana is vendor specific
-.PHONY: url-grafana
-url-grafana:
-	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].hostname' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
-
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
