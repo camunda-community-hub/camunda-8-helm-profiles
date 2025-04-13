@@ -58,44 +58,14 @@ operate:
         value: "/etc/tls/tls.crt"
 
   contextPath: "/operate"
-  initContainers:
-    - name: import-keycloak-ssl-certificate #import the ssl certificate for the public keycloak url - this is needed for the renew access token / refresh token calls to keycloak
-      image: openjdk:11 # Use the appropriate Java image
-      command: [ 'sh', '-c' ]
-      args:
-        - |
-          keytool -import -trustcacerts -keystore /tmp/custom-certs/operate.jks -storetype jks -storepass changeit -noprompt -alias keycloak -file /etc/idp/tls.crt;
-      securityContext:
-        runAsUser: 1000 # UID of the non-root user
-        runAsGroup: 1000 # GID of the non-root user
-      volumeMounts:
-        - name: custom-certs
-          mountPath: /tmp/custom-certs
-        - name: keycloak-ssl-certificates
-          readOnly: true
-          mountPath: /etc/idp/
   extraVolumes:
     - name: tls-certificates
       secret:
         secretName: poc-cert #secret used at the gateway to enable client-gateway communication. In this example this is also the same secret used for ES as well
-    - name: keycloak-ssl-certificates
-      secret:
-        secretName: tls-secret #secret used in the ingress to setup keycloak routing
-        items:
-          - key: tls.crt
-            path: tls.crt
-    - name: custom-certs
-      emptyDir: { }
   extraVolumeMounts:
     - name: tls-certificates
       readOnly: true
       mountPath: /etc/tls/
-    - name: custom-certs
-      mountPath: /tmp/custom-certs
-    - name: keycloak-ssl-certificates
-      readOnly: true
-      mountPath: /etc/idp/
-
   env:
     - name: "CAMUNDA_OPERATE_ELASTICSEARCH_USERNAME"
       value: "elastic"
@@ -127,9 +97,6 @@ operate:
       value: "/etc/tls/tls.crt"
     - name: CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS
       value: camunda-zeebe-gateway.camunda.svc.cluster.local:26500
-    - name: "JAVA_TOOL_OPTIONS"
-      value: "-Djavax.net.ssl.trustStore=/tmp/custom-certs/operate.jks -Djavax.net.ssl.trustStorePassword=changeit"
-
 
 tasklist:
   #  nodeSelector:
