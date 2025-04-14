@@ -90,6 +90,6 @@ create-cloud-dns: fqdn
 
 .PHONY: delete-cloud-dns
 delete-cloud-dns: fqdn
-	gcloud dns record-sets delete $(fqdn) \
+	-gcloud dns record-sets delete $(fqdn) \
 	  --type=A \
 	  --zone=$(dnsManagedZone)
