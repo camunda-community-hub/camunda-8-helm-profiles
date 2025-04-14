@@ -36,7 +36,7 @@ node-pool:
 	  --spot \
 	  --num-nodes=0 \
 	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes $(maxSize) --location-policy "ANY" \
-	  --node-taints dedicated=high-performance:PreferNoSchedule \
+	  --node-taints dedicated=high-performance:PreferNoSchedule hyperdisk=required:NoSchedule \
 	  --enable-autoupgrade \
 	  --enable-autorepair \
 	  --max-surge-upgrade 0 --max-unavailable-upgrade 1
