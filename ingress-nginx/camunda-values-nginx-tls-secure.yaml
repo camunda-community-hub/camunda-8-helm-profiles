@@ -143,10 +143,62 @@ tasklist:
       value: camunda-zeebe-gateway.camunda.svc.cluster.local:26500
 
 optimize:
-  enabled: false
+  enabled: true
   #  nodeSelector:
   #    alpha.eksctl.io/nodegroup-name: c6i-2xlarge
   contextPath: "/optimize"
+  migration:
+    env:
+      - name: SPRING_PROFILES_ACTIVE
+        value: "ccsm"
+      - name: OPTIMIZE_ELASTICSEARCH_HOST
+        value: "camunda-elasticsearch"
+      - name: OPTIMIZE_ELASTICSEARCH_HTTP_PORT
+        value: "9200"
+      - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_USERNAME
+        value: "elastic"
+      - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_PASSWORD
+        value: "jothi"
+      - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_ENABLED
+        value: "true"
+      - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_SELFSIGNED
+        value: "true"
+      - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_CERTIFICATE
+        value: "/etc/tls/tls.crt"
+      - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_VERIFYHOSTNAME
+        value: "false"
+      - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_CERTIFICATE_AUTHORITIES
+        value: "[/etc/tls/ca.crt]"
+
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: "ccsm"
+    - name: OPTIMIZE_ELASTICSEARCH_HOST
+      value: "camunda-elasticsearch"
+    - name: OPTIMIZE_ELASTICSEARCH_HTTP_PORT
+      value: "9200"
+    - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_USERNAME
+      value: "elastic"
+    - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_PASSWORD
+      value: "jothi"
+    - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_ENABLED
+      value: "true"
+    - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_SELFSIGNED
+      value: "true"
+    - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_CERTIFICATE
+      value: "/etc/tls/tls.crt"
+    - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_VERIFYHOSTNAME
+      value: "false"
+    - name: CAMUNDA_OPTIMIZE_ELASTICSEARCH_SECURITY_SSL_CERTIFICATE_AUTHORITIES
+      value: "[/etc/tls/ca.crt]"
+  extraVolumes:
+    - name: elastic-certificates
+      secret:
+        secretName: my-ca-cert
+  extraVolumeMounts:
+    - name: elastic-certificates
+      readOnly: true
+      mountPath: /etc/tls/
 
 connectors:
   enabled: false
@@ -179,13 +231,15 @@ identityKeycloak:
     - name: KEYCLOAK_FRONTEND_URL
       value: "https://YOUR_HOSTNAME/auth"
 
-zeebe-gateway:
+zeebeGateway:
   #  nodeSelector:
   #    alpha.eksctl.io/nodegroup-name: c6i-2xlarge
   ingress:
     grpc:
       enabled: true
       className: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/backend-protocol: 'GRPCS' ## This should be GRPCS if the gateway has tls security turned on as in this example.
       host: "YOUR_HOSTNAME"
       tls:
         enabled: true
