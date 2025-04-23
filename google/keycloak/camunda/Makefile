@@ -82,11 +82,6 @@ external-urls: ingress-ip-from-service
 	@echo https://$(IP).nip.io/optimize
 	@echo $(IP).nip.io:443
 
-# Getting url for grafana is vendor specific
-.PHONY: url-grafana
-url-grafana:
-	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
-
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
 	rm -f $(chartValues)
