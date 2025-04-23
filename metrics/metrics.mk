@@ -4,8 +4,16 @@ metrics:
 	helm repo add stable https://charts.helm.sh/stable
 	helm repo update prometheus-community stable
 	kubectl apply -f $(root)/metrics/grafana-secret.yml -n default
+	@echo " ************  Grafana password : [$$(grep 'admin-password' $(root)/metrics/grafana-secret.yml | grep -v 'name:'  | cut -d':' -f2- | sed 's/\r//' | xargs )] **********"
 	helm install metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 	kubectl apply -f $(root)/metrics/grafana-load-balancer.yml -n default
+
+#    echo "Grafana password : [$(grep "admin-password" grafana-secret.yaml | cut -d':' -f2- | xargs)]"
+
+.PHONY: grafana-password
+grafana-password:
+	@echo "Grafana password : [$$(grep 'admin-password' $(root)/metrics/grafana-secret.yml | grep -v 'name:'  | cut -d':' -f2- | sed 's/\r//' | xargs )]"
+
 
 .PHONY: update-metrics
 update-metrics:
