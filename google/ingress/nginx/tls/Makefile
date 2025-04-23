@@ -85,11 +85,6 @@ external-urls: external-urls-all
 zeebe-status: fqdn zeebe-password
 	zbctl status --address $(fqdn):443 --clientId zeebe --clientSecret $(kcPassword) --authzUrl https://$(fqdn):443/auth/realms/camunda-platform/protocol/openid-connect/token
 
-# Getting url for grafana is vendor specific
-.PHONY: url-grafana
-url-grafana:
-	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].ip' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
-
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager delete-cloud-dns
 	rm -f $(chartValues)

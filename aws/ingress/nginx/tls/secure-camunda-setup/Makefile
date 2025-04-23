@@ -17,7 +17,17 @@ maxSize ?= 24
 certEmail ?= jothikiruthika.viswanathan@camunda.com
 
 #AWS loadbalancers have a domain name like a169d06d7b1c24601a1884934f7964ab-260361959.ap-southeast-1.elb.amazonaws.com
+# Configure the fully qualified domain name
+# The dnsLabel is the first part of the domain address. It will be used no matter what baseDomain you configure below
+dnsLabel ?= jkk
 
+# By default, we'll use nip.io (See more at [https://nip.io](http://nip.io) )
+# The fully qualified domain name will look something like <dnsLabel>.<ip address>.nip.io
+baseDomainName ?= nip.io
+
+# Another option is to replace baseDomainName with your own domain name
+# In this case, the fully qualified domain name will look like <dnsLabel>.<baseDomainName>
+#baseDomainName ?= poc.com
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -44,14 +54,10 @@ all: ingress-nginx cert-manager letsencrypt-prod camunda-values-ingress-tls-aws-
 generate-certs:
 	 kubectl create ns $(namespace)
 	 kubectl apply -f self-signed-cert.yaml -n $(namespace)
+#	 kubectl create secret generic keycloak-cert --from-file=/Users/jothikiruthikaviswanathan/Downloads/Telstra/Apr4/keycloak-apr11.crt --namespace=$(namespace)
 
 .PHONY: external-urls
 external-urls: external-urls-all
-
-# Getting url for grafana is vendor specific
-.PHONY: url-grafana
-url-grafana:
-	@echo "http://`kubectl get svc metrics-grafana-loadbalancer -n default -o 'custom-columns=ip:status.loadBalancer.ingress[0].hostname' | tail -n 1`/d/zeebe-dashboard/zeebe?var-namespace=$(namespace)"
 
 .PHONY: clean
 clean: clean-camunda clean-ingress clean-cert-manager
