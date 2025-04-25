@@ -4,12 +4,14 @@
 # Otherwise, these values will be used to create a new Cluster
 
 project ?= camunda-researchanddevelopment
-region ?=  europe-west1-b # see: https://cloud.withgoogle.com/region-picker/
+region ?= europe-west1-b # see: https://cloud.withgoogle.com/region-picker/
 clusterName ?= CLUSTER_NAME
 # Azure provides temporary dns names such as:  MY_DOMAIN_NAME.region.cloudapp.azure.com
 # However GCP does not. DNS names will be configured using https://nip.io
 # dnsLabel ?= MY_DOMAIN_NAME
-machineType ?= n1-standard-8
+machineType ?= n2-standard-2
+nodePoolMachineType ?= c4-standard-4
+nodePoolTaint ?= dedicated=camunda:NoSchedule
 minSize ?= 1
 maxSize ?= 24
 gcpClientId ?= GCP_CLIENT_ID # see: https://chaos-mesh.org/docs/next/gcp-authentication/
