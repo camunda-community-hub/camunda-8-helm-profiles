@@ -7,7 +7,7 @@ project ?= camunda-researchanddevelopment
 region ?= europe-west1-b# see: https://cloud.withgoogle.com/region-picker/
 clusterName ?= falko-benchmark
 
-machineType ?= c4-standard-4
+machineType ?= n2-standard-2
 minSize ?= 0
 maxSize ?= 256
 certEmail ?= falko.menge@camunda.com
