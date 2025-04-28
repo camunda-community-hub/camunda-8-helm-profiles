@@ -28,17 +28,17 @@ letsencrypt-prod-patch:
 .PHONY: annotate-remove-ingress-tls
 annotate-remove-ingress-tls:
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer-
-	make get-ingress
+	$(MAKE) get-ingress
 
 .PHONY: annotate-ingress-tls
 annotate-ingress-tls: annotate-remove-ingress-tls
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
-	make get-ingress
+	$(MAKE) get-ingress
 
 .PHONY: annotate-letsencrypt-stage
 annotate-letsencrypt-stage: annotate-remove-ingress-tls
 	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt-stage
-	make get-ingress
+	$(MAKE) get-ingress
 
 # clean cert-manager and cluster issuer
 .PHONY: clean-cert-manager

@@ -14,7 +14,7 @@ oidc-provider:
 install-ebs-csi-controller-addon:
 ifeq "1.23" "$(word 1, $(sort 1.23 $(clusterVersion)))"
 	@echo "need to install ebs-csi-controller-addon";
-	make ebs-csi-controller-addon
+	$(MAKE) ebs-csi-controller-addon
 endif
 
 #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
