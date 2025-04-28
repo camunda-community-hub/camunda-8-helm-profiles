@@ -10,10 +10,15 @@ clusterName ?= CLUSTER_NAME
 # However GCP does not. DNS names will be configured using https://nip.io
 # dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= n2-standard-2
-nodePoolMachineType ?= c4-standard-4
-nodePoolTaint ?= dedicated=camunda:NoSchedule
 minSize ?= 1
 maxSize ?= 24
+
+# settings for additional Kubernetes node pool
+nodePoolMachineType ?= c2d-standard-4
+nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule
+#nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule hyperdisk=required:NoSchedule
+
+# only needed for Chaos Mesh
 gcpClientId ?= GCP_CLIENT_ID # see: https://chaos-mesh.org/docs/next/gcp-authentication/
 gcpClientSecret ?= GCP_CLIENT_SECRET # see: https://chaos-mesh.org/docs/next/gcp-authentication/
 
@@ -41,7 +46,7 @@ all: camunda await-zeebe deploy-models rebalance-leaders chaos-experiment benchm
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
-kube: kube-gke metrics url-grafana chaos-mesh
+kube: kube-gke kube-node-pool metrics url-grafana chaos-mesh
     
 .PHONY: chaos-mesh
 chaos-mesh:
@@ -72,7 +77,7 @@ clean-chaos-mesh:
 	-helm --namespace default uninstall chaos-mesh
 
 .PHONY: clean-kube
-clean-kube: clean-metrics clean-chaos-mesh clean-kube-gke
+clean-kube: clean-metrics clean-chaos-mesh clean-kube-node-pool clean-kube-gke
 
 include $(root)/include/camunda.mk
 include $(root)/benchmark/benchmark.mk

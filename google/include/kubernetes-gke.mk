@@ -26,17 +26,17 @@ kube-gke:
 	gcloud config set project $(project)
 	gcloud container clusters get-credentials $(clusterName) --region $(region)
 
-.PHONY: node-pool # create an additional Kubernetes node pool
-node-pool:
-	gcloud beta container node-pools create "pool-$(machineType)" \
+.PHONY: kube-node-pool # create an additional Kubernetes node pool
+kube-node-pool:
+	gcloud beta container node-pools create "pool-$(nodePoolMachineType)" \
 	  --project $(project) \
 	  --cluster $(clusterName) \
 	  --region $(region) \
-	  --machine-type "$(machineType)" \
+	  --machine-type "$(nodePoolMachineType)" \
 	  --spot \
 	  --num-nodes=0 \
 	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes $(maxSize) --location-policy "ANY" \
-	  --node-taints dedicated=high-performance:PreferNoSchedule hyperdisk=required:NoSchedule \
+	  --node-taints $(nodePoolTaints) \
 	  --enable-autoupgrade \
 	  --enable-autorepair \
 	  --max-surge-upgrade 0 --max-unavailable-upgrade 1
@@ -61,9 +61,9 @@ clean-kube-gke: use-kube
 	gcloud container clusters delete $(clusterName) --region $(region) --async --quiet
 	gcloud container clusters list
 
-.PHONY: clean-node-pool
-clean-node-pool:
-	gcloud container node-pools delete "pool-$(machineType)" --cluster $(clusterName) --region $(region) --quiet
+.PHONY: clean-kube-node-pool
+clean-kube-node-pool:
+	gcloud container node-pools delete "pool-$(nodePoolMachineType)" --cluster $(clusterName) --region $(region) --quiet
 
 .PHONY: use-kube
 use-kube:
