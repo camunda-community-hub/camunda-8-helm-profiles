@@ -20,7 +20,9 @@ kube-gke:
 	  --spot \
 	  --maintenance-window=4:00 \
 	  --release-channel=regular \
-	  --cluster-version=latest
+	  --cluster-version=latest \
+	  --no-enable-insecure-kubelet-readonly-port
+# see: https://cloud.google.com/kubernetes-engine/docs/how-to/disable-kubelet-readonly-port#disable-standard-new
 	gcloud container clusters list
 	kubectl apply -f $(root)/google/include/ssd-storageclass-gke.yaml
 	gcloud config set project $(project)
