@@ -4,18 +4,23 @@
 # Otherwise, these values will be used to create a new Cluster
 
 project ?= camunda-researchanddevelopment
-region ?= europe-west1-b# see: https://cloud.withgoogle.com/region-picker/
+region ?=  europe-west1-b # see: https://cloud.withgoogle.com/region-picker/
 clusterName ?= falko-benchmark
 # Azure provides temporary dns names such as:  MY_DOMAIN_NAME.region.cloudapp.azure.com
 # However GCP does not. DNS names will be configured using https://nip.io
 # dnsLabel ?= MY_DOMAIN_NAME
-machineType ?= n1-standard-1
-nodePoolMachineType ?= c4-standard-4
-nodePoolTaint ?= dedicated=camunda:NoSchedule
-minSize ?= 0
-maxSize ?= 256
-# gcpClientId ?= GCP_CLIENT_ID # see: https://chaos-mesh.org/docs/next/gcp-authentication/
-# gcpClientSecret ?= GCP_CLIENT_SECRET # see: https://chaos-mesh.org/docs/next/gcp-authentication/
+machineType ?= n2-standard-2
+minSize ?= 1
+maxSize ?= 24
+
+# settings for additional Kubernetes node pool
+nodePoolMachineType ?= c2d-standard-4
+nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule
+#nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule hyperdisk=required:NoSchedule
+
+# only needed for Chaos Mesh
+gcpClientId ?= GCP_CLIENT_ID # see: https://chaos-mesh.org/docs/next/gcp-authentication/
+gcpClientSecret ?= GCP_CLIENT_SECRET # see: https://chaos-mesh.org/docs/next/gcp-authentication/
 
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
@@ -37,11 +42,11 @@ chart ?= camunda/camunda-platform
 chartValues ?= "$(root)/benchmark/camunda-values.yaml"
 
 .PHONY: all
-all: camunda await-zeebe deploy-models rebalance-leaders benchmark
+all: camunda await-zeebe deploy-models rebalance-leaders benchmark 
 
 # 0 kube from cluster.mk: Create Kubernetes cluster. (No aplication gateway required)
 .PHONY: kube
-kube: kube-gke metrics url-grafana
+kube: kube-gke kube-node-pool metrics url-grafana
     
 .PHONY: chaos-mesh
 chaos-mesh:
@@ -72,7 +77,7 @@ clean-chaos-mesh:
 	-helm --namespace default uninstall chaos-mesh
 
 .PHONY: clean-kube
-clean-kube: clean-metrics clean-chaos-mesh clean-kube-gke
+clean-kube: clean-metrics clean-chaos-mesh clean-kube-node-pool clean-kube-gke
 
 include $(root)/include/camunda.mk
 include $(root)/benchmark/benchmark.mk
