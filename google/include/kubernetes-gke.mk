@@ -17,6 +17,7 @@ kube-gke:
 	  --enable-autoscaling --total-max-nodes=$(maxSize) --total-min-nodes=$(minSize) \
 	  --enable-ip-alias \
 	  --machine-type=$(machineType) \
+	  --disk-size "16" \
 	  --spot \
 	  --maintenance-window=4:00 \
 	  --release-channel=regular \
@@ -36,6 +37,7 @@ kube-node-pool:
 	  --region $(region) \
 	  --machine-type "$(nodePoolMachineType)" \
 	  --min-cpu-platform=$(nodePoolMinCpuPlatform) \
+	  --disk-size "16" \
 	  --spot \
 	  --num-nodes=0 \
 	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes $(maxSize) --location-policy "ANY" \
@@ -45,7 +47,8 @@ kube-node-pool:
 	  --max-surge-upgrade 0 --max-unavailable-upgrade 1
 # C4 requires hyperdisk. Thus letting GKE pick the disk type.
 #	  --disk-type "pd-ssd" # this should only be needed for working with local storage, i.e. without PVC \
-#	  --disk-size "100" # 100GiB is the default.\
+#	  --disk-size "16" # 100GiB is the default.\
+# GKE's Container-Optimized OS is currently 12GB leaving 4GB for container images and ephemeral storage.
 # TODO for faster benchmark startup `--num-nodes` could be iniziallized by Zeebe Tuner with the expected number of Zeebe Brokers, Gateways, and ES nodes
 
 # original commands suggested by Web Console:
