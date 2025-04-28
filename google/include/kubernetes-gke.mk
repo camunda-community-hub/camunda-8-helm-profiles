@@ -33,6 +33,7 @@ kube-node-pool:
 	  --cluster $(clusterName) \
 	  --region $(region) \
 	  --machine-type "$(nodePoolMachineType)" \
+	  --min-cpu-platform=$(nodePoolMinCpuPlatform) \
 	  --spot \
 	  --num-nodes=0 \
 	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes $(maxSize) --location-policy "ANY" \

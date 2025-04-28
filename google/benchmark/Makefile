@@ -14,7 +14,8 @@ minSize ?= 1
 maxSize ?= 24
 
 # settings for additional Kubernetes node pool
-nodePoolMachineType ?= c2d-standard-4
+nodePoolMachineType ?= n2-standard-4
+nodePoolMinCpuPlatform ?= "Intel Ice Lake"
 nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule
 #nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule hyperdisk=required:NoSchedule
 
