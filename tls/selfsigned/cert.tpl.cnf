@@ -1,0 +1,26 @@
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+prompt = no
+
+[req_distinguished_name]
+C = US
+ST = Virginia
+L = Fredericksburg
+O = Camunda
+OU = Presales
+CN = RELEASE-zeebe-gateway.NAMESPACE.svc.cluster.local
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = RELEASE-keycloak.NAMESPACE.svc.cluster.local
+DNS.2 = RELEASE-identity.NAMESPACE.svc.cluster.local
+DNS.3 = RELEASE-tasklist.NAMESPACE.svc.cluster.local
+DNS.4 = RELEASE-operate.NAMESPACE.svc.cluster.local
+DNS.5 = RELEASE-operate.NAMESPACE.svc.cluster.local
+DNS.6 = RELEASE-zeebe-gateway.NAMESPACE.svc.cluster.local
+DNS.7 = RELEASE-zeebe-0.RELEASE-zeebe.NAMESPACE.svc.cluster.local
+DNS.8 = RELEASE-zeebe-1.RELEASE-zeebe.NAMESPACE.svc.cluster.local
+DNS.9 = RELEASE-zeebe-2.RELEASE-zeebe.NAMESPACE.svc.cluster.local

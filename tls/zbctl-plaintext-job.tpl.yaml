@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: zbctl-plaintext
+spec:
+  template:
+    spec:
+      containers:
+        - name: zbctl
+          image: upgradingdave/zbctl-java
+          command: ["java",  "-jar", "/usr/src/app/zbctl.jar",
+            "--address", "RELEASE-zeebe-gateway:26500",
+            "--authzUrl", "http://RELEASE-keycloak:80/auth/realms/camunda-platform/protocol/openid-connect/token",
+            "--clientId", "zeebe",
+            "--clientSecret", "CLIENT_SECRET",
+            "--plainText"]
+      restartPolicy: Never

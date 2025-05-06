@@ -1,0 +1,15 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = RELEASE-keycloak.NAMESPACE.svc.cluster.local
+DNS.2 = RELEASE-identity.NAMESPACE.svc.cluster.local
+DNS.3 = RELEASE-zeebe-gateway.NAMESPACE.svc.cluster.local
+DNS.4 = RELEASE-tasklist.NAMESPACE.svc.cluster.local
+DNS.5 = RELEASE-operate.NAMESPACE.svc.cluster.local
+DNS.6 = RELEASE-zeebe-0.RELEASE-zeebe.NAMESPACE.svc.cluster.local
+DNS.7 = RELEASE-zeebe-1.RELEASE-zeebe.NAMESPACE.svc.cluster.local
+DNS.8 = RELEASE-zeebe-2.RELEASE-zeebe.NAMESPACE.svc.cluster.local
+
