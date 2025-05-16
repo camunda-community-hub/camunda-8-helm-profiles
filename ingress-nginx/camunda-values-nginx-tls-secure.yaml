@@ -289,36 +289,36 @@ elasticsearch:
     - name: ELASTICSEARCH_TLS_VERIFICATION_MODE
       value: "certificate"
     - name: ELASTICSEARCH_TRANSPORT_TLS_KEYSTORE_LOCATION
-      value: "/opt/bitnami/elasticsearch/config/certs-gen/keystore.p12"
+      value: "/opt/bitnami/elasticsearch/config/ssl-cert/keystore.p12"
     - name: ELASTICSEARCH_TRANSPORT_TLS_TRUSTSTORE_LOCATION
-      value: "/opt/bitnami/elasticsearch/config/certs-gen/keystore.p12"
+      value: "/opt/bitnami/elasticsearch/config/ssl-cert/keystore.p12"
     #    - name: ELASTICSEARCH_TRANSPORT_TLS_KEYSTORE_PASSWORD
     #      value: "alex" # TODO: make me complex and move me to secrets
     #    - name: ELASTICSEARCH_TRANSPORT_TLS_TRUSTSTORE_PASSWORD
     #      value: "alex" # TODO: make me complex and move me to secrets
     - name: ELASTICSEARCH_HTTP_TLS_KEYSTORE_LOCATION
-      value: "/opt/bitnami/elasticsearch/config/certs-gen/keystore.p12"
+      value: "/opt/bitnami/elasticsearch/config/ssl-cert/keystore.p12"
     - name: ELASTICSEARCH_HTTP_TLS_TRUSTSTORE_LOCATION
-      value: "/opt/bitnami/elasticsearch/config/certs-gen/keystore.p12"
+      value: "/opt/bitnami/elasticsearch/config/ssl-cert/keystore.p12"
     #    - name: ELASTICSEARCH_HTTP_TLS_KEYSTORE_PASSWORD
     #      value: "alex" # TODO: make me complex and move me to secrets
     #    - name: ELASTICSEARCH_HTTP_TLS_TRUSTSTORE_PASSWORD
     #      value: "alex" # TODO: make me complex and move me to secrets
     - name: ELASTICSEARCH_CERTS_DIR
-      value: "/opt/bitnami/elasticsearch/config/certs-gen"
+      value: "/opt/bitnami/elasticsearch/config/ssl-cert"
 
   # share generated cert
   extraVolumes:
     - name: tls-certificates
       emptyDir: { }
-    - name: elastic-certificates
+    - name: ca-certificates
       secret:
         secretName: poc-cert
 
   # for the generated cert
   extraVolumeMounts:
     - name: tls-certificates
-      mountPath: /opt/bitnami/elasticsearch/config/certs-gen
+      mountPath: /opt/bitnami/elasticsearch/config/ssl-cert
 
   # define container to build the cert
   initContainers:
@@ -335,11 +335,11 @@ elasticsearch:
             --days 1000 \
             --ip ${POD_IP} \
             --dns ${NODE_NAME},${POD_SERVICE_NAME},${POD_SERVICE_NAME_HEADLESS},${NODE_NAME}.${POD_SERVICE_NAME},${NODE_NAME}.${POD_SERVICE_NAME_HEADLESS} \
-            --ca-cert /opt/bitnami/elasticsearch/config/certs/tls.crt \
-            --ca-key /opt/bitnami/elasticsearch/config/certs/tls.key  \
+            --ca-cert /opt/bitnami/elasticsearch/config/ca-cert/tls.crt \
+            --ca-key /opt/bitnami/elasticsearch/config/ca-cert/tls.key  \
             --ca-pass "" \
             --pass "" \
-            --out /opt/bitnami/elasticsearch/config/certs-gen/keystore.p12
+            --out /opt/bitnami/elasticsearch/config/ssl-cert/keystore.p12
       env:
         - name: NODE_NAME
           valueFrom:
@@ -354,10 +354,10 @@ elasticsearch:
         - name: POD_SERVICE_NAME_HEADLESS
           value: "camunda-elasticsearch-master-hl"
       volumeMounts:
-        - name: elastic-certificates
-          mountPath: /opt/bitnami/elasticsearch/config/certs
+        - name: ca-certificates
+          mountPath: /opt/bitnami/elasticsearch/config/ca-cert
         - name: tls-certificates
-          mountPath: /opt/bitnami/elasticsearch/config/certs-gen
+          mountPath: /opt/bitnami/elasticsearch/config/ssl-cert
 
 
 
