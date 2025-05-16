@@ -50,20 +50,37 @@ If you need to create a new EKS Cluster, run `make kube`. Note that the [EBS CSI
 
 > :information_source: **Warning** Persistent volumes will fail on AWS EKS versions >=1.23 unless the [EBS CSI Driver Addon](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html) is installed and configured correctly
 
-Once you have a EKS Cluster, run `make` to do the following:
+Once you have an EKS Cluster, run `make` to do the following:
 
 1. Set up a Kubernetes letsencrypt certificate manager
 2. Installs a Kubernetes Nginx Ingress Controller. A corresponding AWS Load Balancer is provisioned automatically
 3. Scripts used by the `Makefile` will attempt to find the ip address of the Load Balancer. This ip address is then used generate a `camunda-values-ingress-tls-aws-secure.yaml` file.
 4. A self-signed certificate is created using cert-manager. Refer the file `self-signed-cert.yaml` for details on how this is done.
-5. Helm is used to install Camunda 8 using the `camunda-values-ingress-tls-aws-secure.yaml` file with the Load Balancer IP Address 
-6. The ingress controller is annotated so that letsencrypt tls certificates are provisioned.
+5. Helm is used to install Camunda 8 using the `camunda-values-ingress-tls-aws-secure.yaml` file with the Load Balancer IP Address / with dnsLabel.LB-IP.nip.io if you opt for nip.io in the make file settings
+6. The ingress controller is annotated so that letsencrypt tls certificates are provisioned by cert manager.
 
-NOTE: To connect to this zeebe instance from camunda clients, the self-signed certificate created by the secret can be exported to a .crt file and the same can be referred to in the zeebe.ca.certificate.path property in the application.properties or ZEEBE_CA_CERTIFICATE_PATH environment variable for the client. 
+### Component setup
+![component-ssl-narration.png](component-ssl-narration.png)
 
-`kubectl get secret poc-cert -n camunda  -o jsonpath='{.data.tls\.crt}' | base64 --decode > poc-certificate.crt
-export ZEEBE_CA_CERTIFICATE_PATH = /path/to/poc-certificate.crt`
+**IMPORTANT TO NOTE**: To connect to this zeebe instance from camunda clients, you need the public certificate for the gateway
 
+* In case of port-forwards to zeebe gateway without the ingress route, export the certificate that is used for SSL setup in the gateway. 
+  * This file can be referred to in the zeebe.ca.certificate.path property in the application.properties or ZEEBE_CA_CERTIFICATE_PATH environment variable for the client.
+    `kubectl get secret poc-cert -n camunda  -o jsonpath='{.data.tls\.crt}' | base64 --decode > poc-certificate.crt
+     export ZEEBE_CA_CERTIFICATE_PATH = /path/to/poc-certificate.crt`
+
+* In case of connecting from a zeebe client via the ingress, export the tls certificate of the ingress. 
+  * This can then be referred to in the zeebe.ca.certificate.path property in the application.properties or ZEEBE_CA_CERTIFICATE_PATH environment variable for the client.
+    `echo | openssl s_client -servername jkk.52.77.128.219.nip.io -connect jkk.52.77.128.219.nip.io:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /path/to/poc-certificate.crt
+     export ZEEBE_CA_CERTIFICATE_PATH = /path/to/poc-certificate.crt`
+
+### Troubleshooting Hint
+
+When TLS is turned on at the Gateway & if using nginx ingress controller, update the zeebe-grpc ingress to use `GRPCS` instead of `GRPC` for the annotation  `nginx.ingress.kubernetes.io/backend-protocol: GRPCS`
+
+In case of other ingress controllers, beware of the fact that zeebe gateway expects TLS traffic & hence the connection from your ingress to the gateway service should also be on TLS & not plain traffic
+
+### Reinstallation
 You can re-install this profile easily. First run `make clean` to remove all kubernetes objects created by `make`. Then, re-run `make` to re-install.
 
 WARNING!!! This will completely destroy your cluster and everything inside of it!!! To completely delete your cluster, run `make clean-kube`.
