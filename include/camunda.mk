@@ -191,6 +191,10 @@ zbctl-status:
 port-zeebe:
 	kubectl port-forward svc/$(release)-zeebe-gateway 26500:26500 -n $(namespace)
 
+.PHONY: port-rest-zeebe
+port-rest-zeebe:
+	kubectl port-forward svc/$(release)-zeebe-gateway 8088:8080 -n $(namespace)
+
 .PHONY: port-actuator
 port-actuator:
 	kubectl port-forward svc/$(release)-zeebe-gateway 9600:9600 -n $(namespace)
