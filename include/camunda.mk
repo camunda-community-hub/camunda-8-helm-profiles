@@ -170,33 +170,56 @@ es-logs:
 get-ingress:
 	kubectl get ingress -l app.kubernetes.io/name=camunda-platform -o yaml
 
-.PHONY: watch
+.PHONY: watch # watch all pods in the namespace
 watch:
-	kubectl get pods -w -n $(namespace)
+	kubectl get pods --watch -n $(namespace)
 
-.PHONY: watch-zeebe
+.PHONY: watch-events # watch K8s events related to the namespace, e.g. pod scheduling, creation, etc.
+watch-events:
+	kubectl get events --watch -n $(namespace)
+
+.PHONY: watch-zeebe # watch Zeebe pods
 watch-zeebe:
-	kubectl get pods -w -n $(namespace) -l app.kubernetes.io/name=camunda-platform
+	kubectl get pods --watch -n $(namespace) -l app.kubernetes.io/name=camunda-platform
 
-.PHONY: await-zeebe
+.PHONY: await-zeebe # wait for Zeebe to be ready
 await-zeebe:
 	kubectl rollout status --watch statefulset/$(release)-zeebe --timeout=900s -n $(namespace)
+
+.PHONY: await-elasticsearch # wait for Elasticsearch to be ready
+await-elasticsearch:
+	kubectl rollout status --watch statefulset/$(release)-elasticsearch-master --timeout=900s -n $(namespace)
+
+.PHONY: await-operate # wait for Operate to be ready
+await-operate:
+	kubectl rollout status --watch deployment/$(release)-operate --timeout=900s -n $(namespace)
+
+.PHONY: await-tasklist # wait for Tasklist to be ready
+await-tasklist:
+	kubectl rollout status --watch deployment/$(release)-tasklist --timeout=900s -n $(namespace)
+
+.PHONY: await-optimize # wait for Optimize to be ready
+await-optimize:
+	kubectl rollout status --watch deployment/$(release)-optimize --timeout=900s -n $(namespace)
+
+.PHONY: await-webapps # wait for all web applications (Operate, Tasklist, Optimize) to be ready
+await-webapps: await-operate await-tasklist await-optimize
 
 .PHONY: zbctl-status
 zbctl-status:
 	kubectl exec svc/$(release)-zeebe-gateway -n $(namespace) -- zbctl status --insecure
 
-.PHONY: port-zeebe
+.PHONY: port-zeebe # Forward port 26500 to Zeebe Gateway for Zeebe API (gRPC)
 port-zeebe:
-	kubectl port-forward svc/$(release)-zeebe-gateway 26500:26500 -n $(namespace)
+	kubectl port-forward svc/$(release)-zeebe-gateway 26500:gateway -n $(namespace)
 
-.PHONY: port-rest-zeebe
-port-rest-zeebe:
-	kubectl port-forward svc/$(release)-zeebe-gateway 8088:8080 -n $(namespace)
+.PHONY: port-camunda # Forward port 8080 to Zeebe Gateway for Camunda 8 API (REST)
+port-camunda:
+	kubectl port-forward svc/$(release)-zeebe-gateway 8080:rest -n $(namespace)
 
-.PHONY: port-actuator
+.PHONY: port-actuator # Forward port 9600 to Zeebe Gateway management API by Spring Boot Actuator
 port-actuator:
-	kubectl port-forward svc/$(release)-zeebe-gateway 9600:9600 -n $(namespace)
+	kubectl port-forward svc/$(release)-zeebe-gateway 9600:http -n $(namespace)
 
 .PHONY: port-identity
 port-identity:
@@ -226,9 +249,13 @@ port-connectors:
 port-postgresql:
 	kubectl port-forward svc/$(release)-postgresql 5433:5432 -n $(namespace)
 
-.PHONY: port-elasticsearch
+.PHONY: port-elasticsearch # Forward port 9200 to Elasticsearch for REST API
 port-elasticsearch:
-	kubectl port-forward svc/elasticsearch-master 9200:9200 -n $(namespace)
+	kubectl port-forward svc/camunda-elasticsearch 9200:9200 -n $(namespace)
+
+.PHONY: port-elasticsearch-metrics # Forward port 9114 to Elasticsearch for HTTP metrics API
+port-elasticsearch-metrics:
+	kubectl port-forward svc/camunda-elasticsearch-metrics 9114:http-metrics -n $(namespace)
 
 .PHONY: pods
 pods:
@@ -253,4 +280,5 @@ external-urls-no-ingress:
 help:
 	@grep -oP '^\.PHONY: \K.*' Makefile | sed 's/#/\t/'
 	@grep -oP '^\.PHONY: \K.*' $(root)/include/camunda.mk | sed 's/#/\t/'
+# TODO follow include statements to print all included targets
 # TODO print only documented targets	@grep -oP '^\.PHONY: \K.*#.*' $(root)/include/camunda.mk
