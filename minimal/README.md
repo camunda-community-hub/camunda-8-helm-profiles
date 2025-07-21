@@ -1,6 +1,6 @@
-# Helm Profiles for Camunda 8 Developers
+# Minimal Helm Profile for Camunda 8
 
-A lightweight development configuration for Camunda Platform 8
+The smallest possible configuration for Camunda Platform 8 with minimal dependencies
 that can be used locally via KIND or any other minimal Kubernetes environment
 as well as on a "real" Kubernetes cluster in a public or private cloud.
 
