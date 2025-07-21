@@ -133,7 +133,6 @@ resume-exporters:
 uninstall-camunda:
 	-helm --namespace $(namespace) uninstall $(release)
 	-kubectl delete -n $(namespace) pvc -l app.kubernetes.io/instance=$(release)
-	-kubectl delete -n $(namespace) pvc -l app=elasticsearch-master
 
 .PHONY: clean-camunda
 clean-camunda: uninstall-camunda
