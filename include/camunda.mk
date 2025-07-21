@@ -27,10 +27,10 @@ namespace:
 	-kubectl create namespace $(namespace)
 	-kubectl config set-context --current --namespace=$(namespace)
 
-.PHONY: template # generate templates from the camunda helm charts, useful to make some more specific changes which are not doable by the values file.
+.PHONY: template # generate templates from the Camunda Helm Chart, useful to make some more specific changes which are not doable by the values file.
 template: chart
-	helm template $(release) $(chart) --values $(chartValues) --skip-crds --output-dir .
-	@echo "To apply the templates use: kubectl apply -f camunda-platform --recursive -n $(namespace)"
+	helm template $(release) $(chart) --values $(chartValues) --skip-crds --output-dir helm-templates-$(release)
+	@echo "To apply the templates use: kubectl apply -f helm-templates-$(release) --recursive -n $(namespace)"
 
 .PHONY: keycloak-password # get the Keycloak admin password
 keycloak-password:
@@ -141,7 +141,7 @@ clean-camunda: uninstall-camunda
 
 .PHONY: clean-template # delete the gerenated Helm templates
 clean-template:
-	rm -r camunda-platform
+	rm -r helm-templates-$(release)
 
 .PHONY: zeebe-logs
 zeebe-logs:
