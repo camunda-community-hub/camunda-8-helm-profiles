@@ -47,5 +47,5 @@ google/multi-region/active-active/generated
 **/operate-ingress.yaml
 **/camunda-values-openshift.yaml
 **/certs/
-
-
+**/make.log
+**/gcs_backup_key.json
