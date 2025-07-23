@@ -1,0 +1,58 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+# This is a minimal setup with just Zeebe enabled and no authentication.
+
+global:
+  identity:
+    auth:
+      # Disable the Identity authentication
+      # it will fall back to basic-auth: demo/demo as default user
+      enabled: false
+  elasticsearch:
+    enabled: false # doesn't disable Elasticsearch subchart
+
+identity:
+  enabled: false
+  keycloak:
+    enabled: false
+
+identityKeycloak:
+  enabled: false
+
+operate:
+  enabled: false
+
+tasklist:
+  enabled: false
+
+optimize:
+  enabled: false
+
+connectors:
+  enabled: false
+
+prometheusServiceMonitor:
+  enabled: false
+
+zeebe:
+  persistenceType: memory
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  pvcSize: 1Gi
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "512m"
+      memory: "2Gi"
+
+zeebe-gateway:
+  replicas: 1
+
+elasticsearch:
+  enabled: false

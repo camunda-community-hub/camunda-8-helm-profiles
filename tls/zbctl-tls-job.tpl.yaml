@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: zbctl-tls
+spec:
+  template:
+    spec:
+      containers:
+        - name: zbctl
+          image: upgradingdave/zbctl-java
+          command: ["java",  "-jar", "/usr/src/app/zbctl.jar",
+            "--address", "RELEASE-zeebe-gateway.camunda.svc.cluster.local:26500",
+            "--authzUrl", "http://RELEASE-keycloak:80/auth/realms/camunda-platform/protocol/openid-connect/token",
+            "--clientId", "zeebe",
+            "--clientSecret", "CLIENT_SECRET",
+            "--certPath", "/usr/local/config/ca.crt"]
+          volumeMounts:
+            - mountPath: /usr/local/config/ca.crt
+              name: certificate
+              subPath: ca.crt
+      volumes:
+        - name: certificate
+          secret:
+            secretName: CERT_NAME-ca-secret
+            items:
+              - key: CERT_NAMECA.pem
+                path: ca.crt
+            defaultMode: 420
+      restartPolicy: Never
+

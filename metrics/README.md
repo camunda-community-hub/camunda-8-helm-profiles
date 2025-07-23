@@ -8,9 +8,20 @@ If you don't have a Kubernetes Cluster yet, see the main [README](../README.md) 
 
 Make sure you meet [these prerequisites](https://github.com/camunda-community-hub/camunda-8-helm-profiles/blob/master/README.md#prerequisites).
 
-Optionally edit [grafana-secret.yml](grafana-secret.yml) and update the `admin-user` and `admin-password` if needed. 
+Manually create a secret to store grafana admin credentials. Save the following to a file named `grafana-secret.yml` and then run `kubectl apply -f grafana-secret.yml`
 
-Open a terminal, and run:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin-password
+type: Opaque
+stringData:
+  admin-user: camunda
+  admin-password: <your-secure-password>
+```
+
+Open a terminal and run:
 
 ```sh
 make
