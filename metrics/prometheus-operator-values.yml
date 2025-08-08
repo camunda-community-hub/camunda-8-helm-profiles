@@ -73,3 +73,7 @@ prometheus:
             requests:
               storage: 50Gi
           storageClassName: ssd
+#    nodeSelector:
+#      cloud.google.com/gke-nodepool: default-pool
+#      alpha.eksctl.io/nodegroup-name: c7g-8xlarge
+
