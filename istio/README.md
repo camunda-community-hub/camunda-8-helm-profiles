@@ -61,3 +61,6 @@ TODO: provide steps on how to configure camunda. Look in [istio.mk](istio.mk) fi
 # Configuring Istio in a local kubernetes environment: 
 
 https://github.com/jessesimpson36/tmp-camunda-istio
+
+# gRPC Load Balancing
+[Example for gRPC Load Balancing with Istio's Ambient Mode](../google/benchmark/istio-grpc-load-balancer/)

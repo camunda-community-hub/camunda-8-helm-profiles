@@ -1,0 +1,9 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: camunda-zeebe-gateway-grpc
+spec:
+  host: camunda-zeebe-gateway-grpc.camunda.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
