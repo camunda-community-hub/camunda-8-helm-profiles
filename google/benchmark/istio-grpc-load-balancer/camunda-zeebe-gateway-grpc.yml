@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: camunda-zeebe-gateway-grpc
+  labels:
+    istio.io/dataplane-mode: ambient
+    istio.io/use-waypoint: waypoint
+spec:
+  type: ClusterIP
+  selector:
+    app: camunda-platform
+    app.kubernetes.io/name: camunda-platform
+    app.kubernetes.io/instance: camunda
+    app.kubernetes.io/part-of: camunda-platform
+    app.kubernetes.io/component: zeebe-gateway
+  ports:
+    - name: grpc
+      port: 26500
+      targetPort: 26500
+      protocol: TCP
+      appProtocol: grpc
