@@ -18,4 +18,4 @@ spec:
       port: 26500
       targetPort: 26500
       protocol: TCP
-      appProtocol: grpc
+      appProtocol: kubernetes.io/h2c # HTTP/2 over cleartext (explicitly mentioned in Linderd docs and should work in Istio according to https://github.com/istio/istio/blob/4a3e1b75d2d1759a247ef0a65d289b2fc86d0418/pkg/config/kube/conversion.go#L63)
