@@ -17,9 +17,11 @@ The setup provides:
 #### `Makefile`
 Makefile with targets for installing and configuring Istio:
 - `install-istio`: Installs Istio with ambient profile and Gateway API CRDs
-- `deploy-waypoint`: Deploys waypoint defaults and waypoint proxy
+- `istio-waypoint`: Deploys waypoint defaults and waypoint proxy
 - `istio-destination-rule`: Applies the service and destination rule configurations
 - `uninstall-istio`: Removes Istio and cleans up resources
+- `clean-istio-waypoint`: Removes waypoint proxy and defaults
+- `clean-istio-destination-rule`: Removes service and destination rule
 
 #### `camunda-zeebe-gateway-grpc.yml`
 Kubernetes Service configuration for the Zeebe Gateway with Istio annotations:
@@ -51,9 +53,9 @@ DestinationRule for optimizing gRPC load balancing:
 make install-istio
 ```
 
-### 2. Deploy Infrastructure Configuration
+### 2. Deploy Waypoint Proxy and Defaults
 ```bash
-make deploy-waypoint
+make istio-waypoint
 ```
 
 ### 3. Configure Zeebe Gateway Service and Load Balancing
@@ -145,6 +147,16 @@ kubectl get pods -n camunda -l gateway.networking.k8s.io/gateway-name=waypoint
 To remove all Istio components:
 ```bash
 make uninstall-istio
+```
+
+To remove waypoint proxy and defaults:
+```bash
+make clean-istio-waypoint
+```
+
+To remove service and destination rule:
+```bash
+make clean-istio-destination-rule
 ```
 
 ## References

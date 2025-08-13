@@ -11,11 +11,18 @@ uninstall-istio:
 	istioctl uninstall -y --purge
 	kubectl delete namespace istio-system
 
-.PHONY: istio-destination-rule deploy-waypoint
-istio-destination-rule:
+istio-destination-rule: istio-waypoint
 	kubectl apply -f camunda-zeebe-gateway-grpc.yml
 	kubectl apply -f istio-destination-rule-gateway.yaml
 
-deploy-waypoint:
+istio-waypoint:
 	kubectl apply -f istio-waypoint-defaults.yaml
 	kubectl apply -f istio-waypoint.yaml
+
+clean-istio-destination-rule: clean-istio-waypoint
+	kubectl delete -f camunda-zeebe-gateway-grpc.yml
+	kubectl delete -f istio-destination-rule-gateway.yaml
+
+clean-istio-waypoint:
+	kubectl delete -f istio-waypoint.yaml
+	kubectl delete -f istio-waypoint-defaults.yaml
