@@ -282,3 +282,5 @@ help:
 	@grep -oP '^\.PHONY: \K.*' $(root)/include/camunda.mk | sed 's/#/\t/'
 # TODO follow include statements to print all included targets
 # TODO print only documented targets	@grep -oP '^\.PHONY: \K.*#.*' $(root)/include/camunda.mk
+# TODO print help in the style of a CLI, e.g. `make help` only lists top-level commands, e.g. watch, await, port, url, open, logs, etc.
+# TODO `make help-watch` lists all watch commands, `make help-await` lists all await commands, etc.
