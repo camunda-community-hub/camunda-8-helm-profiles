@@ -1,0 +1,4 @@
+zeebeGateway:
+  podAnnotations:
+    linkerd.io/inject: enabled
+    config.linkerd.io/opaque-ports: "26500"
