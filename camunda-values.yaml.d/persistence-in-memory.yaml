@@ -1,0 +1,7 @@
+# use in-memory storage for Zeebe brokers
+zeebe:
+  persistenceType: memory
+  pvcSize: 1Gi
+  env:
+    - name: ZEEBE_BROKER_DATA_DISK_ENABLEMONITORING
+      value: "false"

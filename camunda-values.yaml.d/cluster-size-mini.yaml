@@ -1,0 +1,23 @@
+# the smallest possible Camunda Platform cluster
+# suitable for development and testing only
+zeebe:
+  clusterSize: 1
+  partitionCount: 1
+  replicationFactor: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "500Mi"
+    limits:
+      cpu: "500m"
+      memory: "2Gi"
+
+zeebe-gateway:
+  replicas: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "500Mi"
+    limits:
+      cpu: "500m"
+      memory: "800Mi"

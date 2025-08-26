@@ -30,4 +30,4 @@ meld-scripts:
 
 .PHONY: meld-values # maintain camunda-values.yaml in sync with Camunda docs
 meld-values:
-	meld camunda-values.d/dual-region.yaml ../../../c8-multi-region/aws/dual-region/kubernetes/camunda-values.yml
+	meld ../../camunda-values.yaml.d/dual-region.yaml ../../../c8-multi-region/aws/dual-region/kubernetes/camunda-values.yml

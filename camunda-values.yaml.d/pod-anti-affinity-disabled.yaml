@@ -1,0 +1,10 @@
+# allows Zeebe Brokers, Gateways, and Elasticsearch nodes to be scheduled on the same Kubernetes nodes
+zeebe:
+  affinity:
+    podAntiAffinity: null
+zeebeGateway:
+  affinity:
+    podAntiAffinity: null
+elasticsearch:
+  master:
+    podAntiAffinityPreset: null

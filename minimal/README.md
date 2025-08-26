@@ -19,12 +19,10 @@ If you need to create a cluster, see the main [README.md](../README.md) for guid
 Run the following to install Camunda using the `camunda-values.yaml` file found in this directory: 
 
 ```sh
-cd development
 make
 ```
 
 ## Uninstall
 ```sh
-cd development
 make clean
 ```

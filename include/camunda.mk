@@ -6,6 +6,11 @@ install-camunda:
 	@echo "Installing Camunda Platform using chartValues: $(chartValues)"
 	helm upgrade --install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds
 
+.PHONY: dry-run-camunda # perform a dry-run installation of Camunda Platform
+dry-run-camunda:
+	@echo "Performing a dry-run installation of $(chart) using chartValues: $(chartValues)"
+	helm upgrade --install --namespace $(namespace) $(release) $(chart) -f $(chartValues) --skip-crds --dry-run --debug
+
 .PHONY: versions # list Helm Chart versions + Camunda Platform versions
 versions:
 	helm search repo camunda -l
