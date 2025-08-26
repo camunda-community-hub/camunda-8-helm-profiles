@@ -42,7 +42,6 @@ zeebe:
   clusterSize: 1
   partitionCount: 1
   replicationFactor: 1
-  pvcSize: 1Gi
   resources:
     requests:
       cpu: "100m"
@@ -50,6 +49,10 @@ zeebe:
     limits:
       cpu: "512m"
       memory: "2Gi"
+  pvcSize: 1Gi
+  env:
+    - name: ZEEBE_BROKER_DATA_DISK_ENABLEMONITORING
+      value: "false"
 
 zeebe-gateway:
   replicas: 1
