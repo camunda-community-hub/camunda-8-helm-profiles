@@ -14,8 +14,8 @@ minSize ?= 1
 maxSize ?= 24
 
 # settings for additional Kubernetes node pool
-nodePoolMachineType ?= c4-standard-32
-nodePoolMinCpuPlatform ?= "Intel Emerald Rapids"
+nodePoolMachineType ?= c4d-standard-32
+nodePoolMinCpuPlatform ?= "AMD Turin"
 nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule
 #nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule hyperdisk=required:NoSchedule
 
