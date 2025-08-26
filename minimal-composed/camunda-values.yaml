@@ -1,0 +1,3 @@
+# Helm chart values are imported from `../camunda-values.d` via `config.mk`.
+# This file only contains additional overrides.
+# Note that array values, e.g. `zeebe.env` can NOT be merged by Helm.
