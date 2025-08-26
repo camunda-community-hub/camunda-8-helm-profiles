@@ -4,7 +4,7 @@ This directory contains reusable Helm values files that can be composed together
 
 ## Purpose
 
-The `camunda-values.d` directory serves as a shared library of configuration components that:
+The `camunda-values.yaml.d` directory serves as a shared library of configuration components that:
 
 - **Promote reusability**: Common configurations are defined once and reused across multiple profiles
 - **Enable composition**: Different profiles can combine multiple values files to achieve their desired configuration
@@ -44,13 +44,13 @@ The [`minimal-composed`](../minimal-composed) profile demonstrates how to compos
 
 ```makefile
 chartValues ?= \
-       "../camunda-values.d/cluster-size-mini.yaml" \
-    -f "../camunda-values.d/persistence-in-memory.yaml" \
-    -f "../camunda-values.d/elasticsearch-disabled.yaml" \
-    -f "../camunda-values.d/identity-disabled.yaml" \
-    -f "../camunda-values.d/connectors-disabled.yaml" \
-    -f "../camunda-values.d/pod-anti-affinity-disabled.yaml" \
-    -f "../camunda-values.d/prometheus-service-monitor.yaml" \
+       "../camunda-values.yaml.d/cluster-size-mini.yaml" \
+    -f "../camunda-values.yaml.d/persistence-in-memory.yaml" \
+    -f "../camunda-values.yaml.d/elasticsearch-disabled.yaml" \
+    -f "../camunda-values.yaml.d/identity-disabled.yaml" \
+    -f "../camunda-values.yaml.d/connectors-disabled.yaml" \
+    -f "../camunda-values.yaml.d/pod-anti-affinity-disabled.yaml" \
+    -f "../camunda-values.yaml.d/prometheus-service-monitor.yaml" \
     -f "camunda-values.yaml"
 ```
 
@@ -67,13 +67,13 @@ To create a new profile using these shared values:
 1. Create a new directory for your profile (e.g., `../my-profile/`)
 2. Create a `config.mk` file that references the desired values files from this directory
 3. Add any profile-specific overrides in a local `camunda-values.yaml` file
-4. Use relative paths: `"../camunda-values.d/filename.yaml"`
+4. Use relative paths: `"../camunda-values.yaml.d/filename.yaml"`
 
 Example `config.mk` structure:
 ```makefile
 chartValues ?= \
-       "../camunda-values.d/cluster-size-mini.yaml" \
-    -f "../camunda-values.d/your-choice.yaml" \
+       "../camunda-values.yaml.d/cluster-size-mini.yaml" \
+    -f "../camunda-values.yaml.d/your-choice.yaml" \
     -f "camunda-values.yaml"
 ```
 

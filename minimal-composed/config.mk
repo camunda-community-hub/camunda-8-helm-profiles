@@ -10,11 +10,11 @@ chart ?= camunda/camunda-platform --version $(chartVersion)
 # Helm chart values
 
 chartValues ?= \
-	   "../camunda-values.d/cluster-size-mini.yaml" \
-	-f "../camunda-values.d/persistence-in-memory.yaml" \
-	-f "../camunda-values.d/elasticsearch-disabled.yaml" \
-	-f "../camunda-values.d/identity-disabled.yaml" \
-	-f "../camunda-values.d/connectors-disabled.yaml" \
-	-f "../camunda-values.d/pod-anti-affinity-disabled.yaml" \
-	-f "../camunda-values.d/prometheus-service-monitor.yaml" \
+	   "../camunda-values.yaml.d/cluster-size-mini.yaml" \
+	-f "../camunda-values.yaml.d/persistence-in-memory.yaml" \
+	-f "../camunda-values.yaml.d/elasticsearch-disabled.yaml" \
+	-f "../camunda-values.yaml.d/identity-disabled.yaml" \
+	-f "../camunda-values.yaml.d/connectors-disabled.yaml" \
+	-f "../camunda-values.yaml.d/pod-anti-affinity-disabled.yaml" \
+	-f "../camunda-values.yaml.d/prometheus-service-monitor.yaml" \
 	-f "camunda-values.yaml"

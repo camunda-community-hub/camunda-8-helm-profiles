@@ -28,7 +28,7 @@ The profile uses the following configuration files:
 
 - [`config.mk`](config.mk): Defines chart version, namespace, and values files to include
 - [`camunda-values.yaml`](camunda-values.yaml): Additional custom overrides (minimal by design)
-- Shared values from `../camunda-values.d/`:
+- Shared values from `../camunda-values.yaml.d/`:
   - `cluster-size-mini.yaml`: Minimal resource allocation
   - `persistence-in-memory.yaml`: In-memory storage configuration
   - `elasticsearch-disabled.yaml`: Disables Elasticsearch dependency
@@ -125,7 +125,7 @@ To customize this profile:
 
 1. Edit [`camunda-values.yaml`](camunda-values.yaml) for additional overrides
 2. Modify [`config.mk`](config.mk) to change chart version or add/remove value files
-3. Create additional value files in `../camunda-values.d/` for reusable configurations
+3. Create additional value files in `../camunda-values.yaml.d/` for reusable configurations
 
 ## Troubleshooting
 

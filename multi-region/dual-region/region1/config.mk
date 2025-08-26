@@ -10,7 +10,7 @@ chart ?= camunda/camunda-platform --version $(chartVersion)
 # Helm chart values
 
 chartValues ?= \
-	   "../../../camunda-values.d/cluster-size-mini-dual-region.yaml" \
-	-f "../../../camunda-values.d/dual-region.yaml" \
-	-f "../../../camunda-values.d/elasticsearch-2.5-region-stretch-cluster.yaml" \
+	   "../../../camunda-values.yaml.d/cluster-size-mini-dual-region.yaml" \
+	-f "../../../camunda-values.yaml.d/dual-region.yaml" \
+	-f "../../../camunda-values.yaml.d/elasticsearch-2.5-region-stretch-cluster.yaml" \
 	-f "region1.yaml"
