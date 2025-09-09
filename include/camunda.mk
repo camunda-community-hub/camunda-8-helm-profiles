@@ -217,6 +217,8 @@ zbctl-status:
 .PHONY: port-zeebe # Forward port 26500 to Zeebe Gateway for Zeebe API (gRPC)
 port-zeebe:
 	kubectl port-forward svc/$(release)-zeebe-gateway 26500:gateway -n $(namespace)
+port-zeeberest:
+	kubectl port-forward svc/$(release)-zeebe-gateway 8088:8080 -n $(namespace)
 
 .PHONY: port-camunda # Forward port 8080 to Zeebe Gateway for Camunda 8 API (REST)
 port-camunda:
