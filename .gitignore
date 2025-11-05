@@ -49,3 +49,9 @@ google/multi-region/active-active/generated
 **/certs/
 **/make.log
 **/gcs_backup_key.json
+kind/manual-setup/8.8/SSL/myCA.srl
+kind/manual-setup/8.8/SSL/myCA.key
+kind/manual-setup/8.8/SSL/myCA.crt
+kind/manual-setup/8.8/SSL/camunda-local-tls.key
+kind/manual-setup/8.8/SSL/camunda-local-tls.csr
+kind/manual-setup/8.8/SSL/camunda-local-tls.crt
