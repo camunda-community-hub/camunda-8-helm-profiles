@@ -214,6 +214,10 @@ await-webapps: await-operate await-tasklist await-optimize
 zbctl-status:
 	kubectl exec svc/$(release)-zeebe-gateway -n $(namespace) -- zbctl status --insecure
 
+.PHONY: port-orchestration
+port-orchestration:
+	kubectl port-forward svc/$(release)-zeebe-gateway 8080:8080 -n $(namespace)
+
 .PHONY: port-zeebe # Forward port 26500 to Zeebe Gateway for Zeebe API (gRPC)
 port-zeebe:
 	kubectl port-forward svc/$(release)-zeebe-gateway 26500:gateway -n $(namespace)
