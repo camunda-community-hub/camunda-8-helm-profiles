@@ -2,6 +2,10 @@ alertmanager:
   enabled: false
 
 grafana:
+  # I don't think this works
+  nodeSelector:
+    cloud.google.com/gke-nodepool: default-pool
+#    alpha.eksctl.io/nodegroup-name: c7g-8xlarge
   image:
     tag: 11.6.0
   admin:
@@ -64,7 +68,7 @@ prometheus:
       requests:
         cpu: 1
         memory: 4Gi
-    retention: 90d
+    retention: 365d
     shards: null
     storageSpec:
       volumeClaimTemplate:
@@ -78,7 +82,7 @@ prometheus:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 50Gi
+              storage: 100Gi
           storageClassName: ssd
     nodeSelector:
       cloud.google.com/gke-nodepool: default-pool
