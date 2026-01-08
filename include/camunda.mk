@@ -191,6 +191,10 @@ watch-zeebe:
 await-zeebe:
 	kubectl rollout status --watch statefulset/$(release)-zeebe --timeout=900s -n $(namespace)
 
+.PHONY: await-gateway # wait for Zeebe Gateway(s) to be ready
+await-gateway:
+	kubectl rollout status --watch deployment/$(release)-zeebe-gateway --timeout=900s -n $(namespace)
+
 .PHONY: await-elasticsearch # wait for Elasticsearch to be ready
 await-elasticsearch:
 	kubectl rollout status --watch statefulset/$(release)-elasticsearch-master --timeout=900s -n $(namespace)
