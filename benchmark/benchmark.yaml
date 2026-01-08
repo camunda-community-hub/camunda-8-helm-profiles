@@ -25,8 +25,8 @@ spec:
               -Dcamunda.client.mode=selfmanaged
               -Dcamunda.client.zeebe.grpc-address=http://camunda-zeebe-gateway:26500            
               -Dcamunda.client.zeebe.prefer-rest-over-grpc=false
-              -Dzeebe.client.request-timeout=600s
-              -Dzeebe.client.job.poll-interval=1ms
+              -Dcamunda.client.zeebe.request-timeout=600s
+              -Dcamunda.client.zeebe.defaults.poll-interval=1ms
               -Dzeebe.client.default-job-worker-stream-enabled=true
               -Dzeebe.client.worker.max-jobs-active=2000
               -Dbenchmark.startPiPerSecond=5
