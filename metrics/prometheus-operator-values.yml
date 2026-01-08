@@ -7,7 +7,7 @@ grafana:
     cloud.google.com/gke-nodepool: default-pool
 #    alpha.eksctl.io/nodegroup-name: c7g-8xlarge
   image:
-    tag: 11.6.0
+    tag: 11.6.7
   admin:
     existingSecret: grafana-admin-password
     userKey: admin-user

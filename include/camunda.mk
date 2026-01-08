@@ -191,6 +191,10 @@ watch-zeebe:
 await-zeebe:
 	kubectl rollout status --watch statefulset/$(release)-zeebe --timeout=900s -n $(namespace)
 
+.PHONY: await-gateway # wait for Zeebe Gateway(s) to be ready
+await-gateway:
+	kubectl rollout status --watch deployment/$(release)-zeebe-gateway --timeout=900s -n $(namespace)
+
 .PHONY: await-elasticsearch # wait for Elasticsearch to be ready
 await-elasticsearch:
 	kubectl rollout status --watch statefulset/$(release)-elasticsearch-master --timeout=900s -n $(namespace)
@@ -214,9 +218,17 @@ await-webapps: await-operate await-tasklist await-optimize
 zbctl-status:
 	kubectl exec svc/$(release)-zeebe-gateway -n $(namespace) -- zbctl status --insecure
 
+.PHONY: port-orchestration
+port-orchestration:
+	kubectl port-forward svc/$(release)-zeebe-gateway 8080:8080 -n $(namespace)
+
 .PHONY: port-zeebe # Forward port 26500 to Zeebe Gateway for Zeebe API (gRPC)
 port-zeebe:
 	kubectl port-forward svc/$(release)-zeebe-gateway 26500:gateway -n $(namespace)
+
+.PHONY: port-zeeberest # Forward port 8088 o Zeebe Gateway for Zeebe API (REST)
+port-zeeberest:
+	kubectl port-forward svc/$(release)-zeebe-gateway 8088:8080 -n $(namespace)
 
 .PHONY: port-camunda # Forward port 8080 to Zeebe Gateway for Camunda 8 API (REST)
 port-camunda:
