@@ -11,11 +11,21 @@ clusterName ?= CLUSTER_NAME
 # dnsLabel ?= MY_DOMAIN_NAME
 machineType ?= n2-standard-2
 minSize ?= 1
-maxSize ?= 24
+maxSize ?= 32
 
 # settings for additional Kubernetes node pool
-nodePoolMachineType ?= n2-standard-4
-nodePoolMinCpuPlatform ?= "Intel Ice Lake"
+#nodePoolMachineType ?= n2-standard-4
+#nodePoolMinCpuPlatform ?= "Intel Ice Lake"
+
+#nodePoolMachineType ?= c4a-standard-32
+#nodePoolMinCpuPlatform ?= "Google Axion"
+
+#nodePoolMachineType ?= c4-standard-32
+#nodePoolMinCpuPlatform ?= "Intel Emerald Rapids" # 5th gen
+#nodePoolMinCpuPlatform ?= "Intel Granite Rapids" # 6th gen
+
+nodePoolMachineType ?= c4d-standard-32
+nodePoolMinCpuPlatform ?= "AMD Turin" # 5th gen
 nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule
 #nodePoolTaints ?= dedicated=high-performance:PreferNoSchedule hyperdisk=required:NoSchedule
 
