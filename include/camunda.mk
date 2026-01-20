@@ -301,3 +301,17 @@ help:
 # TODO print only documented targets	@grep -oP '^\.PHONY: \K.*#.*' $(root)/include/camunda.mk
 # TODO print help in the style of a CLI, e.g. `make help` only lists top-level commands, e.g. watch, await, port, url, open, logs, etc.
 # TODO `make help-watch` lists all watch commands, `make help-await` lists all await commands, etc.
+
+# https://docs.camunda.io/docs/self-managed/deployment/helm/configure/authentication-and-authorization/external-keycloak/
+.PHONY: create-camunda-credentials
+create-camunda-credentials:
+	-kubectl delete secret camunda-credentials --namespace $(namespace)
+	kubectl create secret generic camunda-credentials \
+	  --from-literal=identity-keycloak-admin-password=$(base64Secret) \
+	  --from-literal=identity-firstuser-password=$(base64Secret) \
+	  --from-literal=identity-connectors-client-token=$(base64Secret) \
+	  --from-literal=identity-optimize-client-token=$(base64Secret) \
+	  --from-literal=identity-orchestration-client-token=$(base64Secret) \
+	  --from-literal=webmodeler-postgresql-admin-password=$(base64Secret) \
+	  --from-literal=webmodeler-postgresql-user-password=$(base64Secret) \
+	  --namespace $(namespace)
