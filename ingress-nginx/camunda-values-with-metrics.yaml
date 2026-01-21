@@ -4,131 +4,104 @@
 # https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
 
 global:
-  ingress:
-    enabled: true
-    className: nginx
-    host: "YOUR_HOSTNAME"
-    tls:
-      enabled: true
-      secretName: "tls-secret"
+
+  security:
+    authentication:
+      method: oidc
+
   identity:
     auth:
-      publicIssuerUrl: "https://YOUR_HOSTNAME/auth/realms/camunda-platform"
+
+      enabled: true
+      publicIssuerUrl: KEYCLOAK_URL/realms/REALM
+      issuerBackendUrl: http://camunda-keycloak/realms/REALM
+      authUrl: KEYCLOAK_URL/realms/REALM/protocol/openid-connect/auth
+      tokenUrl: http://camunda-keycloak/realms/REALM/protocol/openid-connect/token
+      jwksUrl: http://camunda-keycloak/realms/REALM/protocol/openid-connect/certs
+
       identity:
-        recirectUrl: "https://YOUR_HOSTNAME/identity"
-      operate:
-        redirectUrl: "https://YOUR_HOSTNAME/operate"
-      tasklist:
-        redirectUrl: "https://YOUR_HOSTNAME/tasklist"
+        redirectUrl: http://localhost:8084/identity
+
+      orchestration:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-orchestration-client-token
+        redirectUrl: http://localhost:8080
+
       optimize:
-        redirectUrl: "https://YOUR_HOSTNAME/optimize"
-      connectors:
-        redirectUrl: "https://YOUR_HOSTNAME/connectors"
-      webModeler:
-        redirectUrl: "https://YOUR_HOSTNAME/modeler"
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-optimize-client-token
+        redirectUrl: http://localhost:8082/optimize
+
       console:
-        redirectUrl: "https://YOUR_HOSTNAME/console"
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-console-client-token
+        redirectUrl: http://localhost:8083/console
 
-operate:
-  contextPath: "/operate"
-
-tasklist:
-  contextPath: "/tasklist"
-
-optimize:
-  contextPath: "/optimize"
-
-connectors:
-  enabled: true
-  inbound:
-    mode: oauth
-  contextPath: "/connectors"
-
-webModeler:
-  enabled: true
-  contextPath: "/modeler"
-  image:
-    pullSecrets:
-      - name: camunda-docker-registry
-  restapi:
-    mail:
-      fromAddress: YOUR_EMAIL
-  env:
-    - name: PLAY_ENABLED
-      value: true
-
-console:
-  enabled: true
-  contextPath: "/console"
-
-postgresql:
-  enabled: true
-
-prometheusServiceMonitor:
-  enabled: true
+    keycloak:
+        url:
+          protocol: http
+          host: camunda-keycloak
+          port: 80
+        contextPath: /auth
+        realm: /realms/REALM
+        auth:
+          adminUser: KEYCLOAK_ADMIN_USERNAME
+          existingSecret: "camunda-credentials"
+          existingSecretKey: "identity-keycloak-admin-password"
 
 identity:
-  contextPath: "/identity"
-  fullURL: "https://YOUR_HOSTNAME/identity"
-
-  keycloak:
-    extraEnvVars:
-      - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
-        value: "true"
-      - name: KEYCLOAK_FRONTEND_URL
-        value: "https://YOUR_HOSTNAME/auth"
-
-zeebeGateway:
-  contextPath: "/rest"
-  ingress:
-    grpc:
-      enabled: true
-      host: "YOUR_HOSTNAME"
-      tls:
-        enabled: true
-        secretName: "tls-secret"
-    rest:
-      enabled: true
-      host: "YOUR_HOSTNAME"
-      path: "/rest"
-      tls:
-        enabled: true
-        secretName: "tls-secret"
-  replicas: 1
-  resources:
-    requests:
-      memory: "512Mi"
-      cpu: "250m"
-    limits:
-      memory: "2048Mi"
-      cpu: "1000m"
+  enabled: true
+  firstUser:
+    secret:
+      existingSecret: "camunda-credentials"
+      existingSecretKey: "identity-first-user-password"
   env:
-    - name: ZEEBE_GATEWAY_MONITORING_ENABLED
-      value: "true"
-    - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBETIMEOUT
-      value: "500ms"
+    - name: KEYCLOAK_REALM
+      value: REALM
 
-zeebe:
-  clusterSize: 3
-  partitionCount: 3
-  replicationFactor: 3
-  pvcSize: 10Gi
+identityPostgresql:
+  enabled: true
+  auth:
+    existingSecret: camunda-credentials
+    secretKeys:
+      userPasswordKey: identity-postgresql-user-password
+      adminPasswordKey: identity-postgresql-admin-password
 
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "512M"
-    limits:
-      cpu: "512m"
-      memory: "2Gi"
-  env:
-    - name: ZEEBE_BROKER_EXECUTION_METRICS_EXPORTER_ENABLED
-      value: "true"
-    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBETIMEOUT
-      value: "500ms"
+identityKeycloak:
+  enabled: true
+  auth:
+    adminUser: KEYCLOAK_ADMIN_USERNAME
+    existingSecret: camunda-credentials
+    passwordSecretKey: identity-keycloak-admin-password
+  postgresql:
+    auth:
+      existingSecret: camunda-credentials
+      secretKeys:
+        userPasswordKey: identity-postgresql-user-password
+        adminPasswordKey: identity-postgresql-admin-password
 
+orchestration:
+  enabled: false
+  multitenancy:
+    api:
+      enabled: true
+    checks:
+      enabled: true
 
+connectors:
+  enabled: false
 
+webModeler:
+  enabled: false
 
+webModelerPostgresql:
+  enabled: false
 
+optimize:
+  enabled: false
 
+console:
+  enabled: false

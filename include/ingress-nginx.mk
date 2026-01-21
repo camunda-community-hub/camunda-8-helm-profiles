@@ -44,7 +44,7 @@ camunda-values-nginx-all.yaml: fqdn
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g; s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-nginx-all.yaml; \
 
 camunda-values-nginx-with-metrics.yaml: fqdn
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values-with-metrics.yaml > $(chartValues);
+	sed "s|KEYCLOAK_ADMIN_USERNAME|$(keycloakAdminUsername)|g;s|REALM|$(keycloakRealm)|g;s|KEYCLOAK_URL|$(keycloakUrl)|g;s/YOUR_HOSTNAME/$(fqdn)/g;s/YOUR_EMAIL/$(camundaDockerRegistryEmail)/g;" $(root)/ingress-nginx/camunda-values-with-metrics.yaml > $(chartValues);
 
 .PHONY: clean-ingress
 clean-ingress:
