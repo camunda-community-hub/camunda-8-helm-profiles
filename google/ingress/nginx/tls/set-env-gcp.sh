@@ -9,6 +9,10 @@ export dnsLabel="dave01"
 export baseDomainName="gke.c8sm.com"
 export dnsManagedZone="c8sm"
 
+export keycloakUrl="http://localhost:18080"
+export keycloakRealm="camunda-platform"
+export keycloakAdminUsername="keycloak-admin"
+
 #export region="us-central1-a"
 export region="us-east4-a"
 export namespace="camunda"
@@ -17,5 +21,5 @@ export machineType=n1-standard-16
 export minSize=1
 export maxSize=50
 
-# echo demo | base64
-export base64Secret="ZGVtbwo="
+# Change this to your desired password
+export defaultPassword="demo"

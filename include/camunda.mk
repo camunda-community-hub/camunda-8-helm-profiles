@@ -304,14 +304,17 @@ help:
 
 # https://docs.camunda.io/docs/self-managed/deployment/helm/configure/authentication-and-authorization/external-keycloak/
 .PHONY: create-camunda-credentials
-create-camunda-credentials:
+create-camunda-credentials: namespace
 	-kubectl delete secret camunda-credentials --namespace $(namespace)
 	kubectl create secret generic camunda-credentials \
-	  --from-literal=identity-keycloak-admin-password=$(base64Secret) \
-	  --from-literal=identity-firstuser-password=$(base64Secret) \
-	  --from-literal=identity-connectors-client-token=$(base64Secret) \
-	  --from-literal=identity-optimize-client-token=$(base64Secret) \
-	  --from-literal=identity-orchestration-client-token=$(base64Secret) \
-	  --from-literal=webmodeler-postgresql-admin-password=$(base64Secret) \
-	  --from-literal=webmodeler-postgresql-user-password=$(base64Secret) \
+	  --from-literal=identity-keycloak-admin-password=$(defaultPassword) \
+	  --from-literal=identity-first-user-password=$(defaultPassword) \
+	  --from-literal=identity-connectors-client-token=$(defaultPassword) \
+	  --from-literal=identity-optimize-client-token=$(defaultPassword) \
+	  --from-literal=identity-orchestration-client-token=$(defaultPassword) \
+	  --from-literal=identity-console-client-token=$(defaultPassword) \
+	  --from-literal=identity-postgresql-admin-password=$(defaultPassword) \
+	  --from-literal=identity-postgresql-user-password=$(defaultPassword) \
+	  --from-literal=webmodeler-postgresql-admin-password=$(defaultPassword) \
+	  --from-literal=webmodeler-postgresql-user-password=$(defaultPassword) \
 	  --namespace $(namespace)
