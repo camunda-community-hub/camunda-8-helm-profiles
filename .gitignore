@@ -55,3 +55,4 @@ kind/manual-setup/8.8/SSL/myCA.crt
 kind/manual-setup/8.8/SSL/camunda-local-tls.key
 kind/manual-setup/8.8/SSL/camunda-local-tls.csr
 kind/manual-setup/8.8/SSL/camunda-local-tls.crt
+**/.env
