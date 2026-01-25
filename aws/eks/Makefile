@@ -29,6 +29,6 @@ endif
 all: kube
 
 .PHONY: clean
-clean: clean-kube
+clean: clean-kube-aws
 
 include $(root)/aws/include/aws-eks.mk

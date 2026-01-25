@@ -12,16 +12,18 @@ create-db-subnet-group-from-eks:
 	aws rds create-db-subnet-group \
 		--db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group \
 		--db-subnet-group-description "Subnet Aurora db group for $(DEPLOYMENT_NAME)" \
-		--subnet-ids $(SUBNETS)
+		--subnet-ids $(SUBNETS) \
+		--no-cli-pager
 
-.PHONY: create-db
-create-db:
+.PHONY: create-aurora-db
+create-aurora-db: create-db-subnet-group-from-eks
 	aws rds create-db-cluster \
 		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
 		--engine aurora-postgresql \
 		--master-username $(POSTGRES_MASTER_USERNAME) \
 		--master-user-password $(POSTGRES_MASTER_PASSWORD) \
-		--db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group
+		--db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group \
+		--no-cli-pager
 
 	@echo "Waiting for cluster to initialize..."
 	aws rds wait db-cluster-available --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster
@@ -32,13 +34,46 @@ create-db:
 		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
 		--engine aurora-postgresql \
 		--db-instance-class db.t3.medium \
-		--publicly-accessible
+		--publicly-accessible \
+		--no-cli-pager
 
-# Usage: make get-db-url NAME=my-aurora
+# Usage: make get-db-url DEPLOIYMENT_NAME=my-aurora
+.PHONY: get-db-url
 get-db-url:
-	$(eval ENDPOINT := $(shell aws rds describe-db-clusters --db-cluster-identifier $(NAME)-cluster --query "DBClusters[0].Endpoint" --output text))
+	$(eval ENDPOINT := $(shell aws rds describe-db-clusters --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster --query "DBClusters[0].Endpoint" --output text))
 	@echo "PostgreSQL Connection String:"
-	@echo "postgresql://dbadmin:YourPassword@$(ENDPOINT):5432/postgres"
+	@echo "postgresql://$(POSTGRES_MASTER_USERNAME):$(POSTGRES_MASTER_PASSWORD)@$(ENDPOINT):5432/postgres"
+
+# Usage: make destroy-db DEPLOYMENT_NAME=my-aurora
+.PHONY: destroy-aurora-db
+destroy-aurora-db:
+	@echo "Deleting RDS Instance: $(DEPLOYMENT_NAME)-instance..."
+	-aws rds delete-db-instance \
+		--db-instance-identifier $(DEPLOYMENT_NAME)-instance \
+		--skip-final-snapshot \
+		--no-cli-pager
+
+
+	@echo "Waiting for instance to be deleted (this may take a few minutes)..."
+	@aws rds wait db-instance-deleted --db-instance-identifier $(DEPLOYMENT_NAME)-instance
+
+	@echo "Deleting RDS Cluster: $(DEPLOYMENT_NAME)-cluster..."
+	-aws rds delete-db-cluster \
+		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
+		--skip-final-snapshot \
+		--no-cli-pager
+
+	@echo "Waiting for cluster to be deleted..."
+	@# Note: There is no 'wait db-cluster-deleted' in some CLI versions,
+	@# so we loop until the describe command fails or returns nothing.
+	@while aws rds describe-db-clusters --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster >/dev/null 2>&1; do \
+		sleep 10; \
+		echo "Still deleting cluster..."; \
+	done
+
+	@echo "Deleting DB Subnet Group: $(DEPLOYMENT_NAME)-subnet-group..."
+	-aws rds delete-db-subnet-group --db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group --no-cli-pager
+	@echo "Database infrastructure for $(DEPLOYMENT_NAME) destroyed successfully."
 
 # 1. Get the Security Group ID of your RDS cluster
 #RDS_SG=$(aws rds describe-db-clusters --db-cluster-identifier my-cluster --query "DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId" --output text)

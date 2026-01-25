@@ -21,10 +21,10 @@ else
 endif
 
 .PHONY: all
-all: kube create-db-subnet-group-from-eks
+all: kube create-aurora-db
 
 .PHONY: clean
-clean: clean-kube
+clean: destroy-aurora-db clean-kube-aws
 
 include $(root)/aws/include/aws-eks.mk
 include $(root)/aws/include/aws-aurora.mk
