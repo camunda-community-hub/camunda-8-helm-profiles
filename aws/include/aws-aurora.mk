@@ -37,13 +37,6 @@ create-aurora-db: create-db-subnet-group-from-eks
 		--publicly-accessible \
 		--no-cli-pager
 
-# Usage: make get-db-url DEPLOIYMENT_NAME=my-aurora
-.PHONY: get-db-url
-get-db-url:
-	$(eval ENDPOINT := $(shell aws rds describe-db-clusters --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster --query "DBClusters[0].Endpoint" --output text))
-	@echo "PostgreSQL Connection String:"
-	@echo "postgresql://$(POSTGRES_MASTER_USERNAME):$(POSTGRES_MASTER_PASSWORD)@$(ENDPOINT):5432/postgres"
-
 # Usage: make destroy-db DEPLOYMENT_NAME=my-aurora
 .PHONY: destroy-aurora-db
 destroy-aurora-db:
@@ -75,15 +68,42 @@ destroy-aurora-db:
 	-aws rds delete-db-subnet-group --db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group --no-cli-pager
 	@echo "Database infrastructure for $(DEPLOYMENT_NAME) destroyed successfully."
 
-# 1. Get the Security Group ID of your RDS cluster
-#RDS_SG=$(aws rds describe-db-clusters --db-cluster-identifier my-cluster --query "DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId" --output text)
+# Usage: make allow-eks-to-rds DEPLOYMENT_NAME=<name>
+.PHONY: allow-eks-to-rds
+allow-eks-to-rds:
+	@echo "Discovering Security Group IDs..."
+	$(eval RDS_SG := $(shell aws rds describe-db-clusters \
+		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
+		--query "DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId" \
+		--no-cli-pager --output text))
 
-# 2. Get the Security Group ID of your EKS Nodes
-#EKS_SG=$(aws eks describe-cluster --name my-eks-cluster --query "cluster.resourcesVpcConfig.clusterSecurityGroupId" --output text)
+	$(eval EKS_SG := $(shell aws eks describe-cluster \
+		--name $(DEPLOYMENT_NAME) \
+		--query "cluster.resourcesVpcConfig.clusterSecurityGroupId" \
+		--no-cli-pager --output text))
 
-# 3. Authorize traffic from EKS to RDS
-#aws ec2 authorize-security-group-ingress \
-#    --group-id $RDS_SG \
-#    --protocol tcp \
-#    --port 5432 \
-#    --source-group $EKS_SG
+	@echo "RDS Security Group: $(RDS_SG)"
+	@echo "EKS Node Security Group: $(EKS_SG)"
+
+	@echo "Authorizing TCP port 5432 ingress from EKS to RDS..."
+	aws ec2 authorize-security-group-ingress \
+		--group-id $(RDS_SG) \
+		--protocol tcp \
+		--port 5432 \
+		--source-group $(EKS_SG) \
+		--no-cli-pager || echo "Rule might already exist, skipping..."
+
+# Usage: make get-db-url DEPLOIYMENT_NAME=my-aurora
+.PHONY: get-aurora-connection-string
+get-aruroa-connection-string:
+	$(eval ENDPOINT := $(shell aws rds describe-db-clusters --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster --query "DBClusters[0].Endpoint" --output text))
+	@echo "PostgreSQL Connection String:"
+	@echo "postgresql://$(POSTGRES_MASTER_USERNAME):$(POSTGRES_MASTER_PASSWORD)@$(ENDPOINT):5432/postgres"
+
+# Usage: make test-db-link RDS_ENDPOINT=xyz.cluster-123.us-east-1.rds.amazonaws.com
+.PHONY: test-aurora-from-eks
+test-aurora-from-eks:
+	$(eval ENDPOINT := $(shell aws rds describe-db-clusters --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster --query "DBClusters[0].Endpoint" --output text))
+	@echo "Testing connectivity to $(ENDPOINT)..."
+	kubectl run db-ping-test --rm -it --image=busybox --restart=Never -- \
+		nc -zv -w 5 $(ENDPOINT) 5432

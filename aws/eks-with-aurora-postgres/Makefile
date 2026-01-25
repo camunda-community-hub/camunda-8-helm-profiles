@@ -21,7 +21,7 @@ else
 endif
 
 .PHONY: all
-all: kube create-aurora-db
+all: kube create-aurora-db allow-eks-to-rds test-aurora-from-eks
 
 .PHONY: clean
 clean: destroy-aurora-db clean-kube-aws
