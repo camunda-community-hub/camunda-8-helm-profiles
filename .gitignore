@@ -56,3 +56,5 @@ kind/manual-setup/8.8/SSL/camunda-local-tls.key
 kind/manual-setup/8.8/SSL/camunda-local-tls.csr
 kind/manual-setup/8.8/SSL/camunda-local-tls.crt
 **/.env
+**/cluster.yaml
+aws/eks/ebs-csi-driver-trust-policy.json
