@@ -1,0 +1,116 @@
+global:
+  security:
+    authentication:
+      method: oidc
+  identity:
+    auth:
+      enabled: true
+      publicIssuerUrl: http://localhost:18080/auth/realms/camunda-platform
+      issuerBackendUrl: http://camunda-keycloak/auth/realms/camunda-platform
+      authUrl: http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/auth
+      tokenUrl: http://camunda-keycloak/auth/realms/camunda-platform/protocol/openid-connect/token
+      jwksUrl: http://camunda-keycloak/auth/realms/camunda-platform/protocol/openid-connect/certs
+      identity:
+        redirectUrl: http://localhost:8084/identity
+      # if optimize is disabled, then this shouldn't be required,
+      # but this is a known issue that, currently, identity requires this even if optimize is disabled.
+      optimize:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-optimize-client-token
+      orchestration:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-orchestration-client-token
+        redirectUrl: http://localhost:8080/orchestration
+    # This defines how Identity authenticates to Keycloak admin API
+    # Identity will connect to Keycloak the first time it boots and create the camunda-platform realm
+    keycloak:
+      url:
+        protocol: http
+        host: camunda-keycloak
+        port: 80
+      contextPath: /auth
+      realm: /realms/camunda-platform
+      auth:
+        adminUser: keycloak_admin
+        existingSecret: "camunda-credentials"
+        existingSecretKey: "identity-keycloak-admin-password"
+
+# Identity configured to point to an external postgresql database
+identity:
+  enabled: true
+  firstUser:
+    secret:
+      existingSecret: "camunda-credentials"
+      existingSecretKey: "identity-first-user-password"
+  env:
+    - name: KEYCLOAK_REALM
+      value: camunda-platform
+  externalDatabase:
+    enabled: true
+    host: dave01-cluster.cluster-cjqkdcxqdsib.ca-central-1.rds.amazonaws.com
+    port: 5432
+    database: identity
+    schema: public
+    username: identity
+    secret:
+      existingSecret: camunda-credentials
+      existingSecretPasswordKey: identity-postgresql-user-password
+
+identityPostgresql:
+  enabled: false
+
+# Keycloak will be installed but configure it to point to an external postgresql database
+identityKeycloak:
+  enabled: true
+  # This defines the admin user and password for Keycloak. Keycloak will create this user during first start
+  auth:
+    adminUser: keycloak_admin
+    existingSecret: camunda-credentials
+    passwordSecretKey: identity-keycloak-admin-password
+  # Tell the Keycloak chart to disable its internal database so that we can configure an external one
+  postgresql:
+    enabled: false
+  # Tell the Keycloak chart to use an external database
+  externalDatabase:
+    host: dave01-cluster.cluster-cjqkdcxqdsib.ca-central-1.rds.amazonaws.com
+    port: 5432
+    database: bitnami_keycloak
+    schema: public
+    # The username that keycloak uses to connect to the external db
+    user: bn_keycloak
+    # The password that keycloak uses to connect to the external database
+    existingSecret: camunda-credentials
+    existingSecretPasswordKey: identity-keycloak-user-password
+
+console:
+  enabled: false
+
+webModeler:
+  enabled: false
+webModelerPostgresql:
+  enabled: false
+
+connectors:
+  enabled: true
+  contextPath: "/connectors"
+  security:
+    authentication:
+      method: oidc
+      oidc:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-connectors-client-token
+
+orchestration:
+  enabled: true
+  contextPath: "/orchestration"
+  clusterSize: "1"
+  partitionCount: "1"
+  replicationFactor: "1"
+optimize:
+  enabled: false
+elasticsearch:
+  enabled: true
+

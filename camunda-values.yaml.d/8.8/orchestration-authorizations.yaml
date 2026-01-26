@@ -1,0 +1,4 @@
+orchestration:
+  security:
+    authorizations:
+      enabled: true

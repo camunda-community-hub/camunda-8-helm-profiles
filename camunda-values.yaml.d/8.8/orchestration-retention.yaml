@@ -1,0 +1,5 @@
+orchestration:
+  history:
+    retention:
+      enabled: true
+      minimumAge: 30d

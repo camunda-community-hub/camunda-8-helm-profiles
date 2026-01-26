@@ -61,6 +61,34 @@ create-aurora-db: create-db-subnet-group-from-eks
 		--no-cli-pager
 	@echo "Instance is ready for connections."
 
+.PHONY: setup-identity-db
+setup-identity-db:
+	@echo "Fetching master password and endpoint..."
+	$(eval DB_HOST := $(shell aws rds describe-db-clusters \
+		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
+		--query "DBClusters[0].Endpoint" --output text))
+
+	@echo "Connecting to $(DB_HOST) to provision Identity database and user..."
+	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
+	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d postgres \
+		-c "CREATE DATABASE $(POSTGRES_IDENTITY_DB);" \
+		-c "CREATE USER $(POSTGRES_IDENTITY_USERNAME) WITH PASSWORD '$(DEFAULT_PASSWORD)';" \
+		-c "GRANT ALL PRIVILEGES ON DATABASE $(POSTGRES_IDENTITY_DB) TO $(POSTGRES_IDENTITY_USERNAME);"
+
+	@echo "Configuring schema permissions on $(POSTGRES_IDENTITY_DB)..."
+	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
+	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d $(POSTGRES_IDENTITY_DB) \
+		-c "GRANT ALL ON SCHEMA public TO $(POSTGRES_IDENTITY_USERNAME);" \
+		-c "ALTER SCHEMA public OWNER TO $(POSTGRES_IDENTITY_USERNAME);" \
+		-c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $(POSTGRES_IDENTITY_USERNAME);"
+
+	@echo "--------------------------------------------------"
+	@echo "Database and User created successfully."
+	@echo "Identity Database: $(POSTGRES_IDENTITY_DB)"
+	@echo "User: $(POSTGRES_IDENTITY_USERNAME)"
+	@echo "Password: $(DEFAULT_PASSWORD)"
+	@echo "--------------------------------------------------"
+
 .PHONY: setup-keycloak-db
 setup-keycloak-db:
 	@echo "Fetching master password and endpoint..."

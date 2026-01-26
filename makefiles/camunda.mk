@@ -10,7 +10,8 @@ install-camunda:
 .PHONY: dry-run-camunda # perform a dry-run installation of Camunda Platform
 dry-run-camunda:
 	@echo "Performing a dry-run installation of $(CAMUNDA_CHART) using chartValues: ./camunda-values.yaml"
-	helm upgrade --install --namespace $(CAMUNDA_NAMESPACE) $(CAMUNDA_RELEASE_NAME) $(CAMUNDA_CHART) -f ./camunda-values.yaml --skip-crds --dry-run --debug
+	helm upgrade --install --namespace $(CAMUNDA_NAMESPACE) $(CAMUNDA_RELEASE_NAME) $(CAMUNDA_CHART) \
+	 -f ./camunda-values.yaml --version $(CAMUNDA_HELM_CHART_VERSION) --skip-crds --dry-run --debug
 
 .PHONY: camunda-versions # list Helm Chart versions + Camunda Platform versions
 camunda-versions:
@@ -35,12 +36,19 @@ namespace:
 
 .PHONY: template # generate templates from the Camunda Helm Chart, useful to make some more specific changes which are not doable by the values file.
 template: camunda-chart
-	helm template $(CAMUNDA_RELEASE_NAME) $(CAMUNDA_CHART) --values ./camunda-values.yaml --skip-crds --output-dir helm-templates-$(CAMUNDA_RELEASE_NAME)
+	helm template $(CAMUNDA_RELEASE_NAME) $(CAMUNDA_CHART) \
+	--values ./camunda-values.yaml --version $(CAMUNDA_HELM_CHART_VERSION) --skip-crds \
+	--output-dir helm-templates-$(CAMUNDA_RELEASE_NAME)
 	@echo "To apply the templates use: kubectl apply -f helm-templates-$(CAMUNDA_RELEASE_NAME) --recursive -n $(CAMUNDA_NAMESPACE)"
+
+.PHONY: clean-template # delete the gerenated Helm templates
+clean-template:
+	rm -r helm-templates-$(release)
 
 .PHONY: update-camunda
 update-camunda: camunda-chart
-	helm upgrade --namespace $(CAMUNDA_NAMESPACE) $(CAMUNDA_RELEASE_NAME) $(CAMUNDA_CHART) -f ./camunda-values.yaml
+	helm upgrade --namespace $(CAMUNDA_NAMESPACE) $(CAMUNDA_RELEASE_NAME) $(CAMUNDA_CHART) \
+	-f ./camunda-values.yaml --version $(CAMUNDA_HELM_CHART_VERSION)
 
 .PHONY: delete-camunda-values
 delete-camunda-values:
@@ -56,8 +64,11 @@ clean-camunda: uninstall-camunda
 	-kubectl delete namespace $(CAMUNDA_NAMESPACE)
 
 camunda-values.yaml: delete-camunda-values set-postgres-host
-	cat $(CAMUNDA_HELM_VALUES) | \
+	yq eval-all '. as $$item ireduce ({}; . * $$item)' $(CAMUNDA_HELM_VALUES) | \
 	sed "s|<CAMUNDA_VERSION>|$(CAMUNDA_VERSION)|g; \
+	     s|<CAMUNDA_CLUSTER_SIZE>|$(CAMUNDA_CLUSTER_SIZE)|g; \
+	     s|<CAMUNDA_REPLICATION_FACTOR>|$(CAMUNDA_REPLICATION_FACTOR)|g; \
+	     s|<CAMUNDA_PARTITION_COUNT>|$(CAMUNDA_PARTITION_COUNT)|g; \
 	     s|<REPLY_EMAIL>|$(REPLY_EMAIL)|g; \
 	     s|<KEYCLOAK_ADMIN_USERNAME>|$(KEYCLOAK_ADMIN_USERNAME)|g; \
 	     s|<KEYCLOAK_REALM>|$(KEYCLOAK_REALM)|g; \
@@ -70,8 +81,8 @@ camunda-values.yaml: delete-camunda-values set-postgres-host
 	     s|<POSTGRES_KEYCLOAK_DB>|$(POSTGRES_KEYCLOAK_DB)|g; \
 	     s|<POSTGRES_KEYCLOAK_USERNAME>|$(POSTGRES_KEYCLOAK_USERNAME)|g; \
 	     s|<POSTGRES_IDENTITY_DB>|$(POSTGRES_IDENTITY_USERNAME)|g; \
-	     s|<POSTGRES_IDENTITY_USERNAME>|$(POSTGRES_IDENTITY_USERNAME)|g;" | \
-	     yq eval-all '. as $$item ireduce ({}; . * $$item)' - > ./camunda-values.yaml
+	     s|<POSTGRES_IDENTITY_USERNAME>|$(POSTGRES_IDENTITY_USERNAME)|g;" \
+	     > ./camunda-values.yaml
 
 .PHONY: create-camunda-credentials
 create-camunda-credentials: namespace
@@ -89,3 +100,15 @@ create-camunda-credentials: namespace
 	  --from-literal=webmodeler-postgresql-admin-password=$(DEFAULT_PASSWORD) \
 	  --from-literal=webmodeler-postgresql-user-password=$(DEFAULT_PASSWORD) \
 	  --namespace $(CAMUNDA_NAMESPACE)
+
+.PHONY: port-orchestration
+port-orchestration:
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-zeebe-gateway 8080:8080 -n $(CAMUNDA_NAMESPACE)
+
+.PHONY: port-identity
+port-identity:
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-identity 8084:80 -n $(CAMUNDA_NAMESPACE)
+
+.PHONY: port-keycloak
+port-keycloak:
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-keycloak 18080:80 -n $(CAMUNDA_NAMESPACE)
