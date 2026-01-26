@@ -61,47 +61,33 @@ create-aurora-db: create-db-subnet-group-from-eks
 		--no-cli-pager
 	@echo "Instance is ready for connections."
 
-.PHONY: create-keycloak-db
-create-keycloak-db:
-	@echo "Looking up ARNs for $(DEPLOYMENT_NAME)..."
-
-	$(eval CLUSTER_ARN := $(shell aws rds describe-db-clusters \
+.PHONY: setup-keycloak-db
+setup-keycloak-db:
+	@echo "Fetching master password and endpoint..."
+	$(eval DB_HOST := $(shell aws rds describe-db-clusters \
 		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
-		--query "DBClusters[0].DBClusterArn" \
-		--no-cli-pager --output text))
+		--query "DBClusters[0].Endpoint" --output text))
 
-	$(eval SECRET_ARN := $(shell aws secretsmanager list-secrets \
-		--filters Key=name,Values=$(DEPLOYMENT_NAME)-db-secret \
-		--query "SecretList[0].ARN" \
-		--no-cli-pager --output text))
+	@echo "Connecting to $(DB_HOST) to provision Keycloak database and user..."
+	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
+	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d postgres \
+		-c "CREATE DATABASE $(POSTGRES_KEYCLOAK_DB);" \
+		-c "CREATE USER $(POSTGRES_KEYCLOAK_USERNAME) WITH PASSWORD '$(DEFAULT_PASSWORD)';" \
+		-c "GRANT ALL PRIVILEGES ON DATABASE $(POSTGRES_KEYCLOAK_DB) TO $(POSTGRES_KEYCLOAK_USERNAME);"
 
-	@echo "Cluster ARN: $(CLUSTER_ARN)"
-	@echo "Secret ARN: $(SECRET_ARN)"
+	@echo "Configuring schema permissions on $(POSTGRES_KEYCLOAK_DB)..."
+	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
+	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d $(POSTGRES_KEYCLOAK_DB) \
+		-c "GRANT ALL ON SCHEMA public TO $(POSTGRES_KEYCLOAK_USERNAME);" \
+		-c "ALTER SCHEMA public OWNER TO $(POSTGRES_KEYCLOAK_USERNAME);" \
+		-c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $(POSTGRES_KEYCLOAK_USERNAME);"
 
-	@if [ "$(CLUSTER_ARN)" = "None" ] || [ "$(SECRET_ARN)" = "None" ]; then \
-		echo "Error: Could not find Cluster or Secret ARN"; exit 1; fi
-
-	@echo "Executing SQL via RDS Data API..."
-	aws rds-data execute-statement \
-		--resource-arn $(CLUSTER_ARN) \
-		--secret-arn $(SECRET_ARN) \
-		--database postgres \
-		--sql "CREATE DATABASE bitnami_keycloak;" \
-		--no-cli-pager
-
-	aws rds-data execute-statement \
-		--resource-arn $(CLUSTER_ARN) \
-		--secret-arn $(SECRET_ARN) \
-		--database postgres \
-		--sql "CREATE USER bn_keycloak WITH PASSWORD '$(DEFAULT_PASSWORD)';" \
-		--no-cli-pager
-
-	aws rds-data execute-statement \
-		--resource-arn $(CLUSTER_ARN) \
-		--secret-arn $(SECRET_ARN) \
-		--database postgres \
-		--sql "GRANT ALL PRIVILEGES ON DATABASE bitnami_keycloak TO bn_keycloak;" \
-		--no-cli-pager
+	@echo "--------------------------------------------------"
+	@echo "Database and User created successfully."
+	@echo "Keycloak Database: $(POSTGRES_KEYCLOAK_DB)"
+	@echo "User: $(POSTGRES_KEYCLOAK_USERNAME)"
+	@echo "Password: $(DEFAULT_PASSWORD)"
+	@echo "--------------------------------------------------"
 
 .PHONY: destroy-aurora-db
 destroy-aurora-db: revoke-local-to-rds revoke-eks-to-rds delete-aurora-db-secret
