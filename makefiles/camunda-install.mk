@@ -55,7 +55,8 @@ uninstall-camunda:
 clean-camunda: uninstall-camunda
 	-kubectl delete namespace $(CAMUNDA_NAMESPACE)
 
-camunda-values.yaml: delete-camunda-values
+camunda-values.yaml: delete-camunda-values set-postgres-host
+	cat $(CAMUNDA_HELM_VALUES) | \
 	sed "s|<CAMUNDA_VERSION>|$(CAMUNDA_VERSION)|g; \
 	     s|<REPLY_EMAIL>|$(REPLY_EMAIL)|g; \
 	     s|<KEYCLOAK_ADMIN_USERNAME>|$(KEYCLOAK_ADMIN_USERNAME)|g; \
@@ -64,8 +65,13 @@ camunda-values.yaml: delete-camunda-values
 	     s|<IDENTITY_EXT_URL>|$(IDENTITY_EXT_URL)|g; \
 	     s|<ORCHESTRATION_EXT_URL>|$(ORCHESTRATION_EXT_URL)|g; \
 	     s|<OPTIMIZE_EXT_URL>|$(OPTIMIZE_EXT_URL)|g; \
-	     s|<CONSOLE_EXT_URL>|$(CONSOLE_EXT_URL)|g;" \
-	     $(root)/camunda/values/$(CAMUNDA_VALUES_TEMPLATE) > ./camunda-values.yaml
+	     s|<CONSOLE_EXT_URL>|$(CONSOLE_EXT_URL)|g; \
+	     s|<POSTGRES_HOST>|$(POSTGRES_HOST)|g; \
+	     s|<POSTGRES_KEYCLOAK_DB>|$(POSTGRES_KEYCLOAK_DB)|g; \
+	     s|<POSTGRES_KEYCLOAK_USERNAME>|$(POSTGRES_KEYCLOAK_USERNAME)|g; \
+	     s|<POSTGRES_IDENTITY_DB>|$(POSTGRES_IDENTITY_USERNAME)|g; \
+	     s|<POSTGRES_IDENTITY_USERNAME>|$(POSTGRES_IDENTITY_USERNAME)|g;" | \
+	     yq eval-all '. as $$item ireduce ({}; . * $$item)' - > ./camunda-values.yaml
 
 .PHONY: create-camunda-credentials
 create-camunda-credentials: namespace

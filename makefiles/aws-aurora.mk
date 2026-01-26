@@ -202,6 +202,10 @@ revoke-eks-to-rds:
 		--source-group $(EKS_SG) \
 		--no-cli-pager || echo "Rule not found or already removed, skipping..."
 
+.PHONY: set-postgres-host
+set-postgres-host:
+	$(eval POSTGRES_HOST := $(shell aws rds describe-db-clusters --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster --query "DBClusters[0].Endpoint" --output text 2>/dev/null))
+
 .PHONY: test-aurora-from-local
 test-aurora-from-local:
 	$(eval DB_HOST := $(shell aws rds describe-db-clusters --db-cluster-identifier $(DEPLOYMENT_NAME)-cluster --query "DBClusters[0].Endpoint" --output text))
