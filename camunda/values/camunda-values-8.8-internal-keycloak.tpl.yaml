@@ -1,0 +1,163 @@
+# Chart values for the Camunda Platform 8 Helm chart.
+# This file deliberately contains only the values that differ from the defaults.
+# For changes and documentation, use your favorite diff tool to compare it with:
+# https://github.com/camunda/camunda-platform-helm/blob/main/charts/camunda-platform/values.yaml
+
+global:
+
+  security:
+    authentication:
+      method: oidc
+
+  identity:
+    auth:
+
+      enabled: true
+      publicIssuerUrl: <KEYCLOAK_EXT_URL>/auth/realms/<KEYCLOAK_REALM>
+      issuerBackendUrl: http://camunda-keycloak/auth/realms/<KEYCLOAK_REALM>
+      authUrl: <KEYCLOAK_EXT_URL>/auth/realms/<KEYCLOAK_REALM>/protocol/openid-connect/auth
+      tokenUrl: http://camunda-keycloak/auth/realms/<KEYCLOAK_REALM>/protocol/openid-connect/token
+      jwksUrl: http://camunda-keycloak/auth/realms/<KEYCLOAK_REALM>/protocol/openid-connect/certs
+
+      identity:
+        redirectUrl: <IDENTITY_EXT_URL>/identity
+
+      orchestration:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-orchestration-client-token
+        redirectUrl: <ORCHESTRATION_EXT_URL>/orchestration
+
+      optimize:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-optimize-client-token
+        redirectUrl: <OPTIMIZE_EXT_URL>/optimize
+
+      console:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-console-client-token
+        redirectUrl: <CONSOLE_EXT_URL>/console
+
+    keycloak:
+        url:
+          protocol: http
+          host: camunda-keycloak
+          port: 80
+        contextPath: /auth
+        realm: /realms/<KEYCLOAK_REALM>
+        auth:
+          adminUser: <KEYCLOAK_ADMIN_USERNAME>
+          existingSecret: "camunda-credentials"
+          existingSecretKey: "identity-keycloak-admin-password"
+
+identity:
+  enabled: true
+  firstUser:
+    secret:
+      existingSecret: "camunda-credentials"
+      existingSecretKey: "identity-first-user-password"
+  env:
+    - name: KEYCLOAK_REALM
+      value: <KEYCLOAK_REALM>
+
+identityPostgresql:
+  enabled: true
+  auth:
+    existingSecret: camunda-credentials
+    secretKeys:
+      userPasswordKey: identity-postgresql-user-password
+      adminPasswordKey: identity-postgresql-admin-password
+
+identityKeycloak:
+  enabled: true
+  auth:
+    adminUser: <KEYCLOAK_ADMIN_USERNAME>
+    existingSecret: camunda-credentials
+    passwordSecretKey: identity-keycloak-admin-password
+  postgresql:
+    auth:
+      existingSecret: camunda-credentials
+      secretKeys:
+        userPasswordKey: identity-postgresql-user-password
+        adminPasswordKey: identity-postgresql-admin-password
+
+orchestration:
+  enabled: true
+
+  multitenancy:
+    api:
+      enabled: true
+    checks:
+      enabled: true
+
+  contextPath: "/orchestration"
+  clusterSize: "1"
+  partitionCount: "1"
+  replicationFactor: "1"
+
+  history:
+    retention:
+      enabled: true
+      minimumAge: 30d
+
+  security:
+    authorizations:
+      enabled: true
+
+connectors:
+  enabled: true
+  security:
+    authentication:
+      method: oidc
+      oidc:
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: identity-connectors-client-token
+  contextPath: "/connectors"
+
+webModeler:
+  contextPath: "/modeler"
+  enabled: true
+  restapi:
+    mail:
+      # This value is required, otherwise the restapi pod wouldn't start.
+      fromAddress: noreply@example.com
+    env:
+      - name: CAMUNDA_MODELER_CLUSTERS_0_ID
+        value: "camunda-demo-cluster"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_NAME
+        value: "Camunda Demo Cluster"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_VERSION
+        value: "<CAMUNDA_VERSION>"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION
+        value: "BEARER_TOKEN"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC
+        value: "grpc://camunda-zeebe-gateway:26500"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_URL_REST
+        value: "http://camunda-zeebe-gateway"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP
+        value: "http://camunda-zeebe/orchestration"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_AUTHORIZATIONS_ENABLED
+        value: "true"
+      - name: LOGGING_LEVEL_IO_GRPC
+        value: "TRACE"
+      - name: LOGGING_LEVEL_IO_CAMUNDA_MODELER
+        value: "DEBUG"
+      - name: SPRING_PROFILES_INCLUDE
+        value: "default-logging"
+
+webModelerPostgresql:
+  enabled: true
+  auth:
+    existingSecret: "camunda-credentials"
+    secretKeys:
+      adminPasswordKey: webmodeler-postgresql-admin-password
+      userPasswordKey: webmodeler-postgresql-user-password
+
+optimize:
+  enabled: false
+
+console:
+  enabled: false
