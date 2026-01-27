@@ -57,10 +57,8 @@ identity:
     secret:
       existingSecret: camunda-credentials
       existingSecretPasswordKey: identity-postgresql-user-password
-
 identityPostgresql:
   enabled: false
-
 # Keycloak will be installed but configure it to point to an external postgresql database
 identityKeycloak:
   enabled: true
@@ -83,15 +81,49 @@ identityKeycloak:
     # The password that keycloak uses to connect to the external database
     existingSecret: camunda-credentials
     existingSecretPasswordKey: identity-keycloak-user-password
-
 console:
   enabled: false
-
 webModeler:
-  enabled: false
+  enabled: true
+  contextPath: "/modeler"
+  restapi:
+    mail:
+      # This value is required, otherwise the restapi pod wouldn't start.
+      fromAddress: noreply@example.com
+    env:
+      - name: CAMUNDA_MODELER_CLUSTERS_0_ID
+        value: "camunda-demo-cluster"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_NAME
+        value: "Camunda Demo Cluster"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_VERSION
+        value: "8.8.9"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION
+        value: "BEARER_TOKEN"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC
+        value: "grpc://camunda-zeebe-gateway:26500"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_URL_REST
+        value: "http://camunda-zeebe-gateway"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP
+        value: "http://camunda-zeebe/orchestration"
+      - name: CAMUNDA_MODELER_CLUSTERS_0_AUTHORIZATIONS_ENABLED
+        value: "true"
+      - name: LOGGING_LEVEL_IO_GRPC
+        value: "TRACE"
+      - name: LOGGING_LEVEL_IO_CAMUNDA_MODELER
+        value: "DEBUG"
+      - name: SPRING_PROFILES_INCLUDE
+        value: "default-logging"
+    externalDatabase:
+      enabled: true
+      host: dave01-cluster.cluster-cjqkdcxqdsib.ca-central-1.rds.amazonaws.com
+      port: 5432
+      database: modeler
+      user: modeler
+      secret:
+        existingSecret: camunda-credentials
+        existingSecretKey: webmodeler-postgresql-user-password
 webModelerPostgresql:
   enabled: false
-
 connectors:
   enabled: true
   contextPath: "/connectors"
@@ -102,7 +134,6 @@ connectors:
         secret:
           existingSecret: camunda-credentials
           existingSecretKey: identity-connectors-client-token
-
 orchestration:
   enabled: true
   contextPath: "/orchestration"

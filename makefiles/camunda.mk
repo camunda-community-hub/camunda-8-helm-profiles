@@ -115,6 +115,10 @@ port-identity:
 port-keycloak:
 	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-keycloak 18080:80 -n $(CAMUNDA_NAMESPACE)
 
+.PHONY: port-modeler
+port-modeler:
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-web-modeler-webapp 8070:80 -n $(CAMUNDA_NAMESPACE)
+
 .PHONY: port-zeebe # Forward port 26500 to Zeebe Gateway for Zeebe API (gRPC)
 port-zeebe:
 	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-zeebe-gateway 26500:gateway -n $(CAMUNDA_NAMESPACE)
@@ -127,4 +131,6 @@ port-operate:
 port-tasklist:
 	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-tasklist 8082:80 -n $(CAMUNDA_NAMESPACE)
 
-
+.PHONY: pods
+pods:
+	 kubectl get pods --namespace $(CAMUNDA_NAMESPACE)
