@@ -5,7 +5,7 @@ grafana:
   image:
     tag: 11.6.7
   admin:
-    existingSecret: grafana-admin-password
+    existingSecret: grafana-credentials
     userKey: admin-user
     passwordKey: admin-password
   # grafana.ini:
