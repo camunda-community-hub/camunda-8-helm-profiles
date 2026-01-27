@@ -124,29 +124,23 @@ setup-identity-db: DB_USER := $(POSTGRES_IDENTITY_USERNAME)
 setup-identity-db: DB_LABEL := Identity
 setup-identity-db: _setup-db
 
-.PHONY: setup-all-dbs
-setup-all-dbs: setup-modeler-db setup-keycloak-db setup-identity-db
-
-.PHONY : cleanup-modeler-db
+.PHONY: cleanup-modeler-db
 cleanup-modeler-db: DB_NAME := $(POSTGRES_MODELER_DB)
 cleanup-modeler-db: DB_USER := $(POSTGRES_MODELER_USERNAME)
 cleanup-modeler-db: DB_LABEL := Modeler
 cleanup-modeler-db: _cleanup-db
 
-.PHONY : cleanup-keycloak-db
+.PHONY: cleanup-keycloak-db
 cleanup-keycloak-db: DB_NAME := $(POSTGRES_KEYCLOAK_DB)
 cleanup-keycloak-db: DB_USER := $(POSTGRES_KEYCLOAK_USERNAME)
 cleanup-keycloak-db: DB_LABEL := Keycloak
 cleanup-keycloak-db: _cleanup-db
 
-.PHONY : cleanup-identity-db
+.PHONY: cleanup-identity-db
 cleanup-identity-db: DB_NAME := $(POSTGRES_IDENTITY_DB)
 cleanup-identity-db: DB_USER := $(POSTGRES_IDENTITY_USERNAME)
 cleanup-identity-db: DB_LABEL := Identity
 cleanup-identity-db: _cleanup-db
-
-.PHONY: cleanup-all-dbs
-cleanup-all-dbs: cleanup-modeler-db cleanup-keycloak-db cleanup-identity-db
 
 .PHONY: destroy-aurora-db
 destroy-aurora-db: revoke-local-to-rds revoke-eks-to-rds delete-aurora-db-secret
@@ -173,7 +167,7 @@ destroy-aurora-db: revoke-local-to-rds revoke-eks-to-rds delete-aurora-db-secret
 		echo "Still deleting cluster..."; \
 	done
 
-	@echo "Deleting DB Subnet Group: $(DEPLOYMENT_NAME)-subnet-group..."
+	@echo "Deleting DB Subnet Group: $(DEPLOYMENT_NAME)-aurora-group..."
 	-aws rds delete-db-subnet-group --db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group --no-cli-pager
 	@echo "Database infrastructure for $(DEPLOYMENT_NAME) destroyed successfully."
 
@@ -211,6 +205,65 @@ revoke-local-to-rds:
 		--port 5432 \
 		--cidr $(MY_IP)/32 \
 		--no-cli-pager
+
+.PHONY: check-public-access
+check-public-access:
+	@echo "Checking if Aurora subnets are in Public Route Tables..."
+	@# Using the key you verified: DBSubnetGroup
+	$(eval GROUP_NAME := $(shell aws rds describe-db-clusters \
+		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
+		--region $(REGION) \
+		--query "DBClusters[0].DBSubnetGroup" --output text 2>/dev/null))
+
+	@if [ -z "$(GROUP_NAME)" ] || [ "$(GROUP_NAME)" = "None" ]; then \
+		echo "❌ Error: Could not find DB Subnet Group. Verify Cluster ID and Region."; \
+		exit 1; \
+	fi; \
+	\
+	SUBNETS=$$(aws rds describe-db-subnet-groups \
+		--db-subnet-group-name $(GROUP_NAME) \
+		--region $(REGION) \
+		--query "DBSubnetGroups[0].Subnets[*].SubnetIdentifier" --output text); \
+	for s in $$SUBNETS; do \
+		IGW=$$(aws ec2 describe-route-tables --region $(REGION) \
+			--filters "Name=association.subnet-id,Values=$$s" \
+			--query "RouteTables[*].Routes[?DestinationCidrBlock=='0.0.0.0/0'].GatewayId" --output text); \
+		if [[ $$IGW == igw-* ]]; then \
+			echo "✅ Subnet $$s is PUBLIC (Gateway: $$IGW)"; \
+		else \
+			echo "❌ Subnet $$s is PRIVATE (No IGW found)"; \
+		fi; \
+	done
+
+.PHONY: make-db-subnets-public
+make-db-subnets-public:
+	@echo "🔍 Detecting network infrastructure..."
+	$(eval VPC_ID := $(shell aws rds describe-db-instances \
+		--db-instance-identifier $(DEPLOYMENT_NAME)-instance \
+		--query "DBInstances[0].DBSubnetGroup.VpcId" --output text))
+
+	$(eval IGW_ID := $(shell aws ec2 describe-internet-gateways \
+		--filters "Name=attachment.vpc-id,Values=$(VPC_ID)" \
+		--query "InternetGateways[0].InternetGatewayId" --output text))
+
+	@# 1. Get all subnets in the group
+	@SUBNETS=$$(aws rds describe-db-subnet-groups \
+		--db-subnet-group-name $(shell aws rds describe-db-clusters \
+			--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
+			--query "DBClusters[0].DBSubnetGroup" --output text) \
+		--query "DBSubnetGroups[0].Subnets[*].SubnetIdentifier" --output text); \
+	for s in $$SUBNETS; do \
+		RT_ID=$$(aws ec2 describe-route-tables --filters "Name=association.subnet-id,Values=$$s" --query "RouteTables[0].RouteTableId" --output text); \
+		CURRENT_GW=$$(aws ec2 describe-route-tables --route-table-ids $$RT_ID --query "RouteTables[0].Routes[?DestinationCidrBlock=='0.0.0.0/0'].GatewayId" --output text); \
+		\
+		if [[ "$$CURRENT_GW" == "$(IGW_ID)" ]]; then \
+			echo "✅ Subnet $$s is already correctly routed to IGW."; \
+		else \
+			echo "🛰️ Adding new IGW route to Table $$RT_ID..."; \
+			aws ec2 create-route --route-table-id $$RT_ID --destination-cidr-block 0.0.0.0/0 --gateway-id $(IGW_ID); \
+			aws ec2 replace-route --route-table-id $$RT_ID --destination-cidr-block 0.0.0.0/0 --gateway-id $(IGW_ID); \
+		fi; \
+	done
 
 # Usage: make allow-eks-to-rds DEPLOYMENT_NAME=<name>
 .PHONY: allow-eks-to-rds
