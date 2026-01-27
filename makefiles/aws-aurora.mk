@@ -61,61 +61,92 @@ create-aurora-db: create-db-subnet-group-from-eks
 		--no-cli-pager
 	@echo "Instance is ready for connections."
 
-.PHONY: setup-identity-db
-setup-identity-db:
+.PHONY: _setup-db
+_setup-db:
 	@echo "Fetching master password and endpoint..."
 	$(eval DB_HOST := $(shell aws rds describe-db-clusters \
 		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
 		--query "DBClusters[0].Endpoint" --output text))
 
-	@echo "Connecting to $(DB_HOST) to provision Identity database and user..."
+	@echo "Connecting to $(DB_HOST) to provision $(DB_NAME) database and user..."
 	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
 	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d postgres \
-		-c "CREATE DATABASE $(POSTGRES_IDENTITY_DB);" \
-		-c "CREATE USER $(POSTGRES_IDENTITY_USERNAME) WITH PASSWORD '$(DEFAULT_PASSWORD)';" \
-		-c "GRANT ALL PRIVILEGES ON DATABASE $(POSTGRES_IDENTITY_DB) TO $(POSTGRES_IDENTITY_USERNAME);"
+		-c "CREATE DATABASE $(DB_NAME);" \
+		-c "CREATE USER $(DB_USER) WITH PASSWORD '$(DEFAULT_PASSWORD)';" \
+		-c "GRANT ALL PRIVILEGES ON DATABASE $(DB_NAME) TO $(DB_USER);"
 
-	@echo "Configuring schema permissions on $(POSTGRES_IDENTITY_DB)..."
+	@echo "Configuring schema permissions on $(DB_NAME)..."
 	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
-	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d $(POSTGRES_IDENTITY_DB) \
-		-c "GRANT ALL ON SCHEMA public TO $(POSTGRES_IDENTITY_USERNAME);" \
-		-c "ALTER SCHEMA public OWNER TO $(POSTGRES_IDENTITY_USERNAME);" \
-		-c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $(POSTGRES_IDENTITY_USERNAME);"
+	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d $(DB_NAME) \
+		-c "GRANT ALL ON SCHEMA public TO $(DB_USER);" \
+		-c "ALTER SCHEMA public OWNER TO $(DB_USER);" \
+		-c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $(DB_USER);"
 
 	@echo "--------------------------------------------------"
-	@echo "Database and User created successfully."
-	@echo "Identity Database: $(POSTGRES_IDENTITY_DB)"
-	@echo "User: $(POSTGRES_IDENTITY_USERNAME)"
-	@echo "Password: $(DEFAULT_PASSWORD)"
+	@echo "$(DB_LABEL) Database and User created successfully."
+	@echo "Database: $(DB_NAME)"
+	@echo "User: $(DB_USER)"
 	@echo "--------------------------------------------------"
+
+.PHONY: _cleanup-db
+_cleanup-db:
+	@echo "Fetching master password and endpoint..."
+	$(eval DB_HOST := $(shell aws rds describe-db-clusters \
+		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
+		--query "DBClusters[0].Endpoint" --output text))
+
+	@echo "Terminating active connections and dropping $(DB_NAME)..."
+	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
+	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d postgres \
+		-c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$(DB_NAME)' AND pid <> pg_backend_pid();" \
+		-c "DROP DATABASE IF EXISTS $(DB_NAME);" \
+		-c "DROP USER IF EXISTS $(DB_USER);"
+
+	@echo "--------------------------------------------------"
+	@echo "$(DB_LABEL) Database and User removed."
+	@echo "--------------------------------------------------"
+
+.PHONY: setup-modeler-db
+setup-modeler-db: DB_NAME := $(POSTGRES_MODELER_DB)
+setup-modeler-db: DB_USER := $(POSTGRES_MODELER_USERNAME)
+setup-modeler-db: DB_LABEL := Modeler
+setup-modeler-db: _setup-db
 
 .PHONY: setup-keycloak-db
-setup-keycloak-db:
-	@echo "Fetching master password and endpoint..."
-	$(eval DB_HOST := $(shell aws rds describe-db-clusters \
-		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
-		--query "DBClusters[0].Endpoint" --output text))
+setup-keycloak-db: DB_NAME := $(POSTGRES_KEYCLOAK_DB)
+setup-keycloak-db: DB_USER := $(POSTGRES_KEYCLOAK_USERNAME)
+setup-keycloak-db: DB_LABEL := Keycloak
+setup-keycloak-db: _setup-db
 
-	@echo "Connecting to $(DB_HOST) to provision Keycloak database and user..."
-	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
-	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d postgres \
-		-c "CREATE DATABASE $(POSTGRES_KEYCLOAK_DB);" \
-		-c "CREATE USER $(POSTGRES_KEYCLOAK_USERNAME) WITH PASSWORD '$(DEFAULT_PASSWORD)';" \
-		-c "GRANT ALL PRIVILEGES ON DATABASE $(POSTGRES_KEYCLOAK_DB) TO $(POSTGRES_KEYCLOAK_USERNAME);"
+.PHONY: setup-identity-db
+setup-identity-db: DB_NAME := $(POSTGRES_IDENTITY_DB)
+setup-identity-db: DB_USER := $(POSTGRES_IDENTITY_USERNAME)
+setup-identity-db: DB_LABEL := Identity
+setup-identity-db: _setup-db
 
-	@echo "Configuring schema permissions on $(POSTGRES_KEYCLOAK_DB)..."
-	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
-	psql -h $(DB_HOST) -U $(POSTGRES_MASTER_USERNAME) -d $(POSTGRES_KEYCLOAK_DB) \
-		-c "GRANT ALL ON SCHEMA public TO $(POSTGRES_KEYCLOAK_USERNAME);" \
-		-c "ALTER SCHEMA public OWNER TO $(POSTGRES_KEYCLOAK_USERNAME);" \
-		-c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $(POSTGRES_KEYCLOAK_USERNAME);"
+.PHONY: setup-all-dbs
+setup-all-dbs: setup-modeler-db setup-keycloak-db setup-identity-db
 
-	@echo "--------------------------------------------------"
-	@echo "Database and User created successfully."
-	@echo "Keycloak Database: $(POSTGRES_KEYCLOAK_DB)"
-	@echo "User: $(POSTGRES_KEYCLOAK_USERNAME)"
-	@echo "Password: $(DEFAULT_PASSWORD)"
-	@echo "--------------------------------------------------"
+.PHONY : cleanup-modeler-db
+cleanup-modeler-db: DB_NAME := $(POSTGRES_MODELER_DB)
+cleanup-modeler-db: DB_USER := $(POSTGRES_MODELER_USERNAME)
+cleanup-modeler-db: DB_LABEL := Modeler
+cleanup-modeler-db: _cleanup-db
+
+.PHONY : cleanup-keycloak-db
+cleanup-keycloak-db: DB_NAME := $(POSTGRES_KEYCLOAK_DB)
+cleanup-keycloak-db: DB_USER := $(POSTGRES_KEYCLOAK_USERNAME)
+cleanup-keycloak-db: DB_LABEL := Keycloak
+cleanup-keycloak-db: _cleanup-db
+
+.PHONY : cleanup-identity-db
+cleanup-identity-db: DB_NAME := $(POSTGRES_IDENTITY_DB)
+cleanup-identity-db: DB_USER := $(POSTGRES_IDENTITY_USERNAME)
+cleanup-identity-db: DB_LABEL := Identity
+cleanup-identity-db: _cleanup-db
+
+.PHONY: cleanup-all-dbs
+cleanup-all-dbs: cleanup-modeler-db cleanup-keycloak-db cleanup-identity-db
 
 .PHONY: destroy-aurora-db
 destroy-aurora-db: revoke-local-to-rds revoke-eks-to-rds delete-aurora-db-secret
