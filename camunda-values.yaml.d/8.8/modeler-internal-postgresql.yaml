@@ -1,0 +1,7 @@
+webModelerPostgresql:
+  enabled: true
+  auth:
+    existingSecret: "camunda-credentials"
+    secretKeys:
+      adminPasswordKey: webmodeler-postgresql-admin-password
+      userPasswordKey: webmodeler-postgresql-user-password

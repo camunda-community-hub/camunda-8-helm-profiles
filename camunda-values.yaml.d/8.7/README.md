@@ -11,9 +11,36 @@ The `camunda-values.yaml.d` directory serves as a shared library of configuratio
 - **Simplify maintenance**: Updates to shared configurations automatically benefit all profiles that use them
 - **Provide modularity**: Each file focuses on a specific aspect (size, persistence, features, etc.)
 
+## Available Configuration Files for 8.7 and earlier: 
+
+### Cluster Sizing
+- **[`cluster-size-mini.yaml`](cluster-size-mini.yaml)**: Minimal resource allocation suitable for development and testing
+- **[`cluster-size-mini-dual-region.yaml`](cluster-size-mini-dual-region.yaml)**: Minimal dual-region configuration
+
+### Persistence Options
+- **[`persistence-in-memory.yaml`](persistence-in-memory.yaml)**: Configures Zeebe to use in-memory storage (no data persistence)
+
+### Feature Toggles
+- **[`elasticsearch-disabled.yaml`](elasticsearch-disabled.yaml)**: Disables Elasticsearch and dependent components (Operate, Tasklist, Optimize)
+- **[`elasticsearch-only.yaml`](elasticsearch-only.yaml)**: Enables only Elasticsearch without other Camunda components
+- **[`elasticsearch-2.5-region-stretch-cluster.yaml`](elasticsearch-2.5-region-stretch-cluster.yaml)**: Elasticsearch configuration for multi-region setups
+- **[`elasticsearch-version.yaml`](elasticsearch-version.yaml)**: Specific Elasticsearch version configuration
+- **[`identity-disabled.yaml`](identity-disabled.yaml)**: Disables Camunda Identity service
+- **[`connectors-disabled.yaml`](connectors-disabled.yaml)**: Disables Camunda Connectors
+- **[`connectors-outbound-only.yaml`](connectors-outbound-only.yaml)**: Enables only outbound connectors
+
+### Infrastructure Settings
+- **[`pod-anti-affinity-disabled.yaml`](pod-anti-affinity-disabled.yaml)**: Allows pods to be scheduled on the same nodes
+- **[`ingress.yaml`](ingress.yaml)**: Standard ingress configuration
+- **[`dual-region.yaml`](dual-region.yaml)**: Multi-region deployment settings
+
+### Monitoring & Debugging
+- **[`prometheus-service-monitor.yaml`](prometheus-service-monitor.yaml)**: Enables Prometheus ServiceMonitor for metrics collection
+- **[`zeebe-debug.yaml`](zeebe-debug.yaml)**: Debug settings for Zeebe brokers
+
 ## Usage Example
 
-The [`minimal-composed`](../minimal-composed) profile demonstrates how to compose multiple values files:
+The [`minimal-composed`](../../minimal-composed) profile demonstrates how to compose multiple values files:
 
 ```makefile
 chartValues ?= \
