@@ -46,7 +46,7 @@ clean-template:
 	rm -r helm-templates-$(release)
 
 .PHONY: update-camunda
-update-camunda: camunda-chart
+update-camunda: camunda-chart camunda-values.yaml create-camunda-credentials
 	helm upgrade --namespace $(CAMUNDA_NAMESPACE) $(CAMUNDA_RELEASE_NAME) $(CAMUNDA_CHART) \
 	-f ./camunda-values.yaml --version $(CAMUNDA_HELM_CHART_VERSION)
 
