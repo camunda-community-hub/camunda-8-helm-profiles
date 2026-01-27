@@ -235,18 +235,24 @@ check-public-access:
 		fi; \
 	done
 
-.PHONY: make-db-subnets-public
-make-db-subnets-public:
-	@echo "🔍 Detecting network infrastructure..."
+# The Aurora subnet group is using the eks subnets. Two are public and two are private.
+# Sometimes the rds writer endpoint resolves to a private subnet.
+# If the check-public-access shows private subnets, use this target to add a specific route for your IP to the IGW.
+.PHONY: route-my-ip-to-igw
+route-my-ip-to-igw:
+	@echo "🔍 Detecting network and local IP..."
+	$(eval MY_IP := $(shell curl -s ifconfig.me))
 	$(eval VPC_ID := $(shell aws rds describe-db-instances \
 		--db-instance-identifier $(DEPLOYMENT_NAME)-instance \
 		--query "DBInstances[0].DBSubnetGroup.VpcId" --output text))
-
 	$(eval IGW_ID := $(shell aws ec2 describe-internet-gateways \
 		--filters "Name=attachment.vpc-id,Values=$(VPC_ID)" \
 		--query "InternetGateways[0].InternetGatewayId" --output text))
 
-	@# 1. Get all subnets in the group
+	@if [ -z "$(MY_IP)" ]; then echo "❌ Could not detect local IP"; exit 1; fi
+	@echo "✅ Your IP: $(MY_IP)"
+	@echo "✅ IGW ID: $(IGW_ID)"
+
 	@SUBNETS=$$(aws rds describe-db-subnet-groups \
 		--db-subnet-group-name $(shell aws rds describe-db-clusters \
 			--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
@@ -254,16 +260,14 @@ make-db-subnets-public:
 		--query "DBSubnetGroups[0].Subnets[*].SubnetIdentifier" --output text); \
 	for s in $$SUBNETS; do \
 		RT_ID=$$(aws ec2 describe-route-tables --filters "Name=association.subnet-id,Values=$$s" --query "RouteTables[0].RouteTableId" --output text); \
-		CURRENT_GW=$$(aws ec2 describe-route-tables --route-table-ids $$RT_ID --query "RouteTables[0].Routes[?DestinationCidrBlock=='0.0.0.0/0'].GatewayId" --output text); \
-		\
-		if [[ "$$CURRENT_GW" == "$(IGW_ID)" ]]; then \
-			echo "✅ Subnet $$s is already correctly routed to IGW."; \
-		else \
-			echo "🛰️ Adding new IGW route to Table $$RT_ID..."; \
-			aws ec2 create-route --route-table-id $$RT_ID --destination-cidr-block 0.0.0.0/0 --gateway-id $(IGW_ID); \
-			aws ec2 replace-route --route-table-id $$RT_ID --destination-cidr-block 0.0.0.0/0 --gateway-id $(IGW_ID); \
-		fi; \
+		echo "🛰️  Adding /32 route for $(MY_IP) to IGW in Table $$RT_ID..."; \
+		aws ec2 create-route \
+			--route-table-id $$RT_ID \
+			--destination-cidr-block $(MY_IP)/32 \
+			--gateway-id $(IGW_ID) 2>/dev/null || \
 	done
+	@echo "✨ Specific route added. EKS traffic remains on the NAT Gateway."
+
 
 # Usage: make allow-eks-to-rds DEPLOYMENT_NAME=<name>
 .PHONY: allow-eks-to-rds
