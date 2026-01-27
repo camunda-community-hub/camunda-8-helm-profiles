@@ -70,19 +70,11 @@ make pods
 Access the services:
 
 ```bash
-# Port forward to access Operate
-kubectl port-forward -n camunda svc/camunda-operate 8081:80
-
-# Port forward to access Tasklist  
-kubectl port-forward -n camunda svc/camunda-tasklist 8082:80
-
 # Port forward to access Zeebe Gateway
-kubectl port-forward -n camunda svc/camunda-zeebe-gateway 26500:26500
+make port-zeebe
 ```
 
 Then access:
-- Operate: http://localhost:8081
-- Tasklist: http://localhost:8082
 - Zeebe Gateway: localhost:26500
 
 ## Uninstall

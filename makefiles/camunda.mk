@@ -114,3 +114,17 @@ port-identity:
 .PHONY: port-keycloak
 port-keycloak:
 	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-keycloak 18080:80 -n $(CAMUNDA_NAMESPACE)
+
+.PHONY: port-zeebe # Forward port 26500 to Zeebe Gateway for Zeebe API (gRPC)
+port-zeebe:
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-zeebe-gateway 26500:gateway -n $(CAMUNDA_NAMESPACE)
+
+.PHONY: port-operate
+port-operate:
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-operate 8081:80 -n $(CAMUNDA_NAMESPACE)
+
+.PHONY: port-tasklist
+port-tasklist:
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-tasklist 8082:80 -n $(CAMUNDA_NAMESPACE)
+
+
