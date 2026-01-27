@@ -47,7 +47,7 @@ DEFAULT_PASSWORD ?= demo
 all: kube setup-aurora-db
 
 .PHONY: setup-aurora-db
-setup-aurora-db: create-aurora-db allow-eks-to-rds test-aurora-from-eks allow-local-to-rds test-aurora-from-local make-keycloak-db make-identity-db make-modeler-db
+setup-aurora-db: create-aurora-db allow-eks-to-rds test-aurora-from-eks allow-local-to-rds test-aurora-from-local setup-all-dbs
 	@echo "Aurora DB and Camunda database setup complete."
 
 .PHONY: clean

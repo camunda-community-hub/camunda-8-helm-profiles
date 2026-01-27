@@ -136,40 +136,36 @@ _cleanup-db:
 	@echo "--------------------------------------------------"
 
 .PHONY: setup-modeler-db
-setup-modeler-db: DB_NAME := $(POSTGRES_MODELER_DB)
-setup-modeler-db: DB_USER := $(POSTGRES_MODELER_USERNAME)
-setup-modeler-db: DB_LABEL := Modeler
-setup-modeler-db: _setup-db
+setup-modeler-db:
+	@$(MAKE) _setup-db DB_NAME=$(POSTGRES_MODELER_DB) DB_USER=$(POSTGRES_MODELER_USERNAME) DB_LABEL=Modeler
 
 .PHONY: setup-keycloak-db
-setup-keycloak-db: DB_NAME := $(POSTGRES_KEYCLOAK_DB)
-setup-keycloak-db: DB_USER := $(POSTGRES_KEYCLOAK_USERNAME)
-setup-keycloak-db: DB_LABEL := Keycloak
-setup-keycloak-db: _setup-db
+setup-keycloak-db:
+	@$(MAKE) _setup-db DB_NAME=$(POSTGRES_KEYCLOAK_DB) DB_USER=$(POSTGRES_KEYCLOAK_USERNAME) DB_LABEL=Keycloak
 
 .PHONY: setup-identity-db
-setup-identity-db: DB_NAME := $(POSTGRES_IDENTITY_DB)
-setup-identity-db: DB_USER := $(POSTGRES_IDENTITY_USERNAME)
-setup-identity-db: DB_LABEL := Identity
-setup-identity-db: _setup-db
+setup-identity-db:
+	@$(MAKE) _setup-db DB_NAME=$(POSTGRES_IDENTITY_DB) DB_USER=$(POSTGRES_IDENTITY_USERNAME) DB_LABEL=Identity
+
+.PHONY: setup-all-dbs
+setup-all-dbs: setup-modeler-db setup-keycloak-db setup-identity-db
+	@echo "✨ All Camunda databases and users have been provisioned."
 
 .PHONY: cleanup-modeler-db
-cleanup-modeler-db: DB_NAME := $(POSTGRES_MODELER_DB)
-cleanup-modeler-db: DB_USER := $(POSTGRES_MODELER_USERNAME)
-cleanup-modeler-db: DB_LABEL := Modeler
-cleanup-modeler-db: _cleanup-db
+cleanup-modeler-db:
+	@$(MAKE) _cleanup-db DB_NAME=$(POSTGRES_MODELER_DB) DB_USER=$(POSTGRES_MODELER_USERNAME) DB_LABEL=Modeler
 
 .PHONY: cleanup-keycloak-db
-cleanup-keycloak-db: DB_NAME := $(POSTGRES_KEYCLOAK_DB)
-cleanup-keycloak-db: DB_USER := $(POSTGRES_KEYCLOAK_USERNAME)
-cleanup-keycloak-db: DB_LABEL := Keycloak
-cleanup-keycloak-db: _cleanup-db
+cleanup-keycloak-db:
+	@$(MAKE) _cleanup-db DB_NAME=$(POSTGRES_KEYCLOAK_DB) DB_USER=$(POSTGRES_KEYCLOAK_USERNAME) DB_LABEL=Keycloak
 
 .PHONY: cleanup-identity-db
-cleanup-identity-db: DB_NAME := $(POSTGRES_IDENTITY_DB)
-cleanup-identity-db: DB_USER := $(POSTGRES_IDENTITY_USERNAME)
-cleanup-identity-db: DB_LABEL := Identity
-cleanup-identity-db: _cleanup-db
+cleanup-identity-db:
+	@$(MAKE) _cleanup-db DB_NAME=$(POSTGRES_IDENTITY_DB) DB_USER=$(POSTGRES_IDENTITY_USERNAME) DB_LABEL=Identity
+
+.PHONY: cleanup-all-dbs
+cleanup-all-dbs: cleanup-modeler-db cleanup-keycloak-db cleanup-identity-db
+	@echo "🗑️  All Camunda databases and users have been removed."
 
 .PHONY: destroy-aurora-db
 destroy-aurora-db: revoke-local-to-rds revoke-eks-to-rds delete-aurora-db-secret
