@@ -73,37 +73,21 @@ This will remove the Camunda installation and clean up all resources.
 
 ## Use Cases
 
-This profile is perfect for:
-
-- **Development environments**: Quick setup for local development
-- **CI/CD testing**: Fast startup for automated tests
-- **Demos and workshops**: Lightweight setup for presentations
-- **Learning**: Simple environment to explore Camunda features
-- **Resource-constrained environments**: Minimal resource requirements
+This profile is good to understand how to configure Camunda 8 with external Postgres database for Keycloak, Identity and WebModeler.
 
 ## Limitations
 
-⚠️ **Important**: This configuration is **not suitable for production** use because:
+⚠️ **Important**: This is provided for reference and learning, however it is is **not suitable for production** use because:
 
-- **No data persistence**: All data is lost when pods restart
+- **No ingress**: There is no ingress controller, or dns, or network routing configured
 - **No high availability**: Single instances of all components
-- **Limited functionality**: Elasticsearch-dependent features unavailable
-- **No authentication**: Identity service is disabled
-- **No connectors**: External system integrations unavailable
-
-## Resource Requirements
-
-This minimal configuration has very low resource requirements:
-- **Memory**: ~2-4 GB total
-- **CPU**: ~1-2 cores total
-- **Storage**: No persistent storage needed
 
 ## Customization
 
 To customize this profile:
 
-1. Edit [`camunda-values.yaml`](camunda-values.yaml) for additional overrides
-2. Modify [`config.mk`](config.mk) to change chart version or add/remove value files
+1. Edit [`my-camunda-values.yaml`](my-camunda-values.yaml) for additional overrides
+2. Modify `config.mk` at the root project to ovverride default settings found in config.mk
 3. Create additional value files in `../camunda-values.yaml.d/` for reusable configurations
 
 ## Troubleshooting
@@ -119,11 +103,3 @@ To customize this profile:
 ### Cannot access services
 - Verify port forwarding is active
 - Check service status: `kubectl get svc -n camunda`
-
-## Related Profiles
-
-- [`../minimal`](../minimal): Minimal configuration with persistence
-- [`../development`](../development): Development configuration with more features
-- [`../default`](../default): Standard configuration with full features
-
-For more information about Camunda 8 Helm Profiles, see the [main README](../README.md).

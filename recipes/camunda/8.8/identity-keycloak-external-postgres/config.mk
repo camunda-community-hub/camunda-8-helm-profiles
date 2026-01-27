@@ -33,7 +33,8 @@ CAMUNDA_HELM_VALUES ?= \
   $(root)/camunda-values.yaml.d/8.8/orchestration-enabled.yaml \
   $(root)/camunda-values.yaml.d/8.8/orchestration-oidc.yaml \
   $(root)/camunda-values.yaml.d/8.8/modeler-enabled.yaml \
-  $(root)/camunda-values.yaml.d/8.8/modeler-external-postgres.yaml
+  $(root)/camunda-values.yaml.d/8.8/modeler-external-postgres.yaml \
+  ./my-camunda-values.yaml
 
 DEFAULT_PASSWORD ?= demo
 
