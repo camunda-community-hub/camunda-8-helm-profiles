@@ -5,15 +5,44 @@ get-eks-subnets:
 
 .PHONY: create-db-subnet-group-from-eks
 create-db-subnet-group-from-eks:
-	$(eval SUBNETS := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(REGION) \
-	  --query 'cluster.resourcesVpcConfig.subnetIds' --output text))
-#	$(eval VPC_ID := $(shell aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$(VPC_NAME)" --query "Vpcs[0].VpcId" --output text))
-#	$(eval SUBNETS := $(shell aws ec2 describe-subnets --filters "Name=vpc-id,Values=$(VPC_ID)" --query "Subnets[*].SubnetId" --output text))
+	@echo "🔍 Filtering EKS subnets for Public access only..."
+	$(eval EKS_SUBNETS := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(REGION) \
+		--query 'cluster.resourcesVpcConfig.subnetIds' --output text))
+
+	@# Filter loop to find only public subnets
+	@PUBLIC_SUBNETS=""; \
+	for s in $(EKS_SUBNETS); do \
+		IGW=$$(aws ec2 describe-route-tables --region $(REGION) \
+			--filters "Name=association.subnet-id,Values=$$s" \
+			--query "RouteTables[*].Routes[?DestinationCidrBlock=='0.0.0.0/0'].GatewayId" --output text); \
+		if [[ $$IGW == igw-* ]]; then \
+			PUBLIC_SUBNETS="$$PUBLIC_SUBNETS $$s"; \
+		fi; \
+	done; \
+	\
+	if [ -z "$$PUBLIC_SUBNETS" ]; then \
+		echo "❌ Error: No public subnets found among EKS subnets!"; exit 1; \
+	fi; \
+	\
+	echo "🚀 Creating DB Subnet Group with: $$PUBLIC_SUBNETS"; \
 	aws rds create-db-subnet-group \
 		--db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group \
-		--db-subnet-group-description "Subnet Aurora db group for $(DEPLOYMENT_NAME)" \
-		--subnet-ids $(SUBNETS) \
+		--db-subnet-group-description "Public-only Aurora group for $(DEPLOYMENT_NAME)" \
+		--subnet-ids $$PUBLIC_SUBNETS \
+		--region $(REGION) \
 		--no-cli-pager
+
+#.PHONY: create-db-subnet-group-from-eks
+#create-db-subnet-group-from-eks:
+#	$(eval SUBNETS := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(REGION) \
+#	  --query 'cluster.resourcesVpcConfig.subnetIds' --output text))
+##	$(eval VPC_ID := $(shell aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$(VPC_NAME)" --query "Vpcs[0].VpcId" --output text))
+##	$(eval SUBNETS := $(shell aws ec2 describe-subnets --filters "Name=vpc-id,Values=$(VPC_ID)" --query "Subnets[*].SubnetId" --output text))
+#	aws rds create-db-subnet-group \
+#		--db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group \
+#		--db-subnet-group-description "Subnet Aurora db group for $(DEPLOYMENT_NAME)" \
+#		--subnet-ids $(SUBNETS) \
+#		--no-cli-pager
 
 .PHONY: create-aurora-db-secret
 create-aurora-db-secret: delete-aurora-db-secret
@@ -238,8 +267,8 @@ check-public-access:
 # The Aurora subnet group is using the eks subnets. Two are public and two are private.
 # Sometimes the rds writer endpoint resolves to a private subnet.
 # If the check-public-access shows private subnets, use this target to add a specific route for your IP to the IGW.
-.PHONY: route-my-ip-to-igw
-route-my-ip-to-igw:
+.PHONY: allow-local-to-subnets
+allow-local-to-subnets:
 	@echo "🔍 Detecting network and local IP..."
 	$(eval MY_IP := $(shell curl -s ifconfig.me))
 	$(eval VPC_ID := $(shell aws rds describe-db-instances \
