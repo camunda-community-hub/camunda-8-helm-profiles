@@ -7,8 +7,8 @@ webModeler:
       enabled: true
       host: <POSTGRES_HOST>
       port: 5432
-      database: <POSTGRES_WEBMODELER_DB>
-      username: <POSTGRES_WEBMODELER_USERNAME>
+      database: <POSTGRES_MODELER_DB>
+      user: <POSTGRES_MODELER_USERNAME>
       secret:
         existingSecret: camunda-credentials
-        existingSecretPasswordKey: webmodeler-postgresql-user-password
+        existingSecretKey: webmodeler-postgresql-user-password

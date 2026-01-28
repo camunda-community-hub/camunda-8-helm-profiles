@@ -1,0 +1,4 @@
+identityKeycloak:
+  extraEnvVars:
+    - name: KC_LOG_LEVEL
+      value: "DEBUG"
