@@ -1,25 +1,13 @@
 ## In progress / Known Issues
 
-### TODO: Fix development `standard` persistent volume type
+## January 2026
 
-Currently, the `camunda-values.yaml` in the development profile specifies a `standard` storage class for Kind but that 
-breaks when deploying to the cloud. As a temp hack, there's a `camunda-values-2.yaml` with `ssd` storage class
-
-### TODO: Fix issue with applying AWS ebs-csi addon
-
-After the `create-ebs-csi-addon` target in [kuberenets-aws.mk](aws/include/kubernetes-aws.mk) file, you'll see an error
-because there's no delay to allow the sa account to complete. 
-
-To fix this, run `make annotate-ebs-csi-sa restart-ebs-csi-controller`
-
-```shell
-kubectl annotate serviceaccount ebs-csi-controller-sa \
--n kube-system \
-eks.amazonaws.com/role-arn=arn:aws:iam::487945211782:role/AmazonEKS_EBS_CSI_DriverRole_Cluster_dave-camunda-01 \
---overwrite
-Error from server (NotFound): serviceaccounts "ebs-csi-controller-sa" not found
-make: *** [annotate-ebs-csi-sa] Error 1
-```
+- Major reorganization of the project
+- Environment variables are now all uppercase with underscores
+- Makefiles are now all found inside the `makefiles` directory
+- New `recipes` directory will contain all the existing profiles plus new ones for 8.8
+- Cloud provider folders have been removed. There are recipes for cloud providers now.
+- camunda-values.yaml.d directory contains all helm values yaml files
 
 ## May 16, 2023
 
