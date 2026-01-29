@@ -1,0 +1,29 @@
+identity:
+  enabled: false
+
+identityPostgresql:
+  enabled: false
+
+identityKeycloak:
+  enabled: false
+
+console:
+  enabled: false
+
+webModeler:
+  enabled: false
+
+webModelerPostgresql:
+  enabled: false
+
+connectors:
+  enabled: false
+
+orchestration:
+  enabled: false
+
+optimize:
+  enabled: false
+
+elasticsearch:
+  enabled: false

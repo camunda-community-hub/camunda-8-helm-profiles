@@ -1,0 +1,19 @@
+elasticsearch:
+  enabled: false
+
+orchestration:
+  enabled: true
+  exporters:
+    camunda:
+      enabled: false
+    rdbms:
+      enabled: true
+  data:
+    secondaryStorage:
+      type:
+      rdbms:
+        url: jdbc:postgresql://<POSTGRES_HOST>:5432/<POSTGRES_CAMUNDA_DB>
+        username: <POSTGRES_CAMUNDA_USERNAME>
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: orchestration-rdbms-password
