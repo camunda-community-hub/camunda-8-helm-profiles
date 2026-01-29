@@ -1,6 +1,0 @@
-
-dashboard:
-  gcpSecurityMode: true
-  gcpClientId: YOUR_GCP_CLIENT_ID
-  gcpClientSecret: YOUR_GCP_CLIENT_SECRET
-  rootUrl: http://localhost:8080
