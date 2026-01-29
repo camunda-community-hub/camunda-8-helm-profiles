@@ -135,6 +135,10 @@ _cleanup-db:
 	@echo "$(DB_LABEL) Database and User removed."
 	@echo "--------------------------------------------------"
 
+.PHONY: setup-camunda-db
+setup-camunda-db:
+	@$(MAKE) _setup-db DB_NAME=$(POSTGRES_CAMUNDA_DB) DB_USER=$(POSTGRES_CAMUNDA_USERNAME) DB_LABEL=Camunda
+
 .PHONY: setup-modeler-db
 setup-modeler-db:
 	@$(MAKE) _setup-db DB_NAME=$(POSTGRES_MODELER_DB) DB_USER=$(POSTGRES_MODELER_USERNAME) DB_LABEL=Modeler
@@ -151,6 +155,10 @@ setup-identity-db:
 setup-all-dbs: setup-modeler-db setup-keycloak-db setup-identity-db
 	@echo "✨ All Camunda databases and users have been provisioned."
 
+.PHONY: cleanup-camunda-db
+cleanup-camunda-db:
+	@$(MAKE) _cleanup-db DB_NAME=$(POSTGRES_CAMUNDA_DB) DB_USER=$(POSTGRES_CAMUNDA_USERNAME) DB_LABEL=Camunda
+
 .PHONY: cleanup-modeler-db
 cleanup-modeler-db:
 	@$(MAKE) _cleanup-db DB_NAME=$(POSTGRES_MODELER_DB) DB_USER=$(POSTGRES_MODELER_USERNAME) DB_LABEL=Modeler
@@ -166,6 +174,30 @@ cleanup-identity-db:
 .PHONY: cleanup-all-dbs
 cleanup-all-dbs: cleanup-modeler-db cleanup-keycloak-db cleanup-identity-db
 	@echo "🗑️  All Camunda databases and users have been removed."
+
+.PHONY: list-tables-modeler list-tables-keycloak list-tables-identity
+
+.PHONY: _list-tables
+_list-tables:
+	@echo "--- Tables in $(DB_LABEL) ($(DB_NAME)) ---"
+	@export PGPASSWORD=$(POSTGRES_MASTER_PASSWORD); \
+	psql -h $(POSTGRES_HOST) -U $(POSTGRES_MASTER_USERNAME) -d $(DB_NAME) -c "\dt"
+
+.PHONY: list-tables-modeler
+list-tables-modeler:
+	@$(MAKE) _list-tables DB_NAME=$(POSTGRES_MODELER_DB) DB_LABEL=Modeler
+
+.PHONY: list-tables-keycloak
+list-tables-keycloak:
+	@$(MAKE) _list-tables DB_NAME=$(POSTGRES_KEYCLOAK_DB) DB_LABEL=Keycloak
+
+.PHONY: list-tables-identity
+list-tables-identity:
+	@$(MAKE) _list-tables DB_NAME=$(POSTGRES_IDENTITY_DB) DB_LABEL=Identity
+
+.PHONY: list-tables-camunda
+list-tables-camunda:
+	@$(MAKE) _list-tables DB_NAME=$(POSTGRES_CAMUNDA_DB) DB_LABEL=Camunda
 
 .PHONY: destroy-aurora-db
 destroy-aurora-db: revoke-local-to-rds revoke-eks-to-rds delete-aurora-db-secret

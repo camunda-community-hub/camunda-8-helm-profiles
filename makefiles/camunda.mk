@@ -82,6 +82,8 @@ camunda-values.yaml: delete-camunda-values set-postgres-host
 	     s|<POSTGRES_KEYCLOAK_USERNAME>|$(POSTGRES_KEYCLOAK_USERNAME)|g; \
 	     s|<POSTGRES_MODELER_DB>|$(POSTGRES_MODELER_DB)|g; \
 	     s|<POSTGRES_MODELER_USERNAME>|$(POSTGRES_MODELER_USERNAME)|g; \
+	     s|<POSTGRES_CAMUNDA_DB>|$(POSTGRES_CAMUNDA_DB)|g; \
+         s|<POSTGRES_CAMUNDA_USERNAME>|$(POSTGRES_CAMUNDA_USERNAME)|g; \
 	     s|<POSTGRES_IDENTITY_DB>|$(POSTGRES_IDENTITY_DB)|g; \
 	     s|<POSTGRES_IDENTITY_USERNAME>|$(POSTGRES_IDENTITY_USERNAME)|g;" \
 	     > ./camunda-values.yaml
@@ -101,6 +103,7 @@ create-camunda-credentials: namespace
 	  --from-literal=identity-postgresql-user-password=$(DEFAULT_PASSWORD) \
 	  --from-literal=webmodeler-postgresql-admin-password=$(DEFAULT_PASSWORD) \
 	  --from-literal=webmodeler-postgresql-user-password=$(DEFAULT_PASSWORD) \
+	  --from-literal=orchestration-rdbms-password=$(DEFAULT_PASSWORD) \
 	  --namespace $(CAMUNDA_NAMESPACE)
 
 .PHONY: port-orchestration
@@ -121,7 +124,7 @@ port-modeler:
 
 .PHONY: port-zeebe # Forward port 26500 to Zeebe Gateway for Zeebe API (gRPC)
 port-zeebe:
-	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-zeebe-gateway 26500:gateway -n $(CAMUNDA_NAMESPACE)
+	kubectl port-forward svc/$(CAMUNDA_RELEASE_NAME)-zeebe-gateway 26500:26500 -n $(CAMUNDA_NAMESPACE)
 
 .PHONY: port-operate
 port-operate:
