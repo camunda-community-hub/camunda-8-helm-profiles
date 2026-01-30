@@ -78,4 +78,11 @@ urls:
 disks:
 	gcloud compute disks list --filter="zone ~ $(REGION) AND users ~ $(DEPLOYMENT_NAME) AND name ~ pvc"
 
+.PHONY: ingress-nginx
+ingress-nginx:
+	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+	helm repo update ingress-nginx
+	helm search repo ingress-nginx
+	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait
+
 
