@@ -112,6 +112,9 @@ delete-iam-role: detach-role-policy-mapping
 clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
 	eksctl delete cluster --name $(DEPLOYMENT_NAME) --region $(REGION)
 
+.PHONY: clean-kube
+clean-kube: clean-kube-aws
+
 .PHONY: use-kube
 use-kube:
 	eksctl utils write-kubeconfig -c $(DEPLOYMENT_NAME) --region $(REGION)

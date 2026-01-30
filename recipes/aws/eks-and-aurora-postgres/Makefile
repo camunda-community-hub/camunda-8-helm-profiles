@@ -19,7 +19,7 @@ setup-aurora-db: create-aurora-db allow-eks-to-rds test-aurora-from-eks allow-lo
 	@echo "Aurora DB and Camunda database setup complete."
 
 .PHONY: clean
-clean: destroy-aurora-db clean-kube-aws
+clean: destroy-aurora-db clean-kube
 
 include $(root)/makefiles/aws-eks.mk
 include $(root)/makefiles/aws-aurora.mk
