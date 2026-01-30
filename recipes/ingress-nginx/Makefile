@@ -1,8 +1,8 @@
 # Determine the root directory
 ifeq ($(OS),Windows_NT)
-    root ?= $(CURDIR)/../../..
+    root ?= $(CURDIR)/../..
 else
-    root ?= $(shell pwd)/../../..
+    root ?= $(shell pwd)/../..
 endif
 
 # Create a config.mk file in the root directory of this project to override defaults included below
@@ -15,16 +15,8 @@ include ./config.mk
 all: kube
 
 .PHONY: clean
-clean: clean-ingress clean-metrics clean-kube
+clean: clean-kube
 
-.PHONY: setup-metrics
-setup-metrics: metrics
-
-.PHONY: setup-nginx-ingress
-setup-nginx-ingress: ingress-nginx cert-manager letsencrypt-prod
-
-include $(root)/makefiles/google-common.mk
 include $(root)/makefiles/google-gke.mk
-include $(root)/makefiles/letsencrypt.mk
 include $(root)/makefiles/ingress-nginx.mk
-include $(root)/makefiles/metrics.mk
+include $(root)/makefiles/letsencrypt.mk
