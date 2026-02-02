@@ -2,6 +2,10 @@
 
 Sample of how to configure 8.9 with Postgres for RDBMS storage.
 
+https://docs.camunda.io/docs/next/self-managed/deployment/helm/configure/database/rdbms/
+
+https://docs.camunda.io/docs/next/self-managed/concepts/databases/relational-db/rdbms-support-policy/#bundled-drivers
+
 ## Features
 
 This profile provides:

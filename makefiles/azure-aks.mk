@@ -15,7 +15,7 @@ kube-aks:
 	kubectl config unset clusters.$(DEPLOYMENT_NAME)
 	kubectl config unset users.clusterUser_$(DEPLOYMENT_NAME)-rg_$(DEPLOYMENT_NAME)
 	az aks get-credentials --resource-group $(DEPLOYMENT_NAME)-rg --name $(DEPLOYMENT_NAME)
-	kubectl apply -f $(root)/azure/include/ssd-storageclass.yaml
+	#kubectl apply -f $(root)/azure/include/ssd-storageclass.yaml
 
 .PHONY: kube
 kube: kube-aks

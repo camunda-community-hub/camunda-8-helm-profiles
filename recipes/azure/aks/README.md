@@ -9,7 +9,7 @@ This recipe also includes optional targets for setting up an NGINX Ingress Contr
 ```shell
 $> make check-az
 Checking Azure CLI configuration...
-✅ Azure CLI is installed and connected to: Pay-as-you-go-Presales-Consulting PODE2422
+✅ Azure CLI is installed and connected to: your-subscription-name your-subscription-id
 ```
 
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) installed.

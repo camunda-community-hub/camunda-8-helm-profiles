@@ -1,0 +1,34 @@
+orchestration:
+  enabled: true
+  exporters:
+    camunda:
+      enabled: false
+    rdbms:
+      enabled: true
+  data:
+    secondaryStorage:
+      type:
+      rdbms:
+        url: jdbc:<DB_TYPE>://<DB_HOST>:<DB_PORT>/<DB_NAME>
+        username: <DB_USERNAME>
+        secret:
+          existingSecret: camunda-credentials
+          existingSecretKey: orchestration-rdbms-password
+identity:
+  enabled: false
+identityPostgresql:
+  enabled: false
+identityKeycloak:
+  enabled: false
+console:
+  enabled: false
+webModeler:
+  enabled: false
+webModelerPostgresql:
+  enabled: false
+connectors:
+  enabled: false
+optimize:
+  enabled: false
+elasticsearch:
+  enabled: false
