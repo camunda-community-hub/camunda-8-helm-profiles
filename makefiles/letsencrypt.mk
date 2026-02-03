@@ -27,18 +27,15 @@ letsencrypt-prod-patch:
 
 .PHONY: annotate-remove-ingress-tls
 annotate-remove-ingress-tls:
-	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer-
-	make get-ingress
+	kubectl -n $(CAMUNDA_NAMESPACE) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer-
 
 .PHONY: annotate-ingress-tls
 annotate-ingress-tls: annotate-remove-ingress-tls
-	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
-	make get-ingress
+	kubectl -n $(CAMUNDA_NAMESPACE) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt
 
 .PHONY: annotate-letsencrypt-stage
 annotate-letsencrypt-stage: annotate-remove-ingress-tls
-	kubectl -n $(namespace) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt-stage
-	make get-ingress
+	kubectl -n $(CAMUNDA_NAMESPACE) annotate ingress camunda-camunda-platform cert-manager.io/cluster-issuer=letsencrypt-stage
 
 # clean cert-manager and cluster issuer
 .PHONY: clean-cert-manager
@@ -50,16 +47,16 @@ clean-cert-manager:
 .PHONY: cacerts-staging
 cacerts-staging:
 	-kubectl create secret generic "cacerts-staging" \
-	--namespace=$(namespace) \
+	--namespace=$(CAMUNDA_NAMESPACE) \
 	--from-file=cacerts_staging=$(root)/recipes/letsencrypt/include/cacerts_staging
 
 .PHONY: get-cert-requests
 get-cert-requests:
-	-kubectl get certificaterequests --namespace $(namespace)
+	-kubectl get certificaterequests --namespace $(CAMUNDA_NAMESPACE)
 
 .PHONY: get-cert-orders
 get-cert-orders:
-	-kubectl get orders --namespace $(namespace)
+	-kubectl get orders --namespace $(CAMUNDA_NAMESPACE)
 
 .PHONY: set-letsencrypt-ingress-annotations
 set-letsencrypt-ingress-annotations:

@@ -63,9 +63,10 @@ uninstall-camunda:
 clean-camunda: uninstall-camunda
 	-kubectl delete namespace $(CAMUNDA_NAMESPACE)
 
-camunda-values.yaml: delete-camunda-values set-postgres-host
+camunda-values.yaml: delete-camunda-values
 	yq eval-all '. as $$item ireduce ({}; . * $$item)' $(CAMUNDA_HELM_VALUES) | \
 	sed "s|<CAMUNDA_VERSION>|$(CAMUNDA_VERSION)|g; \
+	     s|<YOUR_HOSTNAME>|$(HOST_NAME)|g; \
 	     s|<CAMUNDA_CLUSTER_SIZE>|$(CAMUNDA_CLUSTER_SIZE)|g; \
 	     s|<CAMUNDA_REPLICATION_FACTOR>|$(CAMUNDA_REPLICATION_FACTOR)|g; \
 	     s|<CAMUNDA_PARTITION_COUNT>|$(CAMUNDA_PARTITION_COUNT)|g; \

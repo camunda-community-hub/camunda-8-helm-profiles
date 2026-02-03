@@ -16,4 +16,9 @@ create-keycloak-admin-user:
               --verbose
 	@echo "✅ Created temporary admin account: $(KEYCLOAK_TEMP_ADMIN_USERNAME)"
 
+.PHONY: keycloak-password
+keycloak-password:
+	$(eval kcPassword := $(shell kubectl get secret --namespace $(CAMUNDA_NAMESPACE) "$(CAMUNDA_RELEASE_NAME)-keycloak" -o jsonpath="{.data.admin-password}" | base64 --decode))
+	@echo KeyCloak Admin password: $(kcPassword)
+
 

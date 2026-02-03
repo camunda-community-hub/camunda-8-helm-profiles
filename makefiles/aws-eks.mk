@@ -130,3 +130,9 @@ ingress-nginx:
 	helm search repo ingress-nginx
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait
 
+.PHONY: check-aws-cli
+check-aws-cli:
+	@echo "Checking AWS authentication..."
+	@aws sts get-caller-identity --query "Arn" --output text > /dev/null 2>&1 || \
+		(echo "❌ Error: AWS token is expired or missing. Run 'aws sso login' or refresh your credentials." && exit 1)
+	@echo "✅ AWS session is valid: $$(aws sts get-caller-identity --query 'Arn' --output text)"
