@@ -1,0 +1,7 @@
+identityPostgresql:
+  enabled: true
+  auth:
+    username: camunda
+    database: camunda
+    password: demo
+
