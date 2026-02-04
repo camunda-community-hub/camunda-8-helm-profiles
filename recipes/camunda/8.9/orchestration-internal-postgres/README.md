@@ -6,6 +6,13 @@ https://docs.camunda.io/docs/next/self-managed/deployment/helm/configure/databas
 
 https://docs.camunda.io/docs/next/self-managed/concepts/databases/relational-db/rdbms-support-policy/#bundled-drivers
 
+## Example Helm Command: 
+
+```shell
+helm upgrade --install --namespace camunda camunda /Users/dave/code/camunda-platform-helm/charts/camunda-platform-8.9 \
+-f ./camunda-values.yaml --version 14.0.0-alpha3 --skip-crds
+```
+
 ## Features
 
 This profile provides:
