@@ -5,7 +5,7 @@ DEPLOYMENT_NAME ?= mydeployment
 
 # Postgresql
 # If you are using the aurora postgres recipe this will be dynamically discovered
-POSTGRES_HOST ?= identity-postgres
+POSTGRES_HOST ?= camunda-identity-postgresql
 POSTGRES_CAMUNDA_DB ?= camunda
 POSTGRES_CAMUNDA_USERNAME ?= camunda
 
