@@ -49,6 +49,6 @@ KEYCLOAK_EXT_URL ?= http://localhost:18080
 ORCHESTRATION_EXT_URL ?= http://localhost:8080
 
 # Keycloak
-KEYCLOAK_ADMIN_USERNAME ?= keycloak_admin
+KEYCLOAK_ADMIN_USERNAME ?= admin
 KEYCLOAK_REALM ?= camunda-platform
 KEYCLOAK_EXT_URL ?= http://localhost:18080
