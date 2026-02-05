@@ -7,7 +7,7 @@ orchestration:
       enabled: true
   data:
     secondaryStorage:
-      type:
+      type: rdbms
       rdbms:
         url: jdbc:postgresql://identity-postgres:5432/camunda
         username: camunda
