@@ -1,2 +1,3 @@
-elasticsearch:
-  enabled: true
+global:
+  elasticsearch:
+    enabled: true

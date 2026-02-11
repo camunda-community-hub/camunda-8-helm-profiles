@@ -1,10 +1,10 @@
 .PHONY: kube-aks
 kube-aks:
-	az group create --name $(DEPLOYMENT_NAME)-rg --location $(REGION)
+	az group create --name $(DEPLOYMENT_NAME)-rg --location $(AZURE_REGION)
 	az aks create \
       --resource-group $(DEPLOYMENT_NAME)-rg \
       --name $(DEPLOYMENT_NAME) \
-      --node-vm-size $(MACHINE_TYPE) \
+      --node-vm-size $(AZURE_MACHINE_TYPE) \
       --node-count 1 \
       --vm-set-type VirtualMachineScaleSets \
       --enable-cluster-autoscaler \
@@ -22,11 +22,11 @@ kube: kube-aks
 
 .PHONY: kube-agic
 kube-agic:
-	az group create --name $(DEPLOYMENT_NAME)-rg --location $(REGION)
+	az group create --name $(DEPLOYMENT_NAME)-rg --location $(AZURE_REGION)
 	az aks create \
       --resource-group $(DEPLOYMENT_NAME)-rg \
       --name $(DEPLOYMENT_NAME) \
-      --node-vm-size $(MACHINE_TYPE) \
+      --node-vm-size $(AZURE_MACHINE_TYPE) \
       --node-count 1 \
       --vm-set-type VirtualMachineScaleSets \
       --enable-cluster-autoscaler \

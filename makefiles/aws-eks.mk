@@ -1,18 +1,14 @@
-cluster.yaml:
-	@# 1. Strip original brackets, quotes, and spaces
-	@# 2. Use sed to wrap each item in single quotes: item1,item2 -> 'item1','item2'
-	$(eval FORMATTED_ZONES := $(shell echo $(ZONES) | sed "s/[][ ']//g" | sed "s/,/','/g" | sed "s/^/'/" | sed "s/$$/'/"))
-
-	sed "s/<YOUR CLUSTER NAME>/$(DEPLOYMENT_NAME)/g; \
-	     s/<YOUR CLUSTER VERSION>/$(CLUSTER_VERSION)/g; \
-	     s/<YOUR REGION>/$(REGION)/g; \
-	     s/<YOUR INSTANCE TYPE>/$(MACHINE_TYPE)/g; \
-	     s/<YOUR MIN SIZE>/$(MIN_SIZE)/g; \
-	     s/<YOUR DESIRED SIZE>/$(DESIRED_SIZE)/g; \
-	     s/<YOUR MAX SIZE>/$(MAX_SIZE)/g; \
-	     s/<YOUR VOLUME SIZE>/$(VOLUME_SIZE)/g; \
-	     s|<YOUR AVAILABILITY ZONES>|[$(FORMATTED_ZONES)]|g;" \
-	     $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
+cluster.yaml: clean-cluster-yaml
+	sed "s/<DEPLOYMENT_NAME>/$(DEPLOYMENT_NAME)/g; \
+	     s/<CLUSTER_VERSION>/$(CLUSTER_VERSION)/g; \
+	     s/<REGION>/$(AWS_REGION)/g; \
+	     s/<MACHINE_TYPE>/$(AWS_MACHINE_TYPE)/g; \
+	     s/<MIN_SIZE>/$(MIN_SIZE)/g; \
+	     s/<DESIRED_SIZE>/$(DESIRED_SIZE)/g; \
+	     s/<MAX_SIZE>/$(MAX_SIZE)/g; \
+	     s/<VOLUME_SIZE>/$(VOLUME_SIZE)/g; \
+	     s|<ZONES>|[$(AWS_ZONES)]|g;" \
+	     $(root)/recipes/aws/include/cluster.tpl.yaml > cluster.yaml
 
 .PHONY: clean-cluster-yaml
 clean-cluster-yaml:
@@ -20,7 +16,7 @@ clean-cluster-yaml:
 
 .PHONY: oidc-provider
 oidc-provider:
-	eksctl utils associate-iam-oidc-provider --cluster $(DEPLOYMENT_NAME) --approve --region $(REGION)
+	eksctl utils associate-iam-oidc-provider --cluster $(DEPLOYMENT_NAME) --approve --region $(AWS_REGION)
 
 .PHONY: install-ebs-csi-controller-addon
 install-ebs-csi-controller-addon:
@@ -42,7 +38,7 @@ fetch-id-values:
 .PHONY: create-ebs-csi-controller-role-def
 create-ebs-csi-controller-role-def:fetch-id-values
 # 1. Fetch OIDC Provider id and AccountId, and create the aws-ebs-csi-driver-trust-policy.json file
-	sed "s/<account_id>/$(account_id)/g; s/<region>/$(REGION)/g; s/<oidc_id>/$(oidc_id)/g;" $(root)/aws/include/ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
+	sed "s/<account_id>/$(account_id)/g; s/<region>/$(AWS_REGION)/g; s/<oidc_id>/$(oidc_id)/g;" $(root)/recipes/aws/include/ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
 
 .PHONY: create-ebs-csi-role
 create-ebs-csi-role: create-ebs-csi-controller-role-def
@@ -85,7 +81,7 @@ restart-ebs-csi-controller:
 kube-aws: cluster.yaml
 	eksctl create cluster -f cluster.yaml
 	rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml
-	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
+	kubectl apply -f $(root)/recipes/aws/include/ssd-storageclass-aws.yaml
 	kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
@@ -110,18 +106,18 @@ delete-iam-role: detach-role-policy-mapping
 
 .PHONY: clean-kube-aws
 clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
-	eksctl delete cluster --name $(DEPLOYMENT_NAME) --region $(REGION)
+	eksctl delete cluster --name $(DEPLOYMENT_NAME) --region $(AWS_REGION)
 
 .PHONY: clean-kube
 clean-kube: clean-kube-aws
 
 .PHONY: use-kube
 use-kube:
-	eksctl utils write-kubeconfig -c $(DEPLOYMENT_NAME) --region $(REGION)
+	eksctl utils write-kubeconfig -c $(DEPLOYMENT_NAME) --region $(AWS_REGION)
 
 .PHONY: urls
 urls:
-	@echo "Cluster: https://$(REGION).console.aws.amazon.com/eks/home?region=$(REGION)#/clusters/$(DEPLOYMENT_NAME)"
+	@echo "Cluster: https://$(AWS_REGION).console.aws.amazon.com/eks/home?region=$(AWS_REGION)#/clusters/$(DEPLOYMENT_NAME)"
 
 .PHONY: ingress-nginx
 ingress-nginx:

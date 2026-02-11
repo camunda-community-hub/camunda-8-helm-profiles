@@ -10,7 +10,7 @@ orchestration:
       enabled: true
   data:
     secondaryStorage:
-      type:
+      type: rdbms
       rdbms:
         url: jdbc:postgresql://<POSTGRES_HOST>:5432/<POSTGRES_CAMUNDA_DB>
         username: <POSTGRES_CAMUNDA_USERNAME>

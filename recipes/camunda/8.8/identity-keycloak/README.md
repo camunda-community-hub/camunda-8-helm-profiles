@@ -1,7 +1,7 @@
 # Camunda 8 with External Postgres
 
-This helps to configure an environment with Camunda 8.8 environment where Keycloak, Management Identity and WebModeler 
-use an external Postgres database  
+This helps to configure an environment with Camunda 8.8 environment with Keycloak, Management Identity and WebModeler 
+are provisioned using postgresql database provisioned inside the same kubernetes cluster as convenience. 
 
 ## Features
 
@@ -11,6 +11,8 @@ This profile provides:
 - **WebModeler**: Configured to use the external Postgres database
 - **Orchestration**: Configured to use Keycloak oidc for authentication
 - **Elasticsearch**: for orchestration secondary storage
+- **IdentityPostgres**: Used as database for Keycloak, Identity
+- **ModelerIdentity**: Used as database for Web Modeler
 - **Connectors**: Configured to use Keycloak for m2m authentication
 
 ## Prerequisites
@@ -103,8 +105,3 @@ To customize this profile:
 ### Cannot access services
 - Verify port forwarding is active
 - Check service status: `kubectl get svc -n camunda`
-
-kubectl exec camunda-identity-6dfdb46f68-7hz2k -- printenv VALUES_KEYCLOAK_SETUP_PASSWORD
-```shell
-VALUES_KEYCLOAK_SETUP_PASSWORD
-```

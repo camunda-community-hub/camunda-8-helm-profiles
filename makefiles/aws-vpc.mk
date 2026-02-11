@@ -2,7 +2,7 @@
 create-vpc:
 	aws ec2 create-vpc \
       --cidr-block $(CIDR_BLOCK) \
-      --region $(REGION) \
+      --region $(AWS_REGION) \
       --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=$(VPC_NAME)}]'
 
 .PHONY: delete-vpc

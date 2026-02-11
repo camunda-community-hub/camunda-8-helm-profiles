@@ -1,0 +1,8 @@
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    host: <YOUR_HOSTNAME>
+    tls:
+      enabled: true
+      secretName: tls-secret

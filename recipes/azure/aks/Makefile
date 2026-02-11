@@ -20,8 +20,8 @@ clean: clean-ingress clean-metrics clean-kube
 .PHONY: setup-metrics
 setup-metrics: metrics
 
-.PHONY: setup-nginx-ingress
-setup-nginx-ingress: ingress-nginx cert-manager letsencrypt-prod
+.PHONY: setup-ingress-nginx
+setup-ingress-nginx: ingress-nginx cert-manager letsencrypt-prod
 
 include $(root)/makefiles/azure-common.mk
 include $(root)/makefiles/azure-aks.mk

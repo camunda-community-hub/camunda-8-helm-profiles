@@ -1,18 +1,18 @@
 .PHONY: get-eks-subnets
 get-eks-subnets:
-	aws eks describe-cluster --name $(CLUSTER) --region $(REGION) \
+	aws eks describe-cluster --name $(CLUSTER) --region $(AWS_REGION) \
 	  --query 'cluster.resourcesVpcConfig.subnetIds' --output text
 
 .PHONY: create-db-subnet-group-from-eks
 create-db-subnet-group-from-eks:
 	@echo "🔍 Filtering EKS subnets for Public access only..."
-	$(eval EKS_SUBNETS := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(REGION) \
+	$(eval EKS_SUBNETS := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(AWS_REGION) \
 		--query 'cluster.resourcesVpcConfig.subnetIds' --output text))
 
 	@# Filter loop to find only public subnets
 	@PUBLIC_SUBNETS=""; \
 	for s in $(EKS_SUBNETS); do \
-		IGW=$$(aws ec2 describe-route-tables --region $(REGION) \
+		IGW=$$(aws ec2 describe-route-tables --region $(AWS_REGION) \
 			--filters "Name=association.subnet-id,Values=$$s" \
 			--query "RouteTables[*].Routes[?DestinationCidrBlock=='0.0.0.0/0'].GatewayId" --output text); \
 		if [[ $$IGW == igw-* ]]; then \
@@ -29,12 +29,12 @@ create-db-subnet-group-from-eks:
 		--db-subnet-group-name $(DEPLOYMENT_NAME)-aurora-group \
 		--db-subnet-group-description "Public-only Aurora group for $(DEPLOYMENT_NAME)" \
 		--subnet-ids $$PUBLIC_SUBNETS \
-		--region $(REGION) \
+		--region $(AWS_REGION) \
 		--no-cli-pager
 
 #.PHONY: create-db-subnet-group-from-eks
 #create-db-subnet-group-from-eks:
-#	$(eval SUBNETS := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(REGION) \
+#	$(eval SUBNETS := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(AWS_REGION) \
 #	  --query 'cluster.resourcesVpcConfig.subnetIds' --output text))
 ##	$(eval VPC_ID := $(shell aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$(VPC_NAME)" --query "Vpcs[0].VpcId" --output text))
 ##	$(eval SUBNETS := $(shell aws ec2 describe-subnets --filters "Name=vpc-id,Values=$(VPC_ID)" --query "Subnets[*].SubnetId" --output text))
@@ -269,7 +269,7 @@ check-public-access:
 	@# Using the key you verified: DBSubnetGroup
 	$(eval GROUP_NAME := $(shell aws rds describe-db-clusters \
 		--db-cluster-identifier $(DEPLOYMENT_NAME)-cluster \
-		--region $(REGION) \
+		--region $(AWS_REGION) \
 		--query "DBClusters[0].DBSubnetGroup" --output text 2>/dev/null))
 
 	@if [ -z "$(GROUP_NAME)" ] || [ "$(GROUP_NAME)" = "None" ]; then \
@@ -279,10 +279,10 @@ check-public-access:
 	\
 	SUBNETS=$$(aws rds describe-db-subnet-groups \
 		--db-subnet-group-name $(GROUP_NAME) \
-		--region $(REGION) \
+		--region $(AWS_REGION) \
 		--query "DBSubnetGroups[0].Subnets[*].SubnetIdentifier" --output text); \
 	for s in $$SUBNETS; do \
-		IGW=$$(aws ec2 describe-route-tables --region $(REGION) \
+		IGW=$$(aws ec2 describe-route-tables --region $(AWS_REGION) \
 			--filters "Name=association.subnet-id,Values=$$s" \
 			--query "RouteTables[*].Routes[?DestinationCidrBlock=='0.0.0.0/0'].GatewayId" --output text); \
 		if [[ $$IGW == igw-* ]]; then \

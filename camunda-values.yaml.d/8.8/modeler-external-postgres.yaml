@@ -5,7 +5,7 @@ webModeler:
   restapi:
     externalDatabase:
       enabled: true
-      host: <POSTGRES_HOST>
+      host: dave01-cluster.cluster-cjqkdcxqdsib.ca-central-1.rds.amazonaws.com
       port: 5432
       database: <POSTGRES_MODELER_DB>
       user: <POSTGRES_MODELER_USERNAME>

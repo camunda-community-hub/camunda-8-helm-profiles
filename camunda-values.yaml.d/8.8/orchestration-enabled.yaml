@@ -1,7 +1,9 @@
 orchestration:
   enabled: true
-
   contextPath: "/orchestration"
   clusterSize: "<CAMUNDA_CLUSTER_SIZE>"
   partitionCount: "<CAMUNDA_PARTITION_COUNT>"
   replicationFactor: "<CAMUNDA_REPLICATION_FACTOR>"
+  data:
+    secondaryStorage:
+      type: elasticsearch

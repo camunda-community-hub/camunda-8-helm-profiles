@@ -12,10 +12,7 @@ global:
       jwksUrl: http://camunda-keycloak/auth/realms/<KEYCLOAK_REALM>/protocol/openid-connect/certs
 
       identity:
-        redirectUrl: <IDENTITY_EXT_URL>/identity
-
-      webModeler:
-        redirectUrl: <WEB_MODELER_EXT_URL>/modeler
+        redirectUrl: <IDENTITY_EXT_URL>/management
 
       # if optimize is disabled, then this shouldn't be required,
       # but this is a known issue that, currently, identity requires this even if optimize is disabled.
@@ -23,6 +20,8 @@ global:
         secret:
           existingSecret: camunda-credentials
           existingSecretKey: identity-optimize-client-token
+      webModeler:
+        redirectUrl: <WEB_MODELER_EXT_URL>/modeler
 
 
     # This defines how Identity authenticates to Keycloak admin API
@@ -39,9 +38,10 @@ global:
         existingSecret: "camunda-credentials"
         existingSecretKey: "identity-keycloak-admin-password"
 
-# Identity configured to point to an external postgresql database
 identity:
   enabled: true
+  contextPath: /management
+  fullURL: <IDENTITY_EXT_URL>/management
   firstUser:
     secret:
       existingSecret: "camunda-credentials"
@@ -49,18 +49,21 @@ identity:
   env:
     - name: KEYCLOAK_REALM
       value: <KEYCLOAK_REALM>
+  # Use internally provisioned postgresql database for identity
   externalDatabase:
-    enabled: true
-    host: dave01-cluster.cluster-cjqkdcxqdsib.ca-central-1.rds.amazonaws.com
-    port: 5432
-    database: <POSTGRES_IDENTITY_DB>
-    schema: public
-    username: <POSTGRES_IDENTITY_USERNAME>
-    secret:
-        existingSecret: camunda-credentials
-        existingSecretPasswordKey: identity-postgresql-user-password
+    enabled: false
 
-# Keycloak will be installed but configure it to point to an external postgresql database
+identityPostgresql:
+  enabled: true
+  auth:
+    username: identity
+    database: identity
+    existingSecret: camunda-credentials
+    secretKeys:
+      adminPasswordKey: identity-postgresql-admin-password
+      userPasswordKey: identity-postgresql-user-password
+
+# Keycloak will be installed and will use internally provisioned postgresql database
 identityKeycloak:
   enabled: true
   # This defines the admin user and password for Keycloak. Keycloak will create this user during first start
@@ -68,17 +71,9 @@ identityKeycloak:
     adminUser: <KEYCLOAK_ADMIN_USERNAME>
     existingSecret: camunda-credentials
     passwordSecretKey: identity-keycloak-admin-password
-  # Tell the Keycloak chart to disable its internal database so that we can configure an external one
   postgresql:
-    enabled: false
-  # Tell the Keycloak chart to use an external database
-  externalDatabase:
-    host: dave01-cluster.cluster-cjqkdcxqdsib.ca-central-1.rds.amazonaws.com
-    port: 5432
-    database: <POSTGRES_KEYCLOAK_DB>
-    schema: public
-    # The username that keycloak uses to connect to the external db
-    user: <POSTGRES_KEYCLOAK_USERNAME>
-    # The password that keycloak uses to connect to the external database
-    existingSecret: camunda-credentials
-    existingSecretPasswordKey: identity-keycloak-user-password
+    auth:
+      existingSecret: camunda-credentials
+      secretKeys:
+        adminPasswordKey: identity-postgresql-admin-password
+        userPasswordKey: identity-postgresql-user-password

@@ -4,9 +4,9 @@
 DEPLOYMENT_NAME ?= mydeployment
 
 # Cloud environment and K8s cluster
-REGION ?= eastus
+AZURE_REGION ?= eastus
 
-MACHINE_TYPE ?= Standard_A8_v2
+AZURE_MACHINE_TYPE ?= Standard_A8_v2
 CLUSTER_VERSION ?= 1.34
 
 MIN_SIZE ?= 1

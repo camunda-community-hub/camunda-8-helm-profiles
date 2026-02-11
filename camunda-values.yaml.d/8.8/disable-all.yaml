@@ -1,3 +1,7 @@
+global:
+  elasticsearch:
+    enabled: false
+
 identity:
   enabled: false
 
@@ -23,7 +27,4 @@ orchestration:
   enabled: false
 
 optimize:
-  enabled: false
-
-elasticsearch:
   enabled: false

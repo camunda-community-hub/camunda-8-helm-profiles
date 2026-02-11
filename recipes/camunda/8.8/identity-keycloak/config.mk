@@ -4,7 +4,6 @@
 DEPLOYMENT_NAME ?= mydeployment
 
 # Aurora Postgresql
-POSTGRES_HOST ?= xxx-cluster.cluster-xxx.ca-central-1.rds.amazonaws.com
 POSTGRES_MASTER_USERNAME ?= postgres
 POSTGRES_MASTER_PASSWORD ?= CHANGEME
 
@@ -20,7 +19,8 @@ POSTGRES_MODELER_USERNAME ?= modeler
 # Camunda installation
 CAMUNDA_NAMESPACE ?= camunda
 CAMUNDA_RELEASE_NAME ?= camunda
-CAMUNDA_CHART ?= camunda/camunda-platform
+# CAMUNDA_CHART ?= camunda/camunda-platform
+CAMUNDA_CHART ?= /Users/dave/code/camunda-platform-helm/charts/camunda-platform-8.9
 
 CAMUNDA_HELM_CHART_VERSION ?= 13.4.1
 CAMUNDA_VERSION ?= 8.8.9
@@ -50,6 +50,6 @@ KEYCLOAK_EXT_URL ?= http://localhost:18080
 ORCHESTRATION_EXT_URL ?= http://localhost:8080
 
 # Keycloak
-KEYCLOAK_ADMIN_USERNAME ?= admin
+KEYCLOAK_ADMIN_USERNAME ?= keycloak_admin
 KEYCLOAK_REALM ?= camunda-platform
 KEYCLOAK_EXT_URL ?= http://localhost:18080

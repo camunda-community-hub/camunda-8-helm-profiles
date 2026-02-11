@@ -1,5 +1,5 @@
 webModeler:
-  contextPath: "/modeler"
+  contextPath: /modeler
   enabled: true
   restapi:
     mail:

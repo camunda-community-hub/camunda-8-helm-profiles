@@ -7,11 +7,11 @@ clean-files:
 kube-gke:
 	gcloud config set project $(GCP_PROJECT)
 	gcloud container clusters create $(DEPLOYMENT_NAME) \
-	  --region $(REGION) \
+	  --region $(GCP_REGION) \
 	  --num-nodes=1 \
 	  --enable-autoscaling --max-nodes=$(MAX_SIZE) --min-nodes=$(MIN_SIZE) \
 	  --enable-ip-alias \
-	  --machine-type=$(machineType) \
+	  --machine-type=$(GCP_MACHINE_TYPE) \
 	  --disk-type "pd-ssd" \
 	  --spot \
 	  --maintenance-window=4:00 \
@@ -20,7 +20,7 @@ kube-gke:
 	gcloud container clusters list
 	# kubectl apply -f $(root)/google/include/ssd-storageclass-gke.yaml
 	gcloud config set project $(GCP_PROJECT)
-	gcloud container clusters get-credentials $(DEPLOYMENT_NAME) --region $(REGION)
+	gcloud container clusters get-credentials $(DEPLOYMENT_NAME) --region $(GCP_REGION)
 
 .PHONY: ssd-storageclass
 ssd-storageclass:
@@ -34,7 +34,7 @@ node-pool:
 	gcloud beta container node-pools create "pool-c3-standard-8" \
 	  --project $(GCP_PROJECT) \
 	  --cluster $(DEPLOYMENT_NAME) \
-	  --region $(REGION) \
+	  --region $(GCP_REGION) \
 	  --machine-type "c3-standard-8" \
 	  --disk-type "pd-ssd" \
 	  --spot \
@@ -57,7 +57,7 @@ node-pool:
 clean-kube-gke: use-kube
 #	-kubectl delete pvc --all
 	@echo "Please check the console if all PVCs have been deleted: https://console.cloud.google.com/compute/disks?authuser=0&project=$(GCP_PROJECT)&supportedpurview=project"
-	gcloud container clusters delete $(DEPLOYMENT_NAME) --region $(REGION) --async --quiet
+	gcloud container clusters delete $(DEPLOYMENT_NAME) --region $(GCP_REGION) --async --quiet
 	gcloud container clusters list
 
 .PHONY: clean-kube
@@ -66,17 +66,17 @@ clean-kube: clean-kube-gke
 .PHONY: use-kube
 use-kube:
 	gcloud config set project $(GCP_PROJECT)
-	gcloud container clusters get-credentials $(DEPLOYMENT_NAME) --region $(REGION)
+	gcloud container clusters get-credentials $(DEPLOYMENT_NAME) --region $(GCP_REGION)
 
 .PHONY: urls
 urls:
-	@echo "Cluster: https://console.cloud.google.com/kubernetes/clusters/details/$(REGION)/$(DEPLOYMENT_NAME)/details?project=$(GCP_PROJECT)"
-	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload_/gcloud/$(REGION)/$(DEPLOYMENT_NAME)?project=$(project)"
+	@echo "Cluster: https://console.cloud.google.com/kubernetes/clusters/details/$(GCP_REGION)/$(DEPLOYMENT_NAME)/details?project=$(GCP_PROJECT)"
+	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload_/gcloud/$(GCP_REGION)/$(DEPLOYMENT_NAME)?project=$(project)"
 
 # List pvcs associated with the cluster
 .PHONY: disks
 disks:
-	gcloud compute disks list --filter="zone ~ $(REGION) AND users ~ $(DEPLOYMENT_NAME) AND name ~ pvc"
+	gcloud compute disks list --filter="zone ~ $(GCP_REGION) AND users ~ $(DEPLOYMENT_NAME) AND name ~ pvc"
 
 .PHONY: ingress-nginx
 ingress-nginx:
