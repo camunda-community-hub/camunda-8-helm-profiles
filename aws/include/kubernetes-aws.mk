@@ -1,4 +1,3 @@
-
 cluster.yaml:
 	sed "s/<YOUR CLUSTER NAME>/$(clusterName)/g; s/<YOUR CLUSTER VERSION>/$(clusterVersion)/g; s/<YOUR REGION>/$(region)/g; s/<YOUR INSTANCE TYPE>/$(machineType)/g; s/<YOUR MIN SIZE>/$(minSize)/g; s/<YOUR DESIRED SIZE>/$(desiredSize)/g; s/<YOUR MAX SIZE>/$(maxSize)/g; s/<YOUR AVAILABILITY ZONES>/$(zones)/g; s/<YOUR VOLUME SIZE>/$(volumeSize)/g;" $(root)/aws/include/cluster.tpl.yaml > cluster.yaml
 
@@ -76,6 +75,32 @@ kube-aws: cluster.yaml
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
 	kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
+.PHONY: kube-node-pool # create an additional Kubernetes node pool
+kube-node-pool:
+	@if eksctl get nodegroup --cluster $(clusterName) --region $(region) --name "ng-$(subst .,-,$(nodePoolMachineType))" 2>/dev/null; then \
+	  echo "Node group ng-$(subst .,-,$(nodePoolMachineType)) already exists, skipping creation"; \
+	else \
+	  eksctl create nodegroup \
+	    --cluster $(clusterName) \
+	    --region $(region) \
+	    --name "ng-$(subst .,-,$(nodePoolMachineType))" \
+	    --node-type "$(nodePoolMachineType)" \
+	    --nodes $(desiredSize) \
+	    --nodes-min 0 \
+	    --nodes-max $(maxSize) \
+	    --node-volume-size 24 \
+	    --spot \
+	    --managed \
+	    --asg-access; \
+	fi
+
+.PHONY: clean-kube-node-pool
+clean-kube-node-pool:
+	eksctl delete nodegroup \
+	  --cluster $(clusterName) \
+	  --region $(region) \
+	  --name "ng-$(subst .,-,$(nodePoolMachineType))"
 
 .PHONY: kube
 kube: kube-aws install-ebs-csi-controller-addon oidc-provider metrics
