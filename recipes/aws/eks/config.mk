@@ -4,10 +4,10 @@
 DEPLOYMENT_NAME ?= mydeployment
 
 # Cloud environment and K8s cluster
-REGION ?= ca-central-1
-ZONES ?= ['ca-central-1a', 'ca-central-1b']
+AWS_REGION ?= ca-central-1
+AWS_ZONES ?= ['ca-central-1a', 'ca-central-1b']
 
-MACHINE_TYPE ?= c6i.4xlarge
+AWS_MACHINE_TYPE ?= c6i.4xlarge
 CLUSTER_VERSION ?= 1.34
 VOLUME_SIZE ?= 100
 

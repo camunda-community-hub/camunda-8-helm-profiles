@@ -31,7 +31,7 @@ ebs-csi-controller-addon: ebs-csi-attach-role-policy create-ebs-csi-addon annota
 
 .PHONY: fetch-id-values
 fetch-id-values:
-	$(eval oidc_id := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
+	$(eval oidc_id := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(AWS_REGION) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
 	$(eval account_id_value := $(shell aws sts get-caller-identity | grep Account | cut -d ':' -f 2))
 	$(eval account_id := $(shell echo $(account_id_value) | tr -d ',' ))
 
@@ -43,7 +43,7 @@ create-ebs-csi-controller-role-def:fetch-id-values
 .PHONY: create-ebs-csi-role
 create-ebs-csi-role: create-ebs-csi-controller-role-def
 # 2. Create the IAM Role - to be run only once, the script will throw error if the role exists already
-	aws iam create-role \
+	-aws iam create-role \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(DEPLOYMENT_NAME) \
 	  --assume-role-policy-document file://"ebs-csi-driver-trust-policy.json";
 	@echo "waiting 20 seconds to create the required role";
@@ -59,7 +59,7 @@ ebs-csi-attach-role-policy: create-ebs-csi-role
 .PHONY: create-ebs-csi-addon
 create-ebs-csi-addon: fetch-id-values
 # 4. Add the aws-ebs-csi-driver addon to the cluster
-	aws eks create-addon --cluster-name $(DEPLOYMENT_NAME) --addon-name aws-ebs-csi-driver \
+	aws eks create-addon --cluster-name $(DEPLOYMENT_NAME) --region $(AWS_REGION) --addon-name aws-ebs-csi-driver \
 	  --service-account-role-arn arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(DEPLOYMENT_NAME);
 	@echo "waiting 20 seconds to create the aws-ebs-csi-driver addon";
 	@sleep 20;
@@ -86,7 +86,7 @@ kube-aws: cluster.yaml
 	kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
 .PHONY: kube
-kube: kube-aws install-ebs-csi-controller-addon oidc-provider
+kube: kube-aws oidc-provider install-ebs-csi-controller-addon
 
 .PHONY: kube-upgrade
 kube-upgrade:
@@ -113,7 +113,7 @@ clean-kube: clean-kube-aws
 
 .PHONY: use-kube
 use-kube:
-	eksctl utils write-kubeconfig -c $(DEPLOYMENT_NAME) --region $(AWS_REGION)
+	eksctl utils.write-kubeconfig -c $(DEPLOYMENT_NAME) --region $(AWS_REGION)
 
 .PHONY: urls
 urls:

@@ -1,8 +1,8 @@
 # Setting up a ingress nginx controller is subtly different for each cloud provider.
 # So the ingress-nginx target can now be found in each of the cloud provider specific makefiles.
 
-	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
-	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt" \
+#	--set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
+#	--set controller.service.annotations."cert-manager.io/cluster-issuer"="letsencrypt" \
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
