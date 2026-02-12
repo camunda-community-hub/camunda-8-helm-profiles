@@ -113,7 +113,7 @@ clean-kube: clean-kube-aws
 
 .PHONY: use-kube
 use-kube:
-	eksctl utils.write-kubeconfig -c $(DEPLOYMENT_NAME) --region $(AWS_REGION)
+	eksctl utils write-kubeconfig -c $(DEPLOYMENT_NAME) --region $(AWS_REGION)
 
 .PHONY: urls
 urls:
