@@ -3,7 +3,7 @@ alertmanager:
 
 grafana:
   image:
-    tag: 11.6.7
+    tag: 12.3.2
   admin:
     existingSecret: grafana-credentials
     userKey: admin-user
@@ -58,7 +58,7 @@ grafana:
 prometheus:
   prometheusSpec:
     retention: 90d
-    shards: null
+    shards: 1
     storageSpec:
       volumeClaimTemplate:
         metadata:
