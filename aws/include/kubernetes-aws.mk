@@ -16,18 +16,38 @@ ifeq "1.23" "$(word 1, $(sort 1.23 $(clusterVersion)))"
 	$(MAKE) ebs-csi-controller-addon
 endif
 
+.PHONY: wait-for-cluster-active
+wait-for-cluster-active:
+	@echo "Waiting for cluster $(clusterName) to become ACTIVE..."
+	@MAX_ATTEMPTS=10; \
+	ATTEMPT=0; \
+	while [ $$ATTEMPT -lt $$MAX_ATTEMPTS ]; do \
+		CLUSTER_STATUS=$$(aws eks describe-cluster --name $(clusterName) --region $(region) --query 'cluster.status' --output text 2>/dev/null || echo "NOT_FOUND"); \
+		if [ "$$CLUSTER_STATUS" = "ACTIVE" ]; then \
+			echo "Cluster $(clusterName) is ACTIVE"; \
+			exit 0; \
+		fi; \
+		echo "Cluster status: $$CLUSTER_STATUS (attempt $$((ATTEMPT + 1))/$$MAX_ATTEMPTS)"; \
+		ATTEMPT=$$((ATTEMPT + 1)); \
+		sleep 10; \
+	done; \
+	echo "Error: Cluster did not become ACTIVE within timeout"; \
+	exit 1
+
 #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
 .PHONY: ebs-csi-controller-addon
 ebs-csi-controller-addon: ebs-csi-attach-role-policy create-ebs-csi-addon annotate-ebs-csi-sa restart-ebs-csi-controller
 
 .PHONY: fetch-id-values
-fetch-id-values:
-	$(eval oidc_id := $(shell aws eks describe-cluster --name $(clusterName) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
-	$(eval account_id_value := $(shell aws sts get-caller-identity | grep Account | cut -d ':' -f 2))
-	$(eval account_id := $(shell echo $(account_id_value) | tr -d ',' ))
+fetch-id-values: wait-for-cluster-active
+	$(eval oidc_id := $(shell aws eks describe-cluster --name $(clusterName) --region $(region) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
+	$(eval account_id := $(shell aws sts get-caller-identity --query Account --output text))
+	@echo "oidc_id: $(oidc_id)";
+	@echo "account_id: $(account_id)";
+	@sleep 20;
 
 .PHONY: create-ebs-csi-controller-role-def
-create-ebs-csi-controller-role-def:fetch-id-values
+create-ebs-csi-controller-role-def: fetch-id-values
 # 1. Fetch OIDC Provider id and AccountId, and create the aws-ebs-csi-driver-trust-policy.json file
 	sed "s/<account_id>/$(account_id)/g; s/<region>/$(region)/g; s/<oidc_id>/$(oidc_id)/g;" $(root)/aws/include/ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
 
@@ -37,7 +57,7 @@ create-ebs-csi-role: create-ebs-csi-controller-role-def
 	aws iam create-role \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) \
 	  --assume-role-policy-document file://"ebs-csi-driver-trust-policy.json";
-	@echo "waiting 20 seconds to create the required role";
+	@echo "waiting 20 seconds to create the required role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)";
 	@sleep 20;
 
 .PHONY: ebs-csi-attach-role-policy
@@ -46,13 +66,15 @@ ebs-csi-attach-role-policy: create-ebs-csi-role
 	aws iam attach-role-policy \
 	  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
+	@echo "waiting 20 seconds to attach policy, AmazonEBSCSIDriverPolicy, to the role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)";
+	@sleep 20;
 
 .PHONY: create-ebs-csi-addon
 create-ebs-csi-addon: fetch-id-values
 # 4. Add the aws-ebs-csi-driver addon to the cluster
-	aws eks create-addon --cluster-name $(clusterName) --addon-name aws-ebs-csi-driver \
+	aws eks create-addon --cluster-name $(clusterName) --region $(region) --addon-name aws-ebs-csi-driver \
 	  --service-account-role-arn arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName);
-	@echo "waiting 20 seconds to create the aws-ebs-csi-driver addon";
+	@echo "waiting 20 seconds to create aws-ebs-csi-driver addon";
 	@sleep 20;
 
 .PHONY: annotate-ebs-csi-sa
@@ -184,3 +206,5 @@ delete-cloud-dns: fqdn-aws
 	gcloud dns record-sets delete $(fqdn) \
 	  --type=A \
 	  --zone=$(dnsManagedZone)
+
+include $(root)/metrics/metrics.mk
