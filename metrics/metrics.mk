@@ -5,7 +5,7 @@ metrics: grafana-secret.yaml
 	helm repo update prometheus-community stable
 	kubectl apply -f ./grafana-secret.yaml -n default
 	@echo " ************  Grafana password : [$$(grep 'admin-password' ./grafana-secret.yaml | grep -v 'name:'  | cut -d':' -f2- | sed 's/\r//' | xargs )] **********"
-	helm install metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
+	helm install metrics prometheus-community/kube-prometheus-stack --wait -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 	kubectl apply -f $(root)/metrics/grafana-load-balancer.yml -n default
 
 #    echo "Grafana password : [$(grep "admin-password" grafana-secret.yaml | cut -d':' -f2- | xargs)]"
@@ -17,7 +17,7 @@ grafana-password:
 
 .PHONY: update-metrics
 update-metrics:
-	helm upgrade metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
+	helm upgrade metrics prometheus-community/kube-prometheus-stack --wait -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 
 .PHONY: clean-metrics
 clean-metrics:
