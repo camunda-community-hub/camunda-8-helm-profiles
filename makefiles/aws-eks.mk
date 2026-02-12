@@ -31,6 +31,7 @@ ebs-csi-controller-addon: ebs-csi-attach-role-policy create-ebs-csi-addon annota
 
 .PHONY: fetch-id-values
 fetch-id-values:
+	@echo "Fetching OIDC and account identifiers..."
 	$(eval oidc_id := $(shell aws eks describe-cluster --name $(DEPLOYMENT_NAME) --region $(AWS_REGION) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
 	$(eval account_id_value := $(shell aws sts get-caller-identity | grep Account | cut -d ':' -f 2))
 	$(eval account_id := $(shell echo $(account_id_value) | tr -d ',' ))
