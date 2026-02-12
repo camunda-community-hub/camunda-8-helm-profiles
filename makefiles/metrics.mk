@@ -3,7 +3,7 @@ metrics: create-grafana-credentials
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 	helm repo add stable https://charts.helm.sh/stable
 	helm repo update prometheus-community stable
-	helm install metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/recipes/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
+	helm install metrics prometheus-community/kube-prometheus-stack --wait -f $(root)/recipes/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 	kubectl apply -f $(root)/recipes/metrics/grafana-load-balancer.yml -n default
 	@${MAKE} grafana-password
 
@@ -20,7 +20,7 @@ grafana-password:
 
 .PHONY: update-metrics
 update-metrics:
-	helm upgrade metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/recipes/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
+	helm upgrade metrics prometheus-community/kube-prometheus-stack --wait -f $(root)/recipes/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 
 .PHONY: clean-metrics
 clean-metrics:
