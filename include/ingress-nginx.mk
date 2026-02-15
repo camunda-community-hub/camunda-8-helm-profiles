@@ -27,13 +27,13 @@ ingress-nginx-tls:
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
-	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
+	$(eval IP := $(shell kubectl get service ingress-nginx-controller  -n ingress-nginx  -o jsonpath='{.spec.clusterIP}'))
 	@echo "Ingress controller uses IP address: $(IP)"
 
 .PHONY: ingress-hostname-from-service
 ingress-hostname-from-service:
-	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.hostname}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
-	@echo "Ingress controller uses hostname: $(IP)"
+	$(eval HOST_NAME := $(shell kubectl get service ingress-nginx-controller  -n ingress-nginx  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}'))
+	@echo "Ingress controller uses hostname: $(HOST_NAME)"
 
 # If `baseDomainName` is set to `nip.io`, then find ip address from service to create fully qualified domain name
 # Otherwise, just use domain name that was specified in Makefile
