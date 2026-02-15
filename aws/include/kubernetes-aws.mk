@@ -157,13 +157,14 @@ urls:
 
 .PHONY: await-elb
 await-elb:
-	$(root)/aws/ingress/nginx/tls/aws-ingress.sh
+	@echo "Waiting for AWS ELB to be provisioned for ingress-nginx-controller service"
+	AWS_REGION=$(region) $(root)/aws/ingress/nginx/tls/aws-ingress.sh
 
 .PHONY: ingress-aws-ip-from-service
 ingress-aws-ip-from-service: await-elb
-	$(eval ELB_ID := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.hostname}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1 | cut -d'.' -f 1 | cut -d'-' -f 1))
+	$(eval ELB_ID := $(shell kubectl get service ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' -n ingress-nginx | cut -d'.' -f 1 | cut -d'-' -f 1))
 	@echo "AWS ELB id: $(ELB_ID)"
-	$(eval IP_TMP := $(shell aws ec2 describe-network-interfaces --filters Name=description,Values="ELB ${ELB_ID}" --query 'NetworkInterfaces[0].PrivateIpAddresses[*].Association.PublicIp' --output text))
+	$(eval IP_TMP := $(shell aws ec2 describe-network-interfaces --region ${region} --filters Name=description,Values="ELB ${ELB_ID}" --query 'NetworkInterfaces[0].PrivateIpAddresses[*].Association.PublicIp' --output text))
 	#$(eval IP := $(shell echo ${IP_TMP} | sed 's/\./-/g'))
 	$(eval IP := $(shell echo ${IP_TMP} ))
 	#@echo "AWS ELB IP: ec2-$(IP).compute-1.amazonaws.com"

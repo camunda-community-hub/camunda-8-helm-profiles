@@ -6,7 +6,9 @@ ingress-nginx:
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	helm repo update ingress-nginx
 	helm search repo ingress-nginx
+	@echo "Installing ingress-nginx Helm chart. This may take a few minutes..."
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait
+	@echo "Installation of ingress-nginx Helm chart completed successfully."
 
 #	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
 #	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
