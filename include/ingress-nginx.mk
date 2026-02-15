@@ -27,8 +27,8 @@ ingress-nginx-tls:
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
-	$(eval IP := $(shell kubectl get service ingress-nginx-controller  -n ingress-nginx  -o jsonpath='{.spec.clusterIP}'))
-	@echo "Ingress controller uses IP address: $(IP)"
+	$(eval ELB_ID := $(shell kubectl get service ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' -n ingress-nginx | cut -d'.' -f 1 | cut -d'-' -f 1))
+	@echo "Ingress controller uses ELB_IP address: $(ELB_ID)"
 
 .PHONY: ingress-hostname-from-service
 ingress-hostname-from-service:
