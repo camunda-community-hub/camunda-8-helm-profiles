@@ -129,7 +129,7 @@ kube: kube-aws install-ebs-csi-controller-addon oidc-provider metrics
 
 .PHONY: kube-upgrade
 kube-upgrade:
-	eksctl upgrade cluster --name=$(clusterName) --version=$(clusterVersion) --approve
+	eksctl upgrade cluster --name=$(clusterName) --region $(region) --version=$(clusterVersion) --approve
 
 .PHONY: detach-role-policy-mapping
 detach-role-policy-mapping:
