@@ -3,16 +3,18 @@ cluster.yaml:
 
 .PHONY: clean-cluster-yaml
 clean-cluster-yaml:
-	rm -rf cluster.yaml
+	@echo "Cleaning up cluster.yaml file"
+	rm -f cluster.yaml
 
 .PHONY: oidc-provider
 oidc-provider:
+	@echo "Associating OIDC provider with cluster $(clusterName) in region $(region)..."
 	eksctl utils associate-iam-oidc-provider --cluster $(clusterName) --approve --region $(region)
 
 .PHONY: install-ebs-csi-controller-addon
 install-ebs-csi-controller-addon:
 ifeq "1.23" "$(word 1, $(sort 1.23 $(clusterVersion)))"
-	@echo "need to install ebs-csi-controller-addon";
+	@echo "need to install ebs-csi-controller-addon...";
 	$(MAKE) ebs-csi-controller-addon
 endif
 
@@ -24,14 +26,14 @@ wait-for-cluster-active:
 	while [ $$ATTEMPT -lt $$MAX_ATTEMPTS ]; do \
 		CLUSTER_STATUS=$$(aws eks describe-cluster --name $(clusterName) --region $(region) --query 'cluster.status' --output text 2>/dev/null || echo "NOT_FOUND"); \
 		if [ "$$CLUSTER_STATUS" = "ACTIVE" ]; then \
-			echo "Cluster $(clusterName) is ACTIVE"; \
+			echo "Cluster $(clusterName) is ACTIVE..."; \
 			exit 0; \
 		fi; \
 		echo "Cluster status: $$CLUSTER_STATUS (attempt $$((ATTEMPT + 1))/$$MAX_ATTEMPTS)"; \
 		ATTEMPT=$$((ATTEMPT + 1)); \
 		sleep 10; \
 	done; \
-	echo "Error: Cluster did not become ACTIVE within timeout"; \
+	echo "Error: Cluster did not become ACTIVE within timeout..."; \
 	exit 1
 
 #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
@@ -40,6 +42,7 @@ ebs-csi-controller-addon: ebs-csi-attach-role-policy create-ebs-csi-addon annota
 
 .PHONY: fetch-id-values
 fetch-id-values: wait-for-cluster-active
+	@echo "Fetching OIDC provider id and AWS Account ID for cluster $(clusterName) in region $(region)..."
 	$(eval oidc_id := $(shell aws eks describe-cluster --name $(clusterName) --region $(region) --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5))
 	$(eval account_id := $(shell aws sts get-caller-identity --query Account --output text))
 	@echo "oidc_id: $(oidc_id)";
@@ -49,51 +52,57 @@ fetch-id-values: wait-for-cluster-active
 .PHONY: create-ebs-csi-controller-role-def
 create-ebs-csi-controller-role-def: fetch-id-values
 # 1. Fetch OIDC Provider id and AccountId, and create the aws-ebs-csi-driver-trust-policy.json file
-	sed "s/<account_id>/$(account_id)/g; s/<region>/$(region)/g; s/<oidc_id>/$(oidc_id)/g;" $(root)/aws/include/ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
+	@echo "Creating trust policy for EBS CSI Driver IAM Role with OIDC provider id $(oidc_id) and AWS account id $(account_id)..."
+	@sed "s/<account_id>/$(account_id)/g; s/<region>/$(region)/g; s/<oidc_id>/$(oidc_id)/g;" $(root)/aws/include/ebs-csi-driver-trust-policy-template.json > ebs-csi-driver-trust-policy.json
 
 .PHONY: create-ebs-csi-role
 create-ebs-csi-role: create-ebs-csi-controller-role-def
 # 2. Create the IAM Role - to be run only once, the script will throw error if the role exists already
-	aws iam create-role \
+	@echo "Creating IAM Role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName), for EBS CSI Driver Addon..."
+	@aws iam create-role \
 	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) \
-	  --assume-role-policy-document file://"ebs-csi-driver-trust-policy.json";
-	@echo "waiting 20 seconds to create the required role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)";
+	  --assume-role-policy-document file://"ebs-csi-driver-trust-policy.json" > /dev/null 2>&1 || true
+	@echo "waiting 20 seconds to create the required role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)...";
 	@sleep 20;
 
 .PHONY: ebs-csi-attach-role-policy
 ebs-csi-attach-role-policy: create-ebs-csi-role
 # 3.Attach the role to the IAM policy
-	aws iam attach-role-policy \
+	@aws iam attach-role-policy \
 	  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
-	@echo "waiting 20 seconds to attach policy, AmazonEBSCSIDriverPolicy, to the role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)";
+	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) > /dev/null 2>&1 || true
+	@echo "waiting 20 seconds to attach policy, AmazonEBSCSIDriverPolicy, to the role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)...";
 	@sleep 20;
 
 .PHONY: create-ebs-csi-addon
 create-ebs-csi-addon: fetch-id-values
 # 4. Add the aws-ebs-csi-driver addon to the cluster
-	aws eks create-addon --cluster-name $(clusterName) --region $(region) --addon-name aws-ebs-csi-driver \
-	  --service-account-role-arn arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName);
-	@echo "waiting 20 seconds to create aws-ebs-csi-driver addon";
+	@aws eks create-addon --cluster-name $(clusterName) --region $(region) --addon-name aws-ebs-csi-driver \
+	  --service-account-role-arn arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) > /dev/null 2>&1 || true
+	@echo "waiting 20 seconds to create aws-ebs-csi-driver addon...";
 	@sleep 20;
 
 .PHONY: annotate-ebs-csi-sa
 annotate-ebs-csi-sa: fetch-id-values
 # 5. Annotate the ebs-csi-controller-sa svc account
-	kubectl annotate serviceaccount ebs-csi-controller-sa \
-		-n kube-system \
+	@echo "Annotating ebs-csi-controller-sa service account with IAM role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)..."
+	kubectl annotate serviceaccount ebs-csi-controller-sa -n kube-system \
 		eks.amazonaws.com/role-arn=arn:aws:iam::$(account_id):role/AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) \
 		--overwrite
 
 .PHONY: restart-ebs-csi-controller
 restart-ebs-csi-controller:
 # 6. Restart ebs-csi-controller  if required
+	@echo "Restarting ebs-csi-controller deployment to pick up the new IAM role annotation..."
 	kubectl rollout restart deployment ebs-csi-controller -n kube-system
 
 .PHONY: kube-aws
 kube-aws: cluster.yaml
+	@echo "Creating EKS cluster $(clusterName) in region $(region) with Kubernetes version $(clusterVersion) and node type $(machineType)..."
 	eksctl create cluster -f cluster.yaml
-	rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml
+	@if [ -f $(root)/aws/ingress/nginx/tls/cluster.yaml ]; then \
+		rm -f $(root)/aws/ingress/nginx/tls/cluster.yaml; \
+	fi
 	kubectl apply -f $(root)/aws/include/ssd-storageclass-aws.yaml
 	kubectl patch storageclass ssd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 	kubectl patch storageclass gp2 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
@@ -101,7 +110,7 @@ kube-aws: cluster.yaml
 .PHONY: kube-node-pool # create an additional Kubernetes node pool
 kube-node-pool:
 	@if eksctl get nodegroup --cluster $(clusterName) --region $(region) --name "ng-$(subst .,-,$(nodePoolMachineType))" 2>/dev/null; then \
-	  echo "Node group ng-$(subst .,-,$(nodePoolMachineType)) already exists, skipping creation"; \
+	  echo "Node group ng-$(subst .,-,$(nodePoolMachineType)) already exists, skipping creation..."; \
 	else \
 	  eksctl create nodegroup \
 	    --cluster $(clusterName) \
@@ -119,6 +128,7 @@ kube-node-pool:
 
 .PHONY: clean-kube-node-pool
 clean-kube-node-pool:
+	@echo "Deleting node group ng-$(subst .,-,$(nodePoolMachineType)) from cluster $(clusterName) in region $(region)..."
 	eksctl delete nodegroup \
 	  --cluster $(clusterName) \
 	  --region $(region) \
@@ -133,15 +143,26 @@ kube-upgrade:
 
 .PHONY: detach-role-policy-mapping
 detach-role-policy-mapping:
-	-aws iam detach-role-policy \
-	  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
+	@if aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) > /dev/null 2>&1; then \
+		echo "Detaching policy, AmazonEBSCSIDriverPolicy, from the role, AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)..."; \
+		aws iam detach-role-policy \
+		  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+		  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName); \
+		echo "Policy detached successfully..."; \
+	else \
+		echo "IAM role AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) does not exist, skipping policy detachment..."; \
+	fi
 
 .PHONY: delete-iam-role
 delete-iam-role: detach-role-policy-mapping
-	-aws iam delete-role \
-	  --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)
-	-rm ebs-csi-driver-trust-policy.json
+	@if aws iam get-role --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) > /dev/null 2>&1; then \
+		echo "Deleting IAM role AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName)..."; \
+		aws iam delete-role --role-name AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName); \
+		echo "IAM role deleted successfully..."; \
+	else \
+		echo "IAM role AmazonEKS_EBS_CSI_DriverRole_Cluster_$(clusterName) does not exist, skipping deletion..."; \
+	fi
+	-rm -f ebs-csi-driver-trust-policy.json
 
 .PHONY: clean-kube-aws
 clean-kube-aws: use-kube clean-cluster-yaml delete-iam-role
@@ -157,7 +178,7 @@ urls:
 
 .PHONY: await-elb
 await-elb:
-	@echo "Waiting for AWS ELB to be provisioned for ingress-nginx-controller service"
+	@echo "Waiting for AWS ELB to be provisioned for ingress-nginx-controller service..."
 	AWS_REGION=$(region) $(root)/aws/ingress/nginx/tls/aws-ingress.sh
 
 .PHONY: ingress-aws-ip-from-service
@@ -172,27 +193,30 @@ ingress-aws-ip-from-service: await-elb
 
 .PHONY: fqdn-aws
 fqdn-aws: ingress-aws-ip-from-service
-	$(eval fqdn ?= $(shell if [ "$(baseDomainName)" == "nip.io" ]; then echo "$(dnsLabel).$(IP).$(baseDomainName)"; else echo "$(dnsLabel).$(baseDomainName)"; fi))
-	@echo "Fully qualified domain name is: $(fqdn)"
+	@if [ "$(baseDomainName)" = "nip.io" ]; then \
+		echo "Fully qualified domain name is: $(dnsLabel).$(IP).$(baseDomainName)"; \
+	else \
+		echo "Fully qualified domain name is: $(dnsLabel).$(baseDomainName)"; \
+	fi
 
 camunda-values-ingress-aws.yaml: fqdn-aws
-	sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress-aws.yaml
+	@sed "s/localhost/$(fqdn)/g;" $(root)/development/camunda-values-with-ingress.yaml > ./camunda-values-ingress-aws.yaml
 
 camunda-values-nginx-tls-aws.yaml: fqdn-aws
-	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml;
+	@sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values.yaml > ./camunda-values-ingress-tls-aws.yaml;
 
 hostname-aws-lb:
 	$(eval hostname-aws-lb := $(shell  kubectl get service ingress-nginx-controller  -n ingress-nginx  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}'))
 	@echo "AWS LB hostname: $(hostname-aws-lb)"
 
 camunda-values-ingress-tls-aws-secure.yaml: hostname-aws-lb
-	sed "s/YOUR_HOSTNAME/$(hostname-aws-lb)/g;" $(root)/ingress-nginx/camunda-values-nginx-tls-secure.yaml > ./camunda-values-ingress-tls-aws-secure.yaml;
+	@sed "s/YOUR_HOSTNAME/$(hostname-aws-lb)/g;" $(root)/ingress-nginx/camunda-values-nginx-tls-secure.yaml > ./camunda-values-ingress-tls-aws-secure.yaml;
 
 camunda-values-with-metrics.yaml: fqdn-aws
 	sed "s/YOUR_HOSTNAME/$(fqdn)/g;" $(root)/ingress-nginx/camunda-values-with-metrics.yaml > $(chartValues);
 
 camunda-values-istio-aws.yaml:
-	sed "s/YOUR_HOSTNAME/$(dnsLabel).$(baseDomainName)/g;" $(root)/istio/camunda-values.yaml > ./camunda-values-aws.yaml
+	@sed "s/YOUR_HOSTNAME/$(dnsLabel).$(baseDomainName)/g;" $(root)/istio/camunda-values.yaml > ./camunda-values-aws.yaml
 
 .PHONY: create-clound-dns
 create-cloud-dns: fqdn-aws

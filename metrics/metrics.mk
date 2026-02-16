@@ -23,7 +23,14 @@ update-metrics:
 clean-metrics:
 	-kubectl delete -f $(root)/metrics/grafana-load-balancer.yml -n default
 	-helm uninstall metrics --namespace default
-	-kubectl delete -f $(root)/metrics/grafana-secret.yml -n default
+	-@if [ -f $(root)/metrics/grafana-secret.yml ]; then \
+		kubectl delete -f $(root)/metrics/grafana-secret.yml -n default; \
+		rm -f $(root)/metrics/grafana-secret.yml; \
+	fi
+	-@if [ -f grafana-secret.yaml ]; then \
+		kubectl delete -f ./grafana-secret.yaml -n default; \
+		rm -f ./grafana-secret.yaml; \
+	fi
 #	-kubectl delete -f $(include-dir)/ssd-storageclass.yaml -n default
 	-kubectl delete pvc -l app.kubernetes.io/name=prometheus -n default
 	-kubectl delete pvc -l app.kubernetes.io/name=grafana -n default
@@ -47,4 +54,4 @@ open-grafana:
 grafana-secret.yaml:
 	$(eval base64Password := $(shell echo $(grafanaPassword) | base64))
 	echo $(base64Password)
-	sed "s/<GRAFANA_PASSWORD>/$(base64Password)/g;" $(root)/metrics/grafana-secret.tpl.yml > ./grafana-secret.yaml
+	@sed "s/<GRAFANA_PASSWORD>/$(base64Password)/g;" $(root)/metrics/grafana-secret.tpl.yml > ./grafana-secret.yaml
