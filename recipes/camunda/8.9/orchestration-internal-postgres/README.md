@@ -189,7 +189,7 @@ Run `make help` for the full list. Key targets:
 | `Makefile` | Recipe entry point — includes shared makefiles |
 | `config.mk` | Default configuration variables |
 | `my-camunda-values.yaml` | Recipe-specific Helm values overrides |
-| `DUAL-REGION-PLAYBOOK.md` | Operational playbook for failure scenarios |
+| `../../aws/eks-dual-region/eks-dual-region-playbook.md` | Operational playbook for failure scenarios |
 
 ### Shared Makefiles (in `makefiles/`)
 
@@ -215,4 +215,4 @@ Run `make help` for the full list. Key targets:
 - [Camunda dual-region concept](https://docs.camunda.io/docs/next/self-managed/concepts/multi-region/dual-region/)
 - [AWS EKS dual-region setup](https://docs.camunda.io/docs/next/self-managed/deployment/helm/cloud-providers/amazon/amazon-eks/dual-region/)
 - [Failover/failback procedure](https://docs.camunda.io/docs/next/self-managed/deployment/helm/operational-tasks/dual-region-operational-procedure/)
-- [DUAL-REGION-PLAYBOOK.md](./DUAL-REGION-PLAYBOOK.md) — Operational playbook for this recipe
+- [Dual-Region Operations Playbook](../../aws/eks-dual-region/eks-dual-region-playbook.md) — Failure scenarios, recovery procedures, and RTO/RPO
