@@ -1,0 +1,530 @@
+# Camunda 8.9 Dual-Region on AWS EKS
+#
+# This recipe deploys Camunda 8.9 across two AWS EKS clusters in different regions
+# using PostgreSQL (RDBMS) as secondary storage — no Elasticsearch required.
+#
+# Run 'make help' to see available targets.
+
+# ── Root directory resolution ───────────────────────────────────────────────
+ifeq ($(OS),Windows_NT)
+    root ?= $(CURDIR)/../../..
+else
+    root ?= $(shell pwd)/../../..
+endif
+
+# ── Configuration ───────────────────────────────────────────────────────────
+-include $(root)/config.mk
+include ./config.mk
+
+# ── Include reusable targets ────────────────────────────────────────────────
+include $(root)/makefiles/camunda.mk
+
+# ── Computed variables ──────────────────────────────────────────────────────
+BROKERS_PER_REGION := $(shell echo $$(( $(CAMUNDA_CLUSTER_SIZE) / 2 )))
+
+# Generate Zeebe initial contact points for all brokers in both regions
+# Format: <release>-zeebe-N.<release>-zeebe.<namespace>.svc.cluster.local:26502
+define generate_contact_points
+$(shell \
+  points=""; \
+  sep=""; \
+  for i in $$(seq 0 $$(( $(BROKERS_PER_REGION) - 1 )) ); do \
+    points="$${points}$${sep}$(CAMUNDA_RELEASE_NAME)-zeebe-$${i}.$(CAMUNDA_RELEASE_NAME)-zeebe.$(CAMUNDA_NAMESPACE_0).svc.cluster.local:26502"; \
+    sep=","; \
+    points="$${points}$${sep}$(CAMUNDA_RELEASE_NAME)-zeebe-$${i}.$(CAMUNDA_RELEASE_NAME)-zeebe.$(CAMUNDA_NAMESPACE_1).svc.cluster.local:26502"; \
+  done; \
+  echo "$$points" \
+)
+endef
+
+ZEEBE_INITIAL_CONTACT_POINTS = $(call generate_contact_points)
+
+# ════════════════════════════════════════════════════════════════════════════
+# HELP
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: help
+help:
+	@echo ""
+	@echo "Camunda 8.9 Dual-Region on AWS EKS"
+	@echo "═══════════════════════════════════"
+	@echo ""
+	@echo "  Full lifecycle:  make all"
+	@echo ""
+	@echo "  ── Cluster Management ──────────────────────────────────────"
+	@echo "  create-clusters          Create both EKS clusters (can run individually in parallel)"
+	@echo "  create-cluster-region0   Create EKS cluster in $(AWS_REGION_0)"
+	@echo "  create-cluster-region1   Create EKS cluster in $(AWS_REGION_1)"
+	@echo "  configure-kubeconfig     Set up kubeconfig aliases for both clusters"
+	@echo "  clean-clusters           Delete both EKS clusters"
+	@echo "  clean-cluster-yaml       Remove generated eksctl config files"
+	@echo ""
+	@echo "  ── VPC Peering ─────────────────────────────────────────────"
+	@echo "  configure-vpc-peering    Full VPC peering setup (create + accept + routes + SGs)"
+	@echo "  create-vpc-peering       Create VPC peering connection"
+	@echo "  accept-vpc-peering       Accept VPC peering in remote region"
+	@echo "  configure-vpc-routes     Add routes to all route tables in both VPCs"
+	@echo "  configure-vpc-security-groups  Open ports 53, 26500-26502, 5432, 8080"
+	@echo "  vpc-peering-status       Show current VPC peering status"
+	@echo "  clean-vpc-peering        Delete VPC peering connection"
+	@echo ""
+	@echo "  ── DNS Chaining ────────────────────────────────────────────"
+	@echo "  configure-dns            Full DNS setup (deploy LB + wait + patch CoreDNS)"
+	@echo "  deploy-dns-lb            Deploy internal NLB for kube-dns in both clusters"
+	@echo "  wait-for-dns-lb          Wait for NLBs to get addresses"
+	@echo "  apply-coredns-config     Patch CoreDNS configmaps with forwarding rules"
+	@echo "  generate-coredns-config  Print CoreDNS config without applying (dry run)"
+	@echo "  test-dns                 Test cross-region DNS resolution"
+	@echo "  clean-dns-test           Remove DNS test pods and services"
+	@echo ""
+	@echo "  ── Cleanup ─────────────────────────────────────────────────"
+	@echo "  clean                    Full cleanup (VPC peering + clusters)"
+	@echo "  clean-generated          Remove generated yaml files"
+	@echo ""
+	@echo "  ── Typical workflow ────────────────────────────────────────"
+	@echo "  1. Edit config.mk with your regions and cluster names"
+	@echo "  2. make create-clusters        (or run region0/region1 in parallel)"
+	@echo "  3. make configure-vpc-peering"
+	@echo "  4. make configure-dns"
+	@echo "  5. make test-dns"
+	@echo "  6. cd ../../camunda/8.9/orchestration-internal-postgres/"
+	@echo "  7. make deploy-dual-region"
+	@echo ""
+
+# ════════════════════════════════════════════════════════════════════════════
+# PRIMARY TARGETS
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: all
+all: create-clusters configure-vpc-peering configure-dns
+	@echo ""
+	@echo "✅ Infrastructure ready. To deploy Camunda, go to:"
+	@echo "   cd ../../camunda/8.9/orchestration-internal-postgres/"
+	@echo "   make deploy-dual-region CLUSTER_0=$(CLUSTER_0) CLUSTER_1=$(CLUSTER_1)"
+
+.PHONY: clean
+clean: clean-vpc-peering clean-dns-test clean-clusters clean-generated
+
+# ════════════════════════════════════════════════════════════════════════════
+# CLUSTER MANAGEMENT
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: create-clusters
+create-clusters: create-cluster-region0 create-cluster-region1 configure-kubeconfig
+
+# Generate eksctl config files from template (Make file targets, not .PHONY)
+cluster-region0.yaml: clean-cluster-yaml
+	sed "s/<CLUSTER_NAME>/$(CLUSTER_0)/g; \
+	     s/<CLUSTER_VERSION>/$(CLUSTER_VERSION)/g; \
+	     s/<REGION>/$(AWS_REGION_0)/g; \
+	     s/<MACHINE_TYPE>/$(AWS_MACHINE_TYPE)/g; \
+	     s/<MIN_SIZE>/$(MIN_SIZE)/g; \
+	     s/<DESIRED_SIZE>/$(DESIRED_SIZE)/g; \
+	     s/<MAX_SIZE>/$(MAX_SIZE)/g; \
+	     s/<VOLUME_SIZE>/$(VOLUME_SIZE)/g; \
+	     s|<VPC_CIDR>|$(VPC_CIDR_0)|g;" \
+	     $(root)/recipes/aws/include/cluster-dual-region.tpl.yaml > cluster-region0.yaml
+
+cluster-region1.yaml: clean-cluster-yaml
+	sed "s/<CLUSTER_NAME>/$(CLUSTER_1)/g; \
+	     s/<CLUSTER_VERSION>/$(CLUSTER_VERSION)/g; \
+	     s/<REGION>/$(AWS_REGION_1)/g; \
+	     s/<MACHINE_TYPE>/$(AWS_MACHINE_TYPE)/g; \
+	     s/<MIN_SIZE>/$(MIN_SIZE)/g; \
+	     s/<DESIRED_SIZE>/$(DESIRED_SIZE)/g; \
+	     s/<MAX_SIZE>/$(MAX_SIZE)/g; \
+	     s/<VOLUME_SIZE>/$(VOLUME_SIZE)/g; \
+	     s|<VPC_CIDR>|$(VPC_CIDR_1)|g;" \
+	     $(root)/recipes/aws/include/cluster-dual-region.tpl.yaml > cluster-region1.yaml
+
+.PHONY: clean-cluster-yaml
+clean-cluster-yaml:
+	rm -f cluster-region0.yaml cluster-region1.yaml
+
+.PHONY: create-cluster-region0
+create-cluster-region0: cluster-region0.yaml
+	@echo "📦 Creating EKS cluster $(CLUSTER_0) in $(AWS_REGION_0) (CIDR: $(VPC_CIDR_0))..."
+	eksctl create cluster -f cluster-region0.yaml
+
+.PHONY: create-cluster-region1
+create-cluster-region1: cluster-region1.yaml
+	@echo "📦 Creating EKS cluster $(CLUSTER_1) in $(AWS_REGION_1) (CIDR: $(VPC_CIDR_1))..."
+	eksctl create cluster -f cluster-region1.yaml
+
+.PHONY: configure-kubeconfig
+configure-kubeconfig:
+	@echo "🔑 Configuring kubeconfig with cluster aliases..."
+	aws eks --region $(AWS_REGION_0) update-kubeconfig --name $(CLUSTER_0) --alias $(CLUSTER_0)
+	aws eks --region $(AWS_REGION_1) update-kubeconfig --name $(CLUSTER_1) --alias $(CLUSTER_1)
+
+.PHONY: clean-clusters
+clean-clusters:
+	@echo "🗑️  Deleting EKS clusters (including IAM roles and addons)..."
+	-eksctl delete cluster --name $(CLUSTER_0) --region $(AWS_REGION_0)
+	-eksctl delete cluster --name $(CLUSTER_1) --region $(AWS_REGION_1)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# VPC PEERING
+# ══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: configure-vpc-peering
+configure-vpc-peering: create-vpc-peering accept-vpc-peering configure-vpc-routes configure-vpc-security-groups
+	@echo "✅ VPC peering fully configured between $(AWS_REGION_0) and $(AWS_REGION_1)"
+
+.PHONY: create-vpc-peering
+create-vpc-peering:
+	@echo "🔗 Setting up VPC peering..."
+	@VPC_ID_0=$$(aws eks describe-cluster --region $(AWS_REGION_0) --name $(CLUSTER_0) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text 2>/dev/null); \
+	VPC_CIDR_0=$$(aws ec2 describe-vpcs --region $(AWS_REGION_0) \
+	  --vpc-ids $$VPC_ID_0 --query 'Vpcs[0].CidrBlock' --output text); \
+	VPC_ID_1=$$(aws eks describe-cluster --region $(AWS_REGION_1) --name $(CLUSTER_1) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text 2>/dev/null); \
+	VPC_CIDR_1=$$(aws ec2 describe-vpcs --region $(AWS_REGION_1) \
+	  --vpc-ids $$VPC_ID_1 --query 'Vpcs[0].CidrBlock' --output text); \
+	echo "  Region 0: VPC=$$VPC_ID_0 CIDR=$$VPC_CIDR_0"; \
+	echo "  Region 1: VPC=$$VPC_ID_1 CIDR=$$VPC_CIDR_1"; \
+	if [ -z "$$VPC_ID_0" ] || echo "$$VPC_ID_0" | grep -q "None\|error"; then \
+	  echo "❌ Could not find VPC for cluster $(CLUSTER_0) in $(AWS_REGION_0)"; exit 1; \
+	fi; \
+	if [ -z "$$VPC_ID_1" ] || echo "$$VPC_ID_1" | grep -q "None\|error"; then \
+	  echo "❌ Could not find VPC for cluster $(CLUSTER_1) in $(AWS_REGION_1)"; exit 1; \
+	fi; \
+	if [ "$$VPC_CIDR_0" = "$$VPC_CIDR_1" ]; then \
+	  echo "❌ ERROR: Both VPCs have the same CIDR ($$VPC_CIDR_0). VPC peering requires non-overlapping CIDRs."; \
+	  echo "   Recreate clusters with different CIDRs (see VPC_CIDR_0 / VPC_CIDR_1 in config.mk)."; \
+	  exit 1; \
+	fi; \
+	EXISTING=$$(aws ec2 describe-vpc-peering-connections --region $(AWS_REGION_0) \
+	  --filters "Name=requester-vpc-info.vpc-id,Values=$$VPC_ID_0" \
+	            "Name=accepter-vpc-info.vpc-id,Values=$$VPC_ID_1" \
+	            "Name=status-code,Values=active,pending-acceptance,provisioning" \
+	  --query 'VpcPeeringConnections[0].VpcPeeringConnectionId' --output text); \
+	if [ "$$EXISTING" != "None" ] && [ -n "$$EXISTING" ]; then \
+	  echo "  ⚠️  Peering already exists: $$EXISTING. Skipping."; \
+	else \
+	  echo "  Creating VPC peering connection..."; \
+	  PEERING_ID=$$(aws ec2 create-vpc-peering-connection --region $(AWS_REGION_0) \
+	    --vpc-id $$VPC_ID_0 \
+	    --peer-vpc-id $$VPC_ID_1 \
+	    --peer-region $(AWS_REGION_1) \
+	    --query 'VpcPeeringConnection.VpcPeeringConnectionId' --output text); \
+	  echo "  ✅ Peering created: $$PEERING_ID"; \
+	fi
+
+.PHONY: accept-vpc-peering
+accept-vpc-peering:
+	@echo "=== Accepting VPC peering ==="
+	@VPC_ID_0=$$(aws eks describe-cluster --region $(AWS_REGION_0) --name $(CLUSTER_0) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	VPC_ID_1=$$(aws eks describe-cluster --region $(AWS_REGION_1) --name $(CLUSTER_1) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	PEERING_ID=$$(aws ec2 describe-vpc-peering-connections --region $(AWS_REGION_0) \
+	  --filters "Name=requester-vpc-info.vpc-id,Values=$$VPC_ID_0" \
+	            "Name=accepter-vpc-info.vpc-id,Values=$$VPC_ID_1" \
+	  --query 'VpcPeeringConnections[?Status.Code!=`deleted` && Status.Code!=`rejected`] | [0].VpcPeeringConnectionId' --output text); \
+	if [ "$$PEERING_ID" = "None" ] || [ -z "$$PEERING_ID" ]; then \
+	  echo "❌ No peering connection found. Run 'make create-vpc-peering' first."; exit 1; \
+	fi; \
+	echo "  Peering ID: $$PEERING_ID"; \
+	STATUS=$$(aws ec2 describe-vpc-peering-connections --region $(AWS_REGION_0) \
+	  --vpc-peering-connection-ids $$PEERING_ID \
+	  --query 'VpcPeeringConnections[0].Status.Code' --output text); \
+	if [ "$$STATUS" = "active" ]; then \
+	  echo "  ⚠️  Already active. Skipping."; \
+	else \
+	  echo "  Accepting in $(AWS_REGION_1)..."; \
+	  aws ec2 accept-vpc-peering-connection --region $(AWS_REGION_1) \
+	    --vpc-peering-connection-id $$PEERING_ID > /dev/null; \
+	  echo "  ⏳ Waiting for active status..."; \
+	  for i in $$(seq 1 30); do \
+	    S=$$(aws ec2 describe-vpc-peering-connections --region $(AWS_REGION_0) \
+	      --vpc-peering-connection-ids $$PEERING_ID \
+	      --query 'VpcPeeringConnections[0].Status.Code' --output text); \
+	    if [ "$$S" = "active" ]; then echo "  ✅ Peering active"; break; fi; \
+	    sleep 2; \
+	  done; \
+	fi
+
+.PHONY: configure-vpc-routes
+configure-vpc-routes:
+	@echo "=== Configuring route tables ==="
+	@VPC_ID_0=$$(aws eks describe-cluster --region $(AWS_REGION_0) --name $(CLUSTER_0) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	VPC_CIDR_0=$$(aws ec2 describe-vpcs --region $(AWS_REGION_0) \
+	  --vpc-ids $$VPC_ID_0 --query 'Vpcs[0].CidrBlock' --output text); \
+	VPC_ID_1=$$(aws eks describe-cluster --region $(AWS_REGION_1) --name $(CLUSTER_1) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	VPC_CIDR_1=$$(aws ec2 describe-vpcs --region $(AWS_REGION_1) \
+	  --vpc-ids $$VPC_ID_1 --query 'Vpcs[0].CidrBlock' --output text); \
+	PEERING_ID=$$(aws ec2 describe-vpc-peering-connections --region $(AWS_REGION_0) \
+	  --filters "Name=requester-vpc-info.vpc-id,Values=$$VPC_ID_0" \
+	            "Name=accepter-vpc-info.vpc-id,Values=$$VPC_ID_1" \
+	            "Name=status-code,Values=active" \
+	  --query 'VpcPeeringConnections[0].VpcPeeringConnectionId' --output text); \
+	echo "  Peering: $$PEERING_ID"; \
+	echo ""; \
+	echo "  --- Region 0: route $$VPC_CIDR_1 → $$PEERING_ID ---"; \
+	for RT in $$(aws ec2 describe-route-tables --region $(AWS_REGION_0) \
+	    --filters "Name=vpc-id,Values=$$VPC_ID_0" \
+	    --query 'RouteTables[*].RouteTableId' --output text); do \
+	  aws ec2 create-route --region $(AWS_REGION_0) \
+	    --route-table-id $$RT \
+	    --destination-cidr-block $$VPC_CIDR_1 \
+	    --vpc-peering-connection-id $$PEERING_ID > /dev/null 2>&1 && \
+	  echo "    $$RT: ✅ route added" || echo "    $$RT: ⚠️  route exists"; \
+	done; \
+	echo ""; \
+	echo "  --- Region 1: route $$VPC_CIDR_0 → $$PEERING_ID ---"; \
+	for RT in $$(aws ec2 describe-route-tables --region $(AWS_REGION_1) \
+	    --filters "Name=vpc-id,Values=$$VPC_ID_1" \
+	    --query 'RouteTables[*].RouteTableId' --output text); do \
+	  aws ec2 create-route --region $(AWS_REGION_1) \
+	    --route-table-id $$RT \
+	    --destination-cidr-block $$VPC_CIDR_0 \
+	    --vpc-peering-connection-id $$PEERING_ID > /dev/null 2>&1 && \
+	  echo "    $$RT: ✅ route added" || echo "    $$RT: ⚠️  route exists"; \
+	done
+
+.PHONY: configure-vpc-security-groups
+configure-vpc-security-groups:
+	@echo "=== Configuring security groups ==="
+	@VPC_ID_0=$$(aws eks describe-cluster --region $(AWS_REGION_0) --name $(CLUSTER_0) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	VPC_CIDR_0=$$(aws ec2 describe-vpcs --region $(AWS_REGION_0) \
+	  --vpc-ids $$VPC_ID_0 --query 'Vpcs[0].CidrBlock' --output text); \
+	VPC_ID_1=$$(aws eks describe-cluster --region $(AWS_REGION_1) --name $(CLUSTER_1) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	VPC_CIDR_1=$$(aws ec2 describe-vpcs --region $(AWS_REGION_1) \
+	  --vpc-ids $$VPC_ID_1 --query 'Vpcs[0].CidrBlock' --output text); \
+	echo "  --- Region 0: allow inbound from $$VPC_CIDR_1 ---"; \
+	for SG in $$(aws ec2 describe-security-groups --region $(AWS_REGION_0) \
+	    --filters "Name=vpc-id,Values=$$VPC_ID_0" \
+	    --query "SecurityGroups[?contains(GroupName,'ClusterSharedNode') || contains(GroupName,'eks-cluster-sg')].GroupId" --output text); do \
+	  echo "    SG $$SG:"; \
+	  for PORT in 53 26500-26502 5432 8080; do \
+	    aws ec2 authorize-security-group-ingress --region $(AWS_REGION_0) \
+	      --group-id $$SG --protocol tcp --port $$PORT --cidr $$VPC_CIDR_1 2>/dev/null && \
+	      echo "      ✅ TCP $$PORT" || echo "      ⚠️  TCP $$PORT (exists)"; \
+	  done; \
+	done; \
+	echo ""; \
+	echo "  --- Region 1: allow inbound from $$VPC_CIDR_0 ---"; \
+	for SG in $$(aws ec2 describe-security-groups --region $(AWS_REGION_1) \
+	    --filters "Name=vpc-id,Values=$$VPC_ID_1" \
+	    --query "SecurityGroups[?contains(GroupName,'ClusterSharedNode') || contains(GroupName,'eks-cluster-sg')].GroupId" --output text); do \
+	  echo "    SG $$SG:"; \
+	  for PORT in 53 26500-26502 5432 8080; do \
+	    aws ec2 authorize-security-group-ingress --region $(AWS_REGION_1) \
+	      --group-id $$SG --protocol tcp --port $$PORT --cidr $$VPC_CIDR_0 2>/dev/null && \
+	      echo "      ✅ TCP $$PORT" || echo "      ⚠️  TCP $$PORT (exists)"; \
+	  done; \
+	done
+
+.PHONY: vpc-peering-status
+vpc-peering-status:
+	@echo "🔍 VPC Peering Status"
+	@VPC_ID_0=$$(aws eks describe-cluster --region $(AWS_REGION_0) --name $(CLUSTER_0) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	VPC_ID_1=$$(aws eks describe-cluster --region $(AWS_REGION_1) --name $(CLUSTER_1) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	aws ec2 describe-vpc-peering-connections --region $(AWS_REGION_0) \
+	  --filters "Name=requester-vpc-info.vpc-id,Values=$$VPC_ID_0" \
+	            "Name=accepter-vpc-info.vpc-id,Values=$$VPC_ID_1" \
+	  --query 'VpcPeeringConnections[*].{ID:VpcPeeringConnectionId,Status:Status.Code,RequesterCIDR:RequesterVpcInfo.CidrBlock,AccepterCIDR:AccepterVpcInfo.CidrBlock}' \
+	  --output table || echo "  No peering connections found"
+
+.PHONY: clean-vpc-peering
+clean-vpc-peering:
+	@echo "🗑️  Removing VPC peering..."
+	@VPC_ID_0=$$(aws eks describe-cluster --region $(AWS_REGION_0) --name $(CLUSTER_0) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	VPC_ID_1=$$(aws eks describe-cluster --region $(AWS_REGION_1) --name $(CLUSTER_1) \
+	  --query 'cluster.resourcesVpcConfig.vpcId' --output text); \
+	PEERING_ID=$$(aws ec2 describe-vpc-peering-connections --region $(AWS_REGION_0) \
+	  --filters "Name=requester-vpc-info.vpc-id,Values=$$VPC_ID_0" \
+	            "Name=accepter-vpc-info.vpc-id,Values=$$VPC_ID_1" \
+	            "Name=status-code,Values=active,pending-acceptance" \
+	  --query 'VpcPeeringConnections[0].VpcPeeringConnectionId' --output text); \
+	if [ "$$PEERING_ID" != "None" ] && [ -n "$$PEERING_ID" ]; then \
+	  echo "  Deleting peering $$PEERING_ID..."; \
+	  aws ec2 delete-vpc-peering-connection --region $(AWS_REGION_0) \
+	    --vpc-peering-connection-id $$PEERING_ID; \
+	  echo "  ✅ Peering deleted"; \
+	else \
+	  echo "  No active peering found"; \
+	fi
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DNS CHAINING (fixed)
+# ══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: configure-dns
+configure-dns: deploy-dns-lb wait-for-dns-lb apply-coredns-config
+
+.PHONY: deploy-dns-lb
+deploy-dns-lb:
+	@echo "🌐 Deploying internal DNS load balancers..."
+	kubectl --context $(CLUSTER_0) apply -f $(root)/recipes/aws/include/internal-dns-lb.yml
+	kubectl --context $(CLUSTER_1) apply -f $(root)/recipes/aws/include/internal-dns-lb.yml
+
+.PHONY: wait-for-dns-lb
+wait-for-dns-lb:
+	@echo "⏳ Waiting for DNS LB in region 0 to get an address..."
+	@for i in $$(seq 1 60); do \
+	  HOSTNAME=$$(kubectl --context $(CLUSTER_0) get svc kube-dns-lb -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null); \
+	  IP=$$(kubectl --context $(CLUSTER_0) get svc kube-dns-lb -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null); \
+	  if [ -n "$$HOSTNAME" ] || [ -n "$$IP" ]; then echo "  ✅ Region 0 DNS LB ready: $${HOSTNAME}$${IP}"; break; fi; \
+	  if [ $$i -eq 60 ]; then echo "  ❌ Timeout waiting for DNS LB in region 0"; exit 1; fi; \
+	  echo "  Waiting... ($$i/60)"; sleep 5; \
+	done
+	@echo "⏳ Waiting for DNS LB in region 1 to get an address..."
+	@for i in $$(seq 1 60); do \
+	  HOSTNAME=$$(kubectl --context $(CLUSTER_1) get svc kube-dns-lb -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null); \
+	  IP=$$(kubectl --context $(CLUSTER_1) get svc kube-dns-lb -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null); \
+	  if [ -n "$$HOSTNAME" ] || [ -n "$$IP" ]; then echo "  ✅ Region 1 DNS LB ready: $${HOSTNAME}$${IP}"; break; fi; \
+	  if [ $$i -eq 60 ]; then echo "  ❌ Timeout waiting for DNS LB in region 1"; exit 1; fi; \
+	  echo "  Waiting... ($$i/60)"; sleep 5; \
+	done
+
+# Helper function to get the DNS LB address as IP(s) for a given cluster context.
+# AWS NLBs return hostnames, but CoreDNS forward requires IPs.
+# This resolves the hostname to an IP using 'host' (macOS/Linux compatible).
+# Usage: $(call get_dns_lb_ips_cmd,<kubectl-context>)
+define get_dns_lb_ips_cmd
+$$(HOSTNAME=$$(kubectl --context $(1) get svc kube-dns-lb -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null); \
+   IP=$$(kubectl --context $(1) get svc kube-dns-lb -n kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null); \
+   if [ -n "$$IP" ]; then echo "$$IP"; \
+   elif [ -n "$$HOSTNAME" ]; then \
+     host "$$HOSTNAME" 2>/dev/null | awk '/has address/ {print $$4; exit}'; \
+   fi)
+endef
+
+.PHONY: apply-coredns-config
+apply-coredns-config:
+	@echo "🔗 Applying CoreDNS cross-region forwarding..."
+	@echo ""
+	@DNS_LB_0_HOST=$$(kubectl --context $(CLUSTER_0) get svc kube-dns-lb -n kube-system \
+	  -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null); \
+	DNS_LB_0_IP=$$(kubectl --context $(CLUSTER_0) get svc kube-dns-lb -n kube-system \
+	  -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null); \
+	DNS_LB_1_HOST=$$(kubectl --context $(CLUSTER_1) get svc kube-dns-lb -n kube-system \
+	  -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null); \
+	DNS_LB_1_IP=$$(kubectl --context $(CLUSTER_1) get svc kube-dns-lb -n kube-system \
+	  -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null); \
+	if [ -n "$$DNS_LB_0_IP" ]; then DNS_LB_0=$$DNS_LB_0_IP; \
+	elif [ -n "$$DNS_LB_0_HOST" ]; then DNS_LB_0=$$(host "$$DNS_LB_0_HOST" 2>/dev/null | awk '/has address/ {print $$4; exit}'); \
+	fi; \
+	if [ -n "$$DNS_LB_1_IP" ]; then DNS_LB_1=$$DNS_LB_1_IP; \
+	elif [ -n "$$DNS_LB_1_HOST" ]; then DNS_LB_1=$$(host "$$DNS_LB_1_HOST" 2>/dev/null | awk '/has address/ {print $$4; exit}'); \
+	fi; \
+	echo "Region 0 DNS LB IP: $$DNS_LB_0"; \
+	echo "Region 1 DNS LB IP: $$DNS_LB_1"; \
+	if [ -z "$$DNS_LB_0" ] || [ -z "$$DNS_LB_1" ]; then \
+	  echo "❌ ERROR: Could not resolve DNS LB IPs."; \
+	  echo "   Ensure NLBs are provisioned (make wait-for-dns-lb) and 'host' command works."; \
+	  exit 1; \
+	fi; \
+	echo ""; \
+	echo "=== Patching CoreDNS in Cluster 0 ($(CLUSTER_0)) ==="; \
+	echo "  Forwarding $(CAMUNDA_NAMESPACE_1).svc.cluster.local → $$DNS_LB_1"; \
+	kubectl --context $(CLUSTER_0) -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' \
+	  | sed '/^$(CAMUNDA_NAMESPACE_1)\.svc\.cluster\.local/,/^}/d' > /tmp/corefile0-base.txt; \
+	printf '\n$(CAMUNDA_NAMESPACE_1).svc.cluster.local:53 {\n    errors\n    cache 30\n    forward . %s {\n        force_tcp\n    }\n}\n' "$$DNS_LB_1" >> /tmp/corefile0-base.txt; \
+	kubectl --context $(CLUSTER_0) -n kube-system create configmap coredns \
+	  --from-file=Corefile=/tmp/corefile0-base.txt --dry-run=client -o yaml | \
+	  kubectl --context $(CLUSTER_0) -n kube-system apply -f -; \
+	echo "  ✅ CoreDNS patched in cluster 0"; \
+	echo ""; \
+	echo "=== Patching CoreDNS in Cluster 1 ($(CLUSTER_1)) ==="; \
+	echo "  Forwarding $(CAMUNDA_NAMESPACE_0).svc.cluster.local → $$DNS_LB_0"; \
+	kubectl --context $(CLUSTER_1) -n kube-system get configmap coredns -o jsonpath='{.data.Corefile}' \
+	  | sed '/^$(CAMUNDA_NAMESPACE_0)\.svc\.cluster\.local/,/^}/d' > /tmp/corefile1-base.txt; \
+	printf '\n$(CAMUNDA_NAMESPACE_0).svc.cluster.local:53 {\n    errors\n    cache 30\n    forward . %s {\n        force_tcp\n    }\n}\n' "$$DNS_LB_0" >> /tmp/corefile1-base.txt; \
+	kubectl --context $(CLUSTER_1) -n kube-system create configmap coredns \
+	  --from-file=Corefile=/tmp/corefile1-base.txt --dry-run=client -o yaml | \
+	  kubectl --context $(CLUSTER_1) -n kube-system apply -f -; \
+	echo "  ✅ CoreDNS patched in cluster 1"; \
+	echo ""; \
+	echo "⏳ Restarting CoreDNS..."; \
+	kubectl --context $(CLUSTER_0) -n kube-system rollout restart deployment/coredns; \
+	kubectl --context $(CLUSTER_1) -n kube-system rollout restart deployment/coredns; \
+	sleep 10; \
+	echo "✅ CoreDNS configuration applied to both clusters"
+
+# Print the CoreDNS config without applying (for manual review)
+.PHONY: generate-coredns-config
+generate-coredns-config:
+	@DNS_LB_0=$(call get_dns_lb_ips_cmd,$(CLUSTER_0)); \
+	DNS_LB_1=$(call get_dns_lb_ips_cmd,$(CLUSTER_1)); \
+	echo "Region 0 DNS LB: $$DNS_LB_0"; \
+	echo "Region 1 DNS LB: $$DNS_LB_1"; \
+	echo ""; \
+	if [ -z "$$DNS_LB_0" ] || [ -z "$$DNS_LB_1" ]; then \
+	  echo "❌ ERROR: DNS LB addresses not available. Deploy LBs first: make deploy-dns-lb"; \
+	  exit 1; \
+	fi; \
+	echo "╔═══════════════════════════════════════════════════════════════╗"; \
+	echo "║  Add the following to CoreDNS configmap in CLUSTER 0:       ║"; \
+	echo "║  kubectl --context $(CLUSTER_0) -n kube-system edit configmap coredns ║"; \
+	echo "╚═══════════════════════════════════════════════════════════════╝"; \
+	echo ""; \
+	echo "    $(CAMUNDA_NAMESPACE_1).svc.cluster.local:53 {"; \
+	echo "        errors"; \
+	echo "        cache 30"; \
+	echo "        forward . $$DNS_LB_1 {"; \
+	echo "            force_tcp"; \
+	echo "        }"; \
+	echo "    }"; \
+	echo ""; \
+	echo "╔═══════════════════════════════════════════════════════════════╗"; \
+	echo "║  Add the following to CoreDNS configmap in CLUSTER 1:       ║"; \
+	echo "║  kubectl --context $(CLUSTER_1) -n kube-system edit configmap coredns ║"; \
+	echo "╚═══════════════════════════════════════════════════════════════╝"; \
+	echo ""; \
+	echo "    $(CAMUNDA_NAMESPACE_0).svc.cluster.local:53 {"; \
+	echo "        errors"; \
+	echo "        cache 30"; \
+	echo "        forward . $$DNS_LB_0 {"; \
+	echo "            force_tcp"; \
+	echo "        }"; \
+	echo "    }"
+
+.PHONY: test-dns
+test-dns:
+	@echo "🧪 Testing DNS chaining between clusters..."
+	@echo "--- Deploying test pods and services ---"
+	-kubectl --context $(CLUSTER_0) create namespace $(CAMUNDA_NAMESPACE_0) 2>/dev/null
+	-kubectl --context $(CLUSTER_1) create namespace $(CAMUNDA_NAMESPACE_1) 2>/dev/null
+	kubectl --context $(CLUSTER_0) -n $(CAMUNDA_NAMESPACE_0) run dns-test --image=busybox:1.36 --restart=Never -- sleep 3600 2>/dev/null || true
+	kubectl --context $(CLUSTER_0) -n $(CAMUNDA_NAMESPACE_0) expose pod dns-test --port=80 --name=dns-test 2>/dev/null || true
+	kubectl --context $(CLUSTER_1) -n $(CAMUNDA_NAMESPACE_1) run dns-test --image=busybox:1.36 --restart=Never -- sleep 3600 2>/dev/null || true
+	kubectl --context $(CLUSTER_1) -n $(CAMUNDA_NAMESPACE_1) expose pod dns-test --port=80 --name=dns-test 2>/dev/null || true
+	@echo "⏳ Waiting for pods..."
+	kubectl --context $(CLUSTER_0) -n $(CAMUNDA_NAMESPACE_0) wait --for=condition=Ready pod/dns-test --timeout=60s
+	kubectl --context $(CLUSTER_1) -n $(CAMUNDA_NAMESPACE_1) wait --for=condition=Ready pod/dns-test --timeout=60s
+	@echo ""
+	@echo "--- Testing DNS resolution ---"
+	@echo "Region 0 → Region 1:"
+	@kubectl --context $(CLUSTER_0) -n $(CAMUNDA_NAMESPACE_0) exec dns-test -- \
+	  nslookup dns-test.$(CAMUNDA_NAMESPACE_1).svc.cluster.local && echo "  ✅ DNS OK" || echo "  ❌ DNS FAILED"
+	@echo ""
+	@echo "Region 1 → Region 0:"
+	@kubectl --context $(CLUSTER_1) -n $(CAMUNDA_NAMESPACE_1) exec dns-test -- \
+	  nslookup dns-test.$(CAMUNDA_NAMESPACE_0).svc.cluster.local && echo "  ✅ DNS OK" || echo "  ❌ DNS FAILED"
+
+.PHONY: clean-dns-test
+clean-dns-test:
+	-kubectl --context $(CLUSTER_0) -n $(CAMUNDA_NAMESPACE_0) delete svc dns-test --grace-period=0
+	-kubectl --context $(CLUSTER_0) -n $(CAMUNDA_NAMESPACE_0) delete pod dns-test --grace-period=0
+	-kubectl --context $(CLUSTER_1) -n $(CAMUNDA_NAMESPACE_1) delete svc dns-test --grace-period=0
+	-kubectl --context $(CLUSTER_1) -n $(CAMUNDA_NAMESPACE_1) delete pod dns-test --grace-period=0
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# CLEANUP
+# ════════════════════════════════════════════════════════════════════════════
+
+.PHONY: clean-generated
+clean-generated: clean-cluster-yaml
+	@echo "🧹 Cleaned generated files"

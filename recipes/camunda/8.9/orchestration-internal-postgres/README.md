@@ -1,97 +1,218 @@
-# Camunda 8 with External Postgres
+# Camunda 8.9 — Orchestration with Internal PostgreSQL
 
-Sample of how to configure 8.9 with Postgres for RDBMS storage using Bitnami postgres that comes bundled with the Camunda Helm Chart.
+This recipe deploys Camunda 8.9 using the unified Orchestration Cluster (Zeebe + Operate + Tasklist + Identity) with an internal PostgreSQL database as secondary storage. No Elasticsearch required.
 
-https://docs.camunda.io/docs/next/self-managed/deployment/helm/configure/database/rdbms/
-
-https://docs.camunda.io/docs/next/self-managed/concepts/databases/relational-db/rdbms-support-policy/#bundled-drivers
-
-## Example Helm Command: 
-
-```shell
-helm upgrade --install --namespace camunda camunda /Users/dave/code/camunda-platform-helm/charts/camunda-platform-8.9 \
--f ./camunda-values.yaml --version 14.0.0-alpha3 --skip-crds
-```
-
-## Features
-
-This profile provides:
-- **Orchestration Cluster**: Configured to use external postgresql database as secondary storage
+Supports both **single-region** and **dual-region** deployments.
 
 ## Prerequisites
 
-- An existing Kubernetes cluster using Kind, Google, AWS or Azure, etc
-- A Postgres database accessible from the cluster (see the `aws/eks-and-aurora-postgres` recipe for an example)
-- `kubectl` configured to connect to your cluster
-- `helm` version 3.7.0 or later
-- GNU `make`
+- A running Kubernetes cluster (see `recipes/aws/eks/` for single-region or `recipes/aws/eks-dual-region/` for dual-region)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) installed and configured
+- [Helm](https://helm.sh/docs/intro/install/) >= 3.9.x
+- [jq](https://jqlang.github.io/jq/download/) installed (for testing targets)
+- GNU `make` installed
 
-## Helm values file
-
-Run `make camunda-values.yaml` to generate a `camunda-values.yaml` file. 
-
-## Install
+## Quick Start — Single-Region
 
 ```bash
+cd recipes/camunda/8.9/orchestration-internal-postgres/
+
+# Deploy
 make
-```
 
-## Verify Installation
-
-Check that all pods are running:
-
-```bash
-make pods
-```
-
-Access the services by starting port forwarding. You will need to port forward to multiple services: 
-
-```shell
+# Verify
 make port-orchestration
-```
+# In another terminal:
+make test-bpmn
 
-Then access:
-- Web Modeler: http://localhost:26500
-- Operate UI: http://localhost:8080/orchestration/operate
-- Tasklist UI: http://localhost:8080/orchestration/tasklist
-
-## Uninstall
-
-```bash
+# Cleanup
 make clean
 ```
 
-This will remove the Camunda installation and clean up all resources.
+## Quick Start — Dual-Region on AWS
 
-## Use Cases
+### Step 1: Provision Infrastructure
 
-This profile is good to understand how to configure Camunda 8.9 with rdbms for secondary storage
+```bash
+cd recipes/aws/eks-dual-region/
 
-## Limitations
+# Create both clusters (run in parallel in separate terminals)
+make create-cluster-region0
+make create-cluster-region1
 
-⚠️ **Important**: This is provided for reference and learning, however it is **not suitable for production** use because:
+# Configure networking
+make configure-vpc-peering
+make configure-dns
+make test-dns
+```
 
-- **No ingress**: There is no ingress controller, or dns, or network routing configured
-- **No high availability**: Single instances of all components
+### Step 2: Deploy Camunda
 
-## Customization
+```bash
+cd recipes/camunda/8.9/orchestration-internal-postgres/
 
-To customize this profile:
+# Deploy to both regions
+make deploy-dual-region CLUSTER_0=<cluster-0> CLUSTER_1=<cluster-1>
+```
 
-1. Edit [`my-camunda-values.yaml`](my-camunda-values.yaml) for additional overrides
-2. Modify `config.mk` at the root project to ovverride default settings found in config.mk
-3. Create additional value files in `../camunda-values.yaml.d/` for reusable configurations
+### Step 3: Verify
 
-## Troubleshooting
+```bash
+# Check topology — should show 4 brokers across 2 regions
+make topology CLUSTER_0=<cluster-0>
 
-### Pods not starting
-- Check resource availability: `kubectl describe nodes`
-- Check pod events: `kubectl describe pod <pod-name> -n camunda`
+# Port-forward and test
+make port-orchestration-region0
+# In another terminal:
+make test-bpmn
+```
 
-### Out of memory errors
-- Even though this is a minimal setup, ensure your cluster has sufficient memory
-- Consider reducing replica counts further if needed
+### Cleanup
 
-### Cannot access services
-- Verify port forwarding is active
-- Check service status: `kubectl get svc -n camunda`
+```bash
+# Remove Camunda from both regions
+make clean-dual-region CLUSTER_0=<cluster-0> CLUSTER_1=<cluster-1>
+
+# Remove infrastructure
+cd ../../aws/eks-dual-region/
+make clean
+```
+
+## Configuration
+
+Override defaults by creating a `config.mk` in the project root or editing `./config.mk`.
+
+### Key Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `CAMUNDA_NAMESPACE` | `camunda` | Namespace for single-region deployment |
+| `CAMUNDA_RELEASE_NAME` | `camunda` | Helm release name |
+| `CAMUNDA_CLUSTER_SIZE` | `1` | Zeebe cluster size (single-region) |
+| `DEFAULT_PASSWORD` | `demo` | Default password for all credentials |
+
+### Dual-Region Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `CLUSTER_0` | *(required)* | kubectl context for region 0 |
+| `CLUSTER_1` | *(required)* | kubectl context for region 1 |
+| `CAMUNDA_NAMESPACE_0` | `camunda-region0` | Namespace in region 0 |
+| `CAMUNDA_NAMESPACE_1` | `camunda-region1` | Namespace in region 1 |
+| `CAMUNDA_CLUSTER_SIZE_DR` | `4` | Total brokers across both regions |
+| `CAMUNDA_REPLICATION_FACTOR_DR` | `4` | Must equal cluster size |
+| `CAMUNDA_PARTITION_COUNT_DR` | `4` | Number of partitions |
+| `AWS_REGION_0` | `us-east-1` | AWS region for cluster 0 |
+| `AWS_REGION_1` | `us-west-2` | AWS region for cluster 1 |
+
+## Dual-Region Architecture
+
+The dual-region deployment uses a hybrid active-active/active-passive architecture:
+
+- **Zeebe**: Active-active — brokers in both regions participate in Raft consensus
+- **Operate/Tasklist**: Active-passive for user traffic, active-active for data
+- **Identity**: Embedded, active-active
+- **PostgreSQL**: Independent instance per region, populated by RDBMS exporter
+
+The chart sets `orchestration.clusterSize: 4` with `global.multiregion.regions: 2`, which creates 2 pods per region. Node IDs are computed as `podIndex * regions + regionId`, giving unique IDs 0, 2 in region 0 and 1, 3 in region 1.
+
+### Network Requirements
+
+Ports that must be open between regions:
+
+| Port | Protocol | Purpose |
+|---|---|---|
+| 26500 | TCP | Zeebe Gateway |
+| 26501-26502 | TCP | Zeebe broker-to-broker |
+| 5432 | TCP | PostgreSQL |
+| 8080 | TCP | REST API |
+| 53 | TCP/UDP | DNS forwarding |
+
+Maximum RTT between regions: **100ms**.
+
+### Limitations
+
+- Identity (multi-tenancy/RBAC): not available
+- Optimize: not supported
+- Connectors: can be deployed but requires idempotency management
+- Web Modeler: not covered
+- OpenSearch: not supported
+
+## Make Targets
+
+Run `make help` for the full list. Key targets:
+
+### Single-Region
+
+| Target | Description |
+|---|---|
+| `all` | Deploy Camunda (generate values + credentials + install) |
+| `clean` | Uninstall Camunda |
+| `port-orchestration` | Port-forward REST API (8080) |
+| `port-zeebe` | Port-forward gRPC (26500) |
+
+### Dual-Region
+
+| Target | Description |
+|---|---|
+| `deploy-dual-region` | Deploy to both regions |
+| `deploy-region0` | Deploy to region 0 only |
+| `deploy-region1` | Deploy to region 1 only |
+| `clean-dual-region` | Uninstall from both regions |
+| `use-region0` / `use-region1` | Switch kubectl context |
+| `port-orchestration-region0` / `region1` | Port-forward per region |
+| `topology` | Check Zeebe cluster topology |
+| `pods-region0` / `pods-region1` | List pods per region |
+
+### Testing
+
+| Target | Description |
+|---|---|
+| `test-bpmn` | Deploy BPMN + create instance + get tasks |
+| `deploy-bpmn` | Deploy a BPMN model (default: `hello_user_task.bpmn`) |
+| `create-instance` | Create a process instance |
+| `get-tasks` | Search for user tasks |
+| `get-definitions` | List process definitions |
+| `get-instances` | List process instances |
+
+### Failure Simulation (requires `AWS_REGION_0`/`AWS_REGION_1`)
+
+| Target | Description |
+|---|---|
+| `simulate-partition` | Remove VPC routes to simulate network outage |
+| `restore-partition` | Re-add VPC routes to restore connectivity |
+
+## Files
+
+| File | Purpose |
+|---|---|
+| `Makefile` | Recipe entry point — includes shared makefiles |
+| `config.mk` | Default configuration variables |
+| `my-camunda-values.yaml` | Recipe-specific Helm values overrides |
+| `DUAL-REGION-PLAYBOOK.md` | Operational playbook for failure scenarios |
+
+### Shared Makefiles (in `makefiles/`)
+
+| File | Purpose |
+|---|---|
+| `camunda.mk` | Core Camunda Helm install/uninstall/port-forward |
+| `camunda-dual-region.mk` | Dual-region deploy, context switching, topology, failure simulation |
+| `camunda-test.mk` | BPMN deploy and REST API test targets |
+| `aws-eks.mk` | EKS cluster creation (single-region) |
+| `aws-eks-dual-region.mk` | VPC peering, DNS chaining, dual-cluster management |
+
+### Helm Values (in `camunda-values.yaml.d/8.9/`)
+
+| File | Purpose |
+|---|---|
+| `disable-all.yaml` | Disables all components (base for composing) |
+| `enable-identity-postgres.yaml` | Enables Identity PostgreSQL |
+| `orchestration-rdbms-postgres.yaml` | Configures RDBMS as secondary storage |
+| `dual-region.yaml` | Dual-region overlay (multiregion, cluster sizing, env vars) |
+
+## Further Reading
+
+- [Camunda dual-region concept](https://docs.camunda.io/docs/next/self-managed/concepts/multi-region/dual-region/)
+- [AWS EKS dual-region setup](https://docs.camunda.io/docs/next/self-managed/deployment/helm/cloud-providers/amazon/amazon-eks/dual-region/)
+- [Failover/failback procedure](https://docs.camunda.io/docs/next/self-managed/deployment/helm/operational-tasks/dual-region-operational-procedure/)
+- [DUAL-REGION-PLAYBOOK.md](./DUAL-REGION-PLAYBOOK.md) — Operational playbook for this recipe
