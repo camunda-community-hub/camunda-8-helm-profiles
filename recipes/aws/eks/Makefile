@@ -15,7 +15,7 @@ include ./config.mk
 all: kube
 
 .PHONY: clean
-clean: clean-ingress-nginx clean-metrics clean-kube
+clean: clean-ingress clean-metrics clean-kube
 
 .PHONY: setup-metrics
 setup-metrics: metrics
