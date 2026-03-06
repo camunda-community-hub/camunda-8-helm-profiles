@@ -25,13 +25,21 @@ letsencrypt-prod-patch:
 	kubectl patch ClusterIssuer letsencrypt --type json -p '[{"op": "replace", "path": "/spec/acme/sever", "value":"$(LETSENCRYPT_PROD_URL)"}]'
 	kubectl describe ClusterIssuer letsencrypt | grep letsencrypt.org
 
-.PHONY: annotate-remove-ingress-tls
-annotate-remove-ingress-tls:
+.PHONY: annotate-remove-http-ingress-tls
+annotate-remove-http-ingress-tls:
 	kubectl -n $(CAMUNDA_NAMESPACE) annotate ingress $(CAMUNDA_INGRESS_NAME) cert-manager.io/cluster-issuer-
 
-.PHONY: annotate-ingress-tls
-annotate-ingress-tls: annotate-remove-ingress-tls
+.PHONY: annotate-http-ingress-tls
+annotate-http-ingress-tls: annotate-remove-http-ingress-tls
 	kubectl -n $(CAMUNDA_NAMESPACE) annotate ingress $(CAMUNDA_INGRESS_NAME) cert-manager.io/cluster-issuer=letsencrypt
+
+.PHONY: annotate-remove-grpc-ingress-tls
+annotate-remove-grpc-ingress-tls:
+	kubectl -n $(CAMUNDA_NAMESPACE) annotate ingress $(CAMUNDA_INGRESS_GRPC_NAME) cert-manager.io/cluster-issuer-
+
+.PHONY: annotate-grpc-ingress-tls
+annotate-grpc-ingress-tls: annotate-remove-grpc-ingress-tls
+	kubectl -n $(CAMUNDA_NAMESPACE) annotate ingress $(CAMUNDA_INGRESS_GRPC_NAME) cert-manager.io/cluster-issuer=letsencrypt
 
 .PHONY: annotate-letsencrypt-stage
 annotate-letsencrypt-stage: annotate-remove-ingress-tls

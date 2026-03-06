@@ -1,0 +1,47 @@
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "dave01.aks.c8sm.com"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+  elasticsearch:
+    enabled: true
+
+orchestration:
+  enabled: true
+  gateway:
+    grpc:
+      enabled: true
+  contextPath: "/"
+  ingress:
+    grpc:
+      enabled: true
+      host: "grpc.dave01.aks.c8sm.com"
+      path: "/"
+      tls:
+        enabled: true
+        secretName: "grpc-tls-secret"
+  data:
+    secondaryStorage:
+      type: elasticsearch
+
+optimize:
+  enabled: false
+elasticsearch:
+  enabled: true
+identity:
+  enabled: false
+identityPostgresql:
+  enabled: false
+identityKeycloak:
+  enabled: false
+console:
+  enabled: false
+webModeler:
+  enabled: false
+webModelerPostgresql:
+  enabled: false
+connectors:
+  enabled: false

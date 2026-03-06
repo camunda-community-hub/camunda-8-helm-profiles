@@ -1,0 +1,24 @@
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    host: "<YOUR_HOSTNAME>"
+    tls:
+      enabled: true
+      secretName: "tls-secret"
+
+orchestration:
+  gateway:
+    grpc:
+      enabled: true
+  contextPath: "/"
+  ingress:
+    grpc:
+      enabled: true
+      host: "grpc.<YOUR_HOSTNAME>"
+      path: "/"
+      tls:
+        enabled: true
+        secretName: "grpc-tls-secret"
+
+

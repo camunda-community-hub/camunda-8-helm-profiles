@@ -1,0 +1,9 @@
+global:
+  elasticsearch:
+    enabled: true
+
+orchestration:
+  enabled: true
+  data:
+    secondaryStorage:
+      type: elasticsearch

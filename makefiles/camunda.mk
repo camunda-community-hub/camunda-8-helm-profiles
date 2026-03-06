@@ -66,6 +66,7 @@ clean-camunda: uninstall-camunda
 camunda-values.yaml: delete-camunda-values
 	yq eval-all '. as $$item ireduce ({}; . * $$item)' $(CAMUNDA_HELM_VALUES) | \
 	sed "s|<CAMUNDA_VERSION>|$(CAMUNDA_VERSION)|g; \
+	     s|<CAMUNDA_NAMESPACE>|$(CAMUNDA_NAMESPACE)|g; \
 	     s|<YOUR_HOSTNAME>|$(HOST_NAME)|g; \
 	     s|<CAMUNDA_CLUSTER_SIZE>|$(CAMUNDA_CLUSTER_SIZE)|g; \
 	     s|<CAMUNDA_REPLICATION_FACTOR>|$(CAMUNDA_REPLICATION_FACTOR)|g; \
