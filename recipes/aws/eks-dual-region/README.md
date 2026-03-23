@@ -65,24 +65,44 @@ This creates two EKS clusters and configures your kubeconfig with aliases.
 
 ### 3. Set up VPC peering
 
-VPC peering must be configured between the two clusters. This is **not automated** by this recipe — use Terraform or the AWS Console. See the [official Camunda docs](https://docs.camunda.io/docs/next/self-managed/deployment/helm/cloud-providers/amazon/amazon-eks/dual-region/) for Terraform examples.
+Configure VPC peering between the two clusters to enable cross-region pod communication:
 
-Required:
-- VPC peering connection accepted in both regions
-- Route tables updated in both VPCs
-- Security groups allowing ports 26500-26502 (Zeebe) and 5432 (PostgreSQL) between VPCs
+```bash
+make configure-vpc-peering
+```
+
+This target automates the full VPC peering setup:
+- Creates a VPC peering connection from Region 0 to Region 1
+- Accepts the peering connection in Region 1
+- Updates route tables in both VPCs to route traffic through the peering connection
+- Configures security groups to allow ports 26500-26502 (Zeebe), 53 (DNS), 5432 (PostgreSQL), and 8080 between VPCs
+
+You can check the peering status with:
+
+```bash
+make vpc-peering-status
+```
 
 ### 4. Configure DNS chaining
 
 ```bash
-# Deploy internal DNS load balancers
-make deploy-dns-lb
+make configure-dns
+```
+This target automates the full DNS chaining setup:
+- Deploys internal DNS load balancers in both clusters
+- Waits for NLBs to be provisioned (with 60s initial delay)
+- Resolves NLB hostnames to IPs
+- Patches CoreDNS in both clusters to forward cross-region namespace queries
+- Restarts CoreDNS deployments
 
-# Generate CoreDNS config (follow the printed instructions)
-make generate-coredns-config
+If the load balancers aren't ready yet (DNS resolution fails), wait and retry:
+
+```bash
+sleep 60 && make apply-coredns-config
 ```
 
-Apply the printed CoreDNS config to each cluster, then verify:
+
+Verify DNS resolution across regions:
 
 ```bash
 make test-dns
@@ -92,9 +112,6 @@ make test-dns
 
 ```bash
 # Deploy to both regions
-make deploy
-
-# Or deploy individually:
 make deploy-region0
 make deploy-region1
 ```
@@ -119,6 +136,9 @@ The topology should show 4 brokers (2 per region), 4 partitions, replication fac
 | `make` | Full setup: clusters + DNS + deploy |
 | `make create-clusters` | Create both EKS clusters |
 | `make configure-kubeconfig` | Set up kubeconfig aliases |
+| `make configure-vpc-peering` | Full VPC peering setup (create, accept, routes, security groups) |
+| `make vpc-peering-status` | Show current VPC peering connection status |
+| `make clean-vpc-peering` | Delete VPC peering connection |
 | `make configure-dns` | Deploy DNS LBs and generate CoreDNS config |
 | `make test-dns` | Test cross-region DNS resolution |
 | `make deploy` | Deploy Camunda to both regions |

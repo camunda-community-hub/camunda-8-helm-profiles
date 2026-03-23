@@ -266,10 +266,36 @@ clean-vpc-peering:
 	  fi; \
 	fi
 
+# ── Kubeconfig Context Management ──────────────────────────────────────────
+
+.PHONY: add-contexts
+add-contexts: add-context-region0 add-context-region1
+	@echo "✅ Both kubectl contexts configured"
+
+.PHONY: add-context-region0
+add-context-region0:
+	@echo "🔧 Adding kubectl context for $(CLUSTER_0) in $(AWS_REGION_0)..."
+	aws eks --region $(AWS_REGION_0) update-kubeconfig --name $(CLUSTER_0) --alias $(CLUSTER_0)
+	@echo "  ✅ Context $(CLUSTER_0) added"
+
+.PHONY: add-context-region1
+add-context-region1:
+	@echo "🔧 Adding kubectl context for $(CLUSTER_1) in $(AWS_REGION_1)..."
+	aws eks --region $(AWS_REGION_1) update-kubeconfig --name $(CLUSTER_1) --alias $(CLUSTER_1)
+	@echo "  ✅ Context $(CLUSTER_1) added"
+
+.PHONY: verify-contexts
+verify-contexts:
+	@echo "🔍 Verifying kubectl contexts..."
+	@kubectl config get-contexts $(CLUSTER_0) > /dev/null 2>&1 && \
+		echo "  ✅ $(CLUSTER_0): OK" || echo "  ❌ $(CLUSTER_0): NOT FOUND. Run: make add-contexts"
+	@kubectl config get-contexts $(CLUSTER_1) > /dev/null 2>&1 && \
+		echo "  ✅ $(CLUSTER_1): OK" || echo "  ❌ $(CLUSTER_1): NOT FOUND. Run: make add-contexts"
+
 # ── DNS Chaining ───────────────────────────────────────────────────────────
 
 .PHONY: configure-dns
-configure-dns: deploy-dns-lb wait-for-dns-lb apply-coredns-config
+configure-dns: verify-contexts deploy-dns-lb wait-for-dns-lb apply-coredns-config
 
 .PHONY: deploy-dns-lb
 deploy-dns-lb:
@@ -280,6 +306,7 @@ deploy-dns-lb:
 .PHONY: wait-for-dns-lb
 wait-for-dns-lb:
 	@echo "⏳ Waiting for DNS LB in region 0..."
+	sleep 60
 	@for i in $$(seq 1 60); do \
 	  ADDR=$$(kubectl --context $(CLUSTER_0) get svc kube-dns-lb -n kube-system \
 	    -o jsonpath='{.status.loadBalancer.ingress[0].hostname}{.status.loadBalancer.ingress[0].ip}' 2>/dev/null); \

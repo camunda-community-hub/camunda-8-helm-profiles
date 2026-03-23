@@ -2,7 +2,7 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: <CLUSTER_NAME>
+  name: <DEPLOYMENT_NAME>
   region: <REGION>
   version: "<CLUSTER_VERSION>"
 
