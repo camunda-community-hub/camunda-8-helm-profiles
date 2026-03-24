@@ -50,6 +50,13 @@ identity:
     secret:
       existingSecret: "camunda-credentials"
       existingSecretKey: "identity-firstuser-password"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 identityKeycloak:
   enabled: true
@@ -62,10 +69,24 @@ identityKeycloak:
   auth:
     existingSecret: "camunda-credentials"
     passwordSecretKey: "identity-keycloak-admin-password"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
 
 optimize:
   enabled: true
   contextPath: "/optimize"
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
 
 connectors:
   enabled: true
@@ -77,6 +98,13 @@ connectors:
         secret:
           existingSecret: "camunda-credentials"
           existingSecretKey: "identity-connectors-client-token"
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 256Mi
+    limits:
+      cpu: 1
+      memory: 1Gi
 
 webModeler:
   enabled: true
@@ -85,6 +113,29 @@ webModeler:
     mail:
       # This value is required, otherwise the restapi pod wouldn't start.
       fromAddress: noreply@example.com
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+  webapp:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  websockets:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
 
 # WebModeler Database.
 webModelerPostgresql:
@@ -94,6 +145,14 @@ webModelerPostgresql:
     secretKeys:
       adminPasswordKey: "webmodeler-postgresql-admin-password"
       userPasswordKey: "webmodeler-postgresql-user-password"
+  primary:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
 
 orchestration:
   enabled: true
@@ -115,12 +174,36 @@ orchestration:
           existingSecret: "camunda-credentials"
           existingSecretKey: "identity-orchestration-client-token"
 
+  pvcSize: 10Gi
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
 console:
   enabled: true
   contextPath: "/console"
+  resources:
+    requests:
+      cpu: 0.05
+      memory: 64Mi
+    limits:
+      cpu: 0.5
+      memory: 256Mi
 
 elasticsearch:
   master:
     replicaCount: 1
     persistence:
       size: 10Gi
+    heapSize: 1g
+    resources:
+      requests:
+          cpu: 0.5
+          memory: 1536Mi
+      limits:
+          cpu: 2
+          memory: 3Gi
