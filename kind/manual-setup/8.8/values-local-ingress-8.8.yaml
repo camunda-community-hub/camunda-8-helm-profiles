@@ -186,6 +186,13 @@ orchestration:
 console:
   enabled: true
   contextPath: "/console"
+  # env:
+  #   - name: CAMUNDA_CONSOLE_CUSTOMERID
+  #     value: customername
+  #   - name: CAMUNDA_CONSOLE_INSTALLATIONID
+  #     value: my-deployment
+  #   - name: CAMUNDA_CONSOLE_TELEMETRY
+  #     value: download
   resources:
     requests:
       cpu: 0.05
@@ -207,3 +214,10 @@ elasticsearch:
       limits:
           cpu: 2
           memory: 3Gi
+
+
+# prometheusServiceMonitor:
+#   enabled: true
+#   labels:
+#     release: prometheus
+#   scrapeInterval: 10s
