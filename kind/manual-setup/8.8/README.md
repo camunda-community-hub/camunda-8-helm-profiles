@@ -3,6 +3,9 @@
 This document describes a step-by-step guide to create a full Camunda 8 cluster with all Components, Ingress and TLS configuration. Run all commands in the exact order as described here.
 
 ## Prerequisites
+
+Container runtime with at least 4 CPU and 8GB Memory allocated.
+
 Add the following entries in your /etc/hosts file
 ```
     127.0.0.1 zeebe.camunda.local
@@ -82,7 +85,10 @@ run all commands in [./SSL/openSslCommands.md](./SSL/openSslCommands.md)
 ## OPTIONAL Configure Desktop Modeler
 
   - Create a new Application in [Management Identity](https://camunda.local/identity) with name desktopmodeler
+  - Grant permission (read/write) to Orchestration-API
   - Authorize this client in [Orchestration Identity](https://camunda.local/orchestration/identity) to RESOURCE * with Create permission
+  - Authorize this client in [Orchestration Identity](https://camunda.local/orchestration/identity) to PROCESS_DEFINITION * with all permissions
+
   - Configure Desktop Modeler:
 ```
     Cluster Endpoint: https://camunda.local/orchestration
