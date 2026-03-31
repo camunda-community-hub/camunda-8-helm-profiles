@@ -1,0 +1,65 @@
+# Dual-Region configuration for Camunda 8.9
+#
+# This values overlay configures Camunda for dual-region deployment.
+# Use in combination with orchestration-rdbms-postgres.yaml and enable-identity-postgres.yaml
+#
+# IMPORTANT: clusterSize is the TOTAL across both regions. The chart automatically
+# divides by global.multiregion.regions for StatefulSet replicas.
+# e.g. clusterSize=4 with regions=2 → 2 pods per region.
+#
+# Placeholders to be substituted:
+#   <REGION_ID>                       - 0 or 1
+#   <CAMUNDA_CLUSTER_SIZE>            - Total brokers across both regions (e.g. 4)
+#   <CAMUNDA_REPLICATION_FACTOR>      - Must equal clusterSize for dual-region (e.g. 4)
+#   <CAMUNDA_PARTITION_COUNT>         - Number of partitions (e.g. 4)
+#   <ZEEBE_INITIAL_CONTACT_POINTS>    - Comma-separated list of all brokers in both regions
+#
+# References:
+#   https://docs.camunda.io/docs/next/self-managed/concepts/multi-region/dual-region/
+#   https://docs.camunda.io/docs/next/self-managed/deployment/helm/cloud-providers/amazon/amazon-eks/dual-region/
+
+global:
+  multiregion:
+    regions: 2
+    regionId: <REGION_ID>
+  identity:
+    auth:
+      enabled: false
+
+orchestration:
+  clusterSize: "<CAMUNDA_CLUSTER_SIZE>"
+  replicationFactor: "<CAMUNDA_REPLICATION_FACTOR>"
+  partitionCount: "<CAMUNDA_PARTITION_COUNT>"
+  env:
+    # Spring Boot relaxed binding: overrides camunda.cluster.initial-contact-points YAML array
+    - name: CAMUNDA_CLUSTER_INITIAL-CONTACT-POINTS
+      value: "<ZEEBE_INITIAL_CONTACT_POINTS>"
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+      value: "500ms"
+    - name: ZEEBE_BROKER_CLUSTER_MEMBERSHIP_PROBEINTERVAL
+      value: "2s"
+    - name: ZEEBE_BROKER_EXPERIMENTAL_RAFT_SNAPSHOTREQUESTTIMEOUT
+      value: "10s"
+    - name: ZEEBE_BROKER_CLUSTER_MESSAGECOMPRESSION
+      value: "GZIP"
+    - name: ZEEBE_BROKER_BACKPRESSURE_AIMD_REQUESTTIMEOUT
+      value: "1s"
+
+  gateway:
+    env:
+      - name: ZEEBE_GATEWAY_CLUSTER_MESSAGECOMPRESSION
+        value: "GZIP"
+      - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBETIMEOUT
+        value: "500ms"
+      - name: ZEEBE_GATEWAY_CLUSTER_MEMBERSHIP_PROBEINTERVAL
+        value: "2s"
+
+# Disable components not supported in dual-region
+#identity:
+#  enabled: false
+#identityKeycloak:
+#  enabled: false
+#optimize:
+#  enabled: false
+#connectors:
+#  enabled: false

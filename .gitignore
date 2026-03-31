@@ -1,4 +1,6 @@
 .idea/
+*.iml
+**/.DS_Store
 workspace.code-workspace
 ingress-azure/camunda-values-azure.yaml
 ingress-aws/camunda-values-aws.yaml
@@ -60,4 +62,7 @@ kind/manual-setup/8.8/SSL/camunda-local-tls.crt
 **/ebs-csi-driver-trust-policy.json
 aws/eks/ebs-csi-driver-trust-policy.json
 **/camunda-values.yaml
+**/camunda-values-*.yaml
+**/camunda-values-*-*.yaml
+**/camunda-values-*-*-*.yaml
 /config.mk
