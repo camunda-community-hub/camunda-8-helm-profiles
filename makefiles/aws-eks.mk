@@ -133,3 +133,22 @@ check-aws-cli:
 	@aws sts get-caller-identity --query "Arn" --output text > /dev/null 2>&1 || \
 		(echo "❌ Error: AWS token is expired or missing. Run 'aws sso login' or refresh your credentials." && exit 1)
 	@echo "✅ AWS session is valid: $$(aws sts get-caller-identity --query 'Arn' --output text)"
+
+.PHONY: scale-to-zero
+scale-down: check-aws-cli
+	@echo "Scaling all node groups in cluster $(DEPLOYMENT_NAME) to 0..."
+	@for ng in $$(eksctl get nodegroup --cluster $(DEPLOYMENT_NAME) --region $(AWS_REGION) -o json | grep -o '"Name":"[^"]*"' | cut -d'"' -f4); do \
+		echo "Scaling node group $$ng to 0..."; \
+		eksctl scale nodegroup --cluster $(DEPLOYMENT_NAME) --region $(AWS_REGION) --name $$ng --nodes 0 --nodes-min 0; \
+	done
+	@echo "✅ All node groups scaled to 0."
+
+.PHONY: scale-up-nodegroup
+scale-up-nodegroup: check-aws-cli
+	@echo "Scaling node group $(NODEGROUP_NAME) in cluster $(DEPLOYMENT_NAME) to $(SCALE_SIZE) (min=$(SCALE_MIN), max=$(SCALE_MAX))..."
+	eksctl scale nodegroup --cluster $(DEPLOYMENT_NAME) --region $(AWS_REGION) --name $(NODEGROUP_NAME) --nodes $(SCALE_SIZE) --nodes-min $(SCALE_MIN) --nodes-max $(SCALE_MAX)
+	@echo "✅ Node group $(NODEGROUP_NAME) scaled to $(SCALE_SIZE)."
+
+.PHONY: scale-up
+scale-up:
+	$(MAKE) scale-up-nodegroup NODEGROUP_NAME=$(NODEGROUP_NAME) SCALE_SIZE=$(DESIRED_SIZE)
