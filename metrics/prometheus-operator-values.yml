@@ -7,7 +7,7 @@ grafana:
     cloud.google.com/gke-nodepool: default-pool
 #    alpha.eksctl.io/nodegroup-name: c7g-8xlarge
   image:
-    tag: 11.6.7
+    tag: 12.3.2
   admin:
     existingSecret: grafana-admin-password
     userKey: admin-user
@@ -69,7 +69,7 @@ prometheus:
         cpu: 1
         memory: 4Gi
     retention: 365d
-    shards: null
+    shards: 1
     storageSpec:
       volumeClaimTemplate:
         metadata:
@@ -87,3 +87,4 @@ prometheus:
     nodeSelector:
       cloud.google.com/gke-nodepool: default-pool
 #      alpha.eksctl.io/nodegroup-name: c7g-8xlarge
+

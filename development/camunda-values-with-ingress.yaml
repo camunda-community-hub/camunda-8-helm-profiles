@@ -17,6 +17,17 @@ global:
       # Disable the Identity authentication
       # it will fall back to basic-auth: demo/demo as default user
       enabled: false
+  ## Document Store Configuration
+  documentStore:
+    activeStoreId: "inmemory"
+    type:
+      inmemory:
+        ## @param global.documentStore.type.inmemory.enabled Enable in-memory document store configuration.
+        enabled: true
+        ## @param global.documentStore.type.inmemory.storeId Custom prefix for in-memory. Default will generate env vars containing 'storeId' such as DOCUMENT_STORE_INMEMORY_CLASS.
+        storeId: "INMEMORY"
+        ## @param global.documentStore.type.inmemory.class Fully qualified class name for the in-memory document store provider.
+        class: "io.camunda.document.store.inmemory.InMemoryDocumentStoreProvider"
 
 identity:
   enabled: false
@@ -34,11 +45,7 @@ connectors:
   enabled: true
   inbound:
     mode: credentials
-  ingress:
-    enabled: true
-# TODO: not sure why this doesn't seem to work?
-#    path: "/connectors"
-    host: "localhost"
+  contextPath: "/connectors"
   resources:
     requests:
       cpu: "100m"

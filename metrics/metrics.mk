@@ -5,7 +5,7 @@ metrics: grafana-secret.yaml
 	helm repo update prometheus-community stable
 	kubectl apply -f ./grafana-secret.yaml -n default
 	@echo " ************  Grafana password : [$$(grep 'admin-password' ./grafana-secret.yaml | grep -v 'name:'  | cut -d':' -f2- | sed 's/\r//' | xargs )] **********"
-	helm install metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
+	helm install metrics prometheus-community/kube-prometheus-stack --wait -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 	kubectl apply -f $(root)/metrics/grafana-load-balancer.yml -n default
 
 #    echo "Grafana password : [$(grep "admin-password" grafana-secret.yaml | cut -d':' -f2- | xargs)]"
@@ -17,13 +17,20 @@ grafana-password:
 
 .PHONY: update-metrics
 update-metrics:
-	helm upgrade metrics prometheus-community/kube-prometheus-stack --wait --atomic -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
+	helm upgrade metrics prometheus-community/kube-prometheus-stack --wait -f $(root)/metrics/prometheus-operator-values.yml --set prometheusOperator.tlsProxy.enabled=false --namespace default
 
 .PHONY: clean-metrics
 clean-metrics:
 	-kubectl delete -f $(root)/metrics/grafana-load-balancer.yml -n default
 	-helm uninstall metrics --namespace default
-	-kubectl delete -f $(root)/metrics/grafana-secret.yml -n default
+	-@if [ -f $(root)/metrics/grafana-secret.yml ]; then \
+		kubectl delete -f $(root)/metrics/grafana-secret.yml -n default; \
+		rm -f $(root)/metrics/grafana-secret.yml; \
+	fi
+	-@if [ -f grafana-secret.yaml ]; then \
+		kubectl delete -f ./grafana-secret.yaml -n default; \
+		rm -f ./grafana-secret.yaml; \
+	fi
 #	-kubectl delete -f $(include-dir)/ssd-storageclass.yaml -n default
 	-kubectl delete pvc -l app.kubernetes.io/name=prometheus -n default
 	-kubectl delete pvc -l app.kubernetes.io/name=grafana -n default
@@ -47,4 +54,4 @@ open-grafana:
 grafana-secret.yaml:
 	$(eval base64Password := $(shell echo $(grafanaPassword) | base64))
 	echo $(base64Password)
-	sed "s/<GRAFANA_PASSWORD>/$(base64Password)/g;" $(root)/metrics/grafana-secret.tpl.yml > ./grafana-secret.yaml
+	@sed "s/<GRAFANA_PASSWORD>/$(base64Password)/g;" $(root)/metrics/grafana-secret.tpl.yml > ./grafana-secret.yaml

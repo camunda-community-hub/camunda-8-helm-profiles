@@ -17,8 +17,5 @@ export machineType=n1-standard-16
 export minSize=1
 export maxSize=50
 
-export camundaDockerRegistrySecretName="camunda-docker-registry"
-export camundaDockerRegistryUrl="https://registry.camunda.cloud/"
-export camundaDockerRegistryUsername="xxx"
-export camundaDockerRegistryPassword="xxx"
-export camundaDockerRegistryEmail="xxx"
+# echo demo | base64
+export base64Secret="ZGVtbwo="

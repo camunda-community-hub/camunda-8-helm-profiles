@@ -6,7 +6,9 @@ ingress-nginx:
 	helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	helm repo update ingress-nginx
 	helm search repo ingress-nginx
+	@echo "Installing ingress-nginx Helm chart. This may take a few minutes..."
 	helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait
+	@echo "Installation of ingress-nginx Helm chart completed successfully."
 
 #	  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace --wait \
 #	  --set controller.service.annotations."nginx\.ingress.kubernetes.io/ssl-redirect"="true" \
@@ -25,13 +27,13 @@ ingress-nginx-tls:
 
 .PHONY: ingress-ip-from-service
 ingress-ip-from-service:
-	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.ip}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
-	@echo "Ingress controller uses IP address: $(IP)"
+	$(eval ELB_ID := $(shell kubectl get service ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' -n ingress-nginx | cut -d'.' -f 1 | cut -d'-' -f 1))
+	@echo "Ingress controller uses ELB_IP address: $(ELB_ID)"
 
 .PHONY: ingress-hostname-from-service
 ingress-hostname-from-service:
-	$(eval IP := $(shell kubectl get service -w ingress-nginx-controller -o 'go-template={{with .status.loadBalancer.ingress}}{{range .}}{{.hostname}}{{"\n"}}{{end}}{{.err}}{{end}}' -n ingress-nginx 2>/dev/null | head -n1))
-	@echo "Ingress controller uses hostname: $(IP)"
+	$(eval HOST_NAME := $(shell kubectl get service ingress-nginx-controller  -n ingress-nginx  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}'))
+	@echo "Ingress controller uses hostname: $(HOST_NAME)"
 
 # If `baseDomainName` is set to `nip.io`, then find ip address from service to create fully qualified domain name
 # Otherwise, just use domain name that was specified in Makefile

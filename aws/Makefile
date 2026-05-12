@@ -15,6 +15,8 @@ desiredSize ?= 3
 minSize ?= 1
 maxSize ?= 6
 
+nodePoolMachineType ?= c8g.4xlarge
+
 # ------------------------------------
 # The following variables should not be changed except for advanced use cases
 ifeq ($(OS),Windows_NT)

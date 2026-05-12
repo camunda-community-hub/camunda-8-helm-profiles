@@ -8,7 +8,7 @@ Step 2: Setup command line tools for AWS:
 
 1. Verify `aws` command line tool is installed (https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
-       aws --help
+       aws help
 
 2. Configure `aws` to connect to your account. If you don't already have one, you'll need to sign up for a new
    AWS Account. Use the following command to configure the `aws` tool to use your AWS Access Key ID and secret.

@@ -8,7 +8,7 @@ cert-manager:
 	helm install cert-manager jetstack/cert-manager \
 	--namespace cert-manager \
   	--create-namespace \
-  	--version v1.9.1 \
+  	--version v1.19.3 \
 	--set installCRDs=true
 
 .PHONY: letsencrypt-staging
