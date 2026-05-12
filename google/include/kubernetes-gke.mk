@@ -78,8 +78,8 @@ use-kube:
 
 .PHONY: urls
 urls:
-	@echo "Cluster: https://console.cloud.google.com/kubernetes/clusters/details/$(region)/$(clusterName)/details?project=$(project)"
-	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload_/gcloud/$(region)/$(clusterName)?project=$(project)"
+	@echo "Cluster: https://console.cloud.google.com/kubernetes/clusters/details/$(strip $(region))/$(clusterName)/details?project=$(project)"
+	@echo "Workloads: https://console.cloud.google.com/kubernetes/workload_/gcloud/$(strip $(region))/$(clusterName)?project=$(project)"
 
 # List pvcs associated with the cluster
 .PHONY: disks
