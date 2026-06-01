@@ -9,3 +9,8 @@ In opposite to the above picture/documentation, Elasticsearch is installed as a 
 [![Elasticsearch 2.5-region stretch cluster](https://media.licdn.com/dms/image/v2/D5612AQEXNDJ8c1DCVw/article-inline_image-shrink_1500_2232/article-inline_image-shrink_1500_2232/0/1667946099753?e=1750896000&v=beta&t=ItGnEzQnubzaaBcgMzqRgkc76NGGIognTjZbPN0ii78)](https://www.linkedin.com/pulse/building-on-prem-multi-datacenter-stretch-cluster-senguttuvan/)
 
 Adjust the config.mk files in the region subfolders before running `make` either in the region folders or even in the root. You can run `make help` to see available targets. Running `make --dry-run` shows a preview of the commands to be executed.
+
+Accoring to the [Elasticsearch documentation](https://www.elastic.co/docs/deploy-manage/deploy/cloud-enterprise/ece-networking-prereq) the following is required:
+
+* A typical network latency between the data centers of less than 10ms round-trip time during pings
+* A network bandwidth of at least 10 Gigabit
