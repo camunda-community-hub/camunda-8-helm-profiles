@@ -31,20 +31,28 @@ kube-gke:
 
 .PHONY: kube-node-pool # create an additional Kubernetes node pool
 kube-node-pool:
-	gcloud beta container node-pools create "pool-$(nodePoolMachineType)" \
+	@NODE_POOL="pool-$(nodePoolMachineType)"; \
+	if gcloud container node-pools describe "$$NODE_POOL" \
 	  --project $(project) \
 	  --cluster $(clusterName) \
-	  --region $(region) \
-	  --machine-type "$(nodePoolMachineType)" \
-	  --min-cpu-platform=$(nodePoolMinCpuPlatform) \
-	  --disk-size "16" \
-	  --spot \
-	  --num-nodes=0 \
-	  --enable-autoscaling --total-min-nodes "0" --total-max-nodes $(maxSize) --location-policy "ANY" \
-	  --node-taints $(nodePoolTaints) \
-	  --enable-autoupgrade \
-	  --enable-autorepair \
-	  --max-surge-upgrade 0 --max-unavailable-upgrade 1
+	  --region $(region) >/dev/null 2>&1; then \
+	  echo "Node pool $$NODE_POOL already exists, skipping creation."; \
+	else \
+	  gcloud beta container node-pools create "$$NODE_POOL" \
+	    --project $(project) \
+	    --cluster $(clusterName) \
+	    --region $(region) \
+	    --machine-type "$(nodePoolMachineType)" \
+	    --min-cpu-platform=$(nodePoolMinCpuPlatform) \
+	    --disk-size "16" \
+	    --spot \
+	    --num-nodes=0 \
+	    --enable-autoscaling --total-min-nodes "0" --total-max-nodes $(maxSize) --location-policy "ANY" \
+	    --node-taints $(nodePoolTaints) \
+	    --enable-autoupgrade \
+	    --enable-autorepair \
+	    --max-surge-upgrade 0 --max-unavailable-upgrade 1; \
+	fi
 # C4 requires hyperdisk. Thus letting GKE pick the disk type.
 #	  --disk-type "pd-ssd" # this should only be needed for working with local storage, i.e. without PVC \
 #	  --disk-size "16" # 100GiB is the default.\
