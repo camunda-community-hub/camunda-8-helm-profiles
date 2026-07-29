@@ -63,8 +63,7 @@ prometheus:
   prometheusSpec:
     resources:
       limits:
-        cpu: 8
-        memory: 24Gi
+        memory: 13Gi
       requests:
         cpu: 1
         memory: 4Gi
@@ -85,6 +84,6 @@ prometheus:
               storage: 100Gi
           storageClassName: ssd
     nodeSelector:
-      cloud.google.com/gke-nodepool: default-pool
+      cloud.google.com/gke-nodepool: pool-n2-standard-4
 #      alpha.eksctl.io/nodegroup-name: c7g-8xlarge
 
